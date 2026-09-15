@@ -12,6 +12,8 @@ import {
   updateDoc,
 } from 'firebase/firestore';
 import {
+  AUTHOR_UID,
+  OTHER_UID,
   createTestEnvironment,
   stringOfLength,
   thumbnailUrlFor,
@@ -21,15 +23,24 @@ import {
 
 let testEnv;
 
+/** The article document as seen by the signed-in author. */
 function articleRef(id = 'article-1') {
+  return doc(testEnv.authenticatedContext(AUTHOR_UID).firestore(), 'articles', id);
+}
+
+function asOther(id = 'article-1') {
+  return doc(testEnv.authenticatedContext(OTHER_UID).firestore(), 'articles', id);
+}
+
+function asAnonymous(id = 'article-1') {
   return doc(testEnv.unauthenticatedContext().firestore(), 'articles', id);
 }
 
 /** Writes a valid article bypassing rules, so update/delete tests start from real data. */
-async function seedArticle(id = 'article-1') {
+async function seedArticle(id = 'article-1', overrides = {}) {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await setDoc(doc(context.firestore(), 'articles', id), {
-      ...validArticle(),
+      ...validArticle(overrides),
       createdAt: Timestamp.fromDate(new Date('2026-09-01T00:00:00Z')),
       updatedAt: Timestamp.fromDate(new Date('2026-09-01T00:00:00Z')),
     });
@@ -49,8 +60,9 @@ after(async () => {
 });
 
 describe('articles: read', () => {
-  it('allows anyone to read a single article', async () => {
+  it('allows anyone, signed in or not, to read a single article', async () => {
     await seedArticle();
+    await assertSucceeds(getDoc(asAnonymous()));
     await assertSucceeds(getDoc(articleRef()));
   });
 
@@ -82,6 +94,36 @@ describe('articles: create with a valid document', () => {
     });
     await assertSucceeds(setDoc(articleRef(), article));
   });
+
+  it('accepts an article without a summary', async () => {
+    await assertSucceeds(setDoc(articleRef(), validArticle({ description: null })));
+  });
+
+  it('accepts an article without a thumbnail when both fields are null', async () => {
+    await assertSucceeds(
+      setDoc(articleRef(), validArticle({ thumbnailURL: null, thumbnailPath: null })),
+    );
+  });
+
+  for (const category of ['business', 'technology', 'science', 'health', 'sports', 'entertainment']) {
+    it(`accepts the "${category}" category`, async () => {
+      await assertSucceeds(setDoc(articleRef(), validArticle({ category })));
+    });
+  }
+});
+
+describe('articles: create requires the signed-in author', () => {
+  it('rejects a create without a signed-in user', async () => {
+    await assertFails(setDoc(asAnonymous(), validArticle()));
+  });
+
+  it('rejects an authorId that is not the caller', async () => {
+    await assertFails(setDoc(articleRef(), validArticle({ authorId: OTHER_UID })));
+  });
+
+  it('rejects an empty authorId', async () => {
+    await assertFails(setDoc(articleRef(), validArticle({ authorId: '' })));
+  });
 });
 
 describe('articles: create rejects malformed shape', () => {
@@ -90,6 +132,8 @@ describe('articles: create rejects malformed shape', () => {
     'description',
     'content',
     'author',
+    'authorId',
+    'category',
     'thumbnailURL',
     'thumbnailPath',
     'publishedAt',
@@ -104,6 +148,10 @@ describe('articles: create rejects malformed shape', () => {
   it('rejects unknown extra fields', async () => {
     await assertFails(setDoc(articleRef(), validArticle({ likes: 0 })));
   });
+
+  it('rejects a category outside the list', async () => {
+    await assertFails(setDoc(articleRef(), validArticle({ category: 'gossip' })));
+  });
 });
 
 describe('articles: create rejects invalid strings', () => {
@@ -113,6 +161,10 @@ describe('articles: create rejects invalid strings', () => {
 
   it('rejects a title longer than 150 characters', async () => {
     await assertFails(setDoc(articleRef(), validArticle({ title: stringOfLength(151) })));
+  });
+
+  it('rejects an empty description (use null to omit it)', async () => {
+    await assertFails(setDoc(articleRef(), validArticle({ description: '' })));
   });
 
   it('rejects a description longer than 300 characters', async () => {
@@ -165,6 +217,11 @@ describe('articles: create rejects invalid thumbnails', () => {
       setDoc(articleRef(), validArticle({ thumbnailPath: 'media/articles/2026/photo.jpg' })),
     );
   });
+
+  it('rejects a URL without a path, and a path without a URL', async () => {
+    await assertFails(setDoc(articleRef(), validArticle({ thumbnailPath: null })));
+    await assertFails(setDoc(articleRef(), validArticle({ thumbnailURL: null })));
+  });
 });
 
 describe('articles: create rejects forged timestamps', () => {
@@ -184,10 +241,42 @@ describe('articles: create rejects forged timestamps', () => {
 });
 
 describe('articles: update', () => {
-  it('allows editing content when updatedAt is refreshed from the server', async () => {
+  it('allows the author to edit content when updatedAt is refreshed from the server', async () => {
     await seedArticle();
     await assertSucceeds(
       updateDoc(articleRef(), { content: 'Corrected body.', updatedAt: serverTimestamp() }),
+    );
+  });
+
+  it('allows the author to drop the thumbnail', async () => {
+    await seedArticle();
+    await assertSucceeds(
+      updateDoc(articleRef(), {
+        thumbnailURL: null,
+        thumbnailPath: null,
+        updatedAt: serverTimestamp(),
+      }),
+    );
+  });
+
+  it('rejects an update by somebody who is not the author', async () => {
+    await seedArticle();
+    await assertFails(
+      updateDoc(asOther(), { content: 'Vandalised.', updatedAt: serverTimestamp() }),
+    );
+  });
+
+  it('rejects an update without a signed-in user', async () => {
+    await seedArticle();
+    await assertFails(
+      updateDoc(asAnonymous(), { content: 'Vandalised.', updatedAt: serverTimestamp() }),
+    );
+  });
+
+  it('rejects handing the article to another author', async () => {
+    await seedArticle();
+    await assertFails(
+      updateDoc(articleRef(), { authorId: OTHER_UID, updatedAt: serverTimestamp() }),
     );
   });
 
@@ -220,15 +309,21 @@ describe('articles: update', () => {
 });
 
 describe('articles: delete', () => {
-  it('allows deleting an article', async () => {
+  it('allows the author to delete their article', async () => {
     await seedArticle();
     await assertSucceeds(deleteDoc(articleRef()));
+  });
+
+  it('rejects a delete by somebody else or by an anonymous caller', async () => {
+    await seedArticle();
+    await assertFails(deleteDoc(asOther()));
+    await assertFails(deleteDoc(asAnonymous()));
   });
 });
 
 describe('other collections', () => {
   it('denies writes to collections that are not part of the schema', async () => {
-    const db = testEnv.unauthenticatedContext().firestore();
+    const db = testEnv.authenticatedContext(AUTHOR_UID).firestore();
     await assertFails(setDoc(doc(db, 'users', 'u1'), { name: 'Mallory' }));
   });
 

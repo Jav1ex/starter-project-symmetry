@@ -1,13 +1,18 @@
 import { after, before, beforeEach, describe, it } from 'node:test';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import { deleteObject, getBytes, ref, uploadBytes } from 'firebase/storage';
-import { createTestEnvironment, fakeImageBytes } from './helpers.js';
+import { AUTHOR_UID, createTestEnvironment, fakeImageBytes } from './helpers.js';
 
 const FIVE_MIB = 5 * 1024 * 1024;
 
 let testEnv;
 
+/** The object as seen by a signed-in journalist. */
 function objectRef(path) {
+  return ref(testEnv.authenticatedContext(AUTHOR_UID).storage(), path);
+}
+
+function anonymousRef(path) {
   return ref(testEnv.unauthenticatedContext().storage(), path);
 }
 
@@ -122,6 +127,14 @@ describe('media/articles: upload rejected files', () => {
     );
   });
 
+  it('rejects an upload without a signed-in user', async () => {
+    await assertFails(
+      uploadBytes(anonymousRef('media/articles/photo.jpg'), fakeImageBytes(), {
+        contentType: 'image/jpeg',
+      }),
+    );
+  });
+
   it('rejects an upload at the bucket root', async () => {
     await assertFails(
       uploadBytes(objectRef('photo.jpg'), fakeImageBytes(), { contentType: 'image/jpeg' }),
@@ -130,14 +143,20 @@ describe('media/articles: upload rejected files', () => {
 });
 
 describe('media/articles: read and delete', () => {
-  it('allows anyone to download a thumbnail', async () => {
+  it('allows anyone, signed in or not, to download a thumbnail', async () => {
     await seedImage();
+    await assertSucceeds(getBytes(anonymousRef('media/articles/seed.jpg')));
     await assertSucceeds(getBytes(objectRef('media/articles/seed.jpg')));
   });
 
-  it('allows deleting a thumbnail', async () => {
+  it('allows a signed-in journalist to delete a thumbnail', async () => {
     await seedImage();
     await assertSucceeds(deleteObject(objectRef('media/articles/seed.jpg')));
+  });
+
+  it('rejects a delete without a signed-in user', async () => {
+    await seedImage();
+    await assertFails(deleteObject(anonymousRef('media/articles/seed.jpg')));
   });
 
   it('denies reading objects outside media/articles/', async () => {

@@ -12,6 +12,10 @@ const backendDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 export const PROJECT_ID = 'news-app-rules-test';
 export const BUCKET = 'back-pruebasymmetry.firebasestorage.app';
 
+/** The journalist most tests act as, and somebody else. */
+export const AUTHOR_UID = 'journalist-1';
+export const OTHER_UID = 'journalist-2';
+
 /**
  * Boots a rules test environment against the running emulators.
  * Host and port are read from the FIRESTORE_EMULATOR_HOST and
@@ -37,6 +41,8 @@ export function validArticle(overrides = {}) {
     description: 'Twelve kilometres of protected lanes will be built downtown by 2027.',
     content: 'The city council voted 9-2 on Tuesday to approve the plan.',
     author: 'Nelson Rojas',
+    authorId: AUTHOR_UID,
+    category: 'general',
     thumbnailURL: thumbnailUrlFor('bike-lanes.jpg'),
     thumbnailPath: 'media/articles/bike-lanes.jpg',
     publishedAt: Timestamp.fromDate(new Date('2026-09-15T10:00:00Z')),

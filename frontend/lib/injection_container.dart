@@ -1,7 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:get_it/get_it.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:news_app_clean_architecture/features/auth/data/repository/in_memory_auth_repository.dart';
+import 'package:news_app_clean_architecture/features/auth/data/data_sources/remote/firebase_auth_service.dart';
+import 'package:news_app_clean_architecture/features/auth/data/repository/auth_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/delete_account.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/get_current_user.dart';
@@ -14,13 +19,15 @@ import 'package:news_app_clean_architecture/features/auth/presentation/bloc/sess
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/sign_in/sign_in_cubit.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/sign_up/sign_up_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/app_database.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/article_firestore_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/device/device_image_picker.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_thumbnail_storage_repository.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/thumbnail_storage_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/image_picker_repository_impl.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_user_article_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/news_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/saved_article_repository_impl.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/repository/thumbnail_storage_repository_impl.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/repository/user_article_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/news_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/image_picker_repository.dart';
@@ -45,12 +52,14 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/publish/publish_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/search/search_cubit.dart';
-import 'package:news_app_clean_architecture/features/settings/data/repository/in_memory_settings_repository.dart';
+import 'package:news_app_clean_architecture/features/settings/data/data_sources/local/settings_local_data_source.dart';
+import 'package:news_app_clean_architecture/features/settings/data/repository/settings_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/repository/settings_repository.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/get_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/save_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/watch_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
 
@@ -69,24 +78,30 @@ Future<void> _registerDataSources() async {
   sl.registerSingleton<Dio>(Dio());
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
   sl.registerSingleton<DeviceImagePicker>(DeviceImagePicker(ImagePicker()));
+  sl.registerSingleton<ArticleFirestoreService>(ArticleFirestoreService(FirebaseFirestore.instance));
+  sl.registerSingleton<ThumbnailStorageService>(ThumbnailStorageService(FirebaseStorage.instance));
+  await GoogleSignIn.instance.initialize();
+  sl.registerSingleton<FirebaseAuthService>(
+    FirebaseAuthService(FirebaseAuth.instance, GoogleSignIn.instance),
+  );
+  sl.registerSingleton<SettingsLocalDataSource>(
+    SettingsLocalDataSource(await SharedPreferences.getInstance()),
+  );
 }
 
-/// Provider news and on-device bookmarks use their real implementations.
-/// Journalist articles, thumbnails, authentication and settings run on
-/// in-memory stand-ins until the Firebase data layer lands; swapping them is a
-/// one-line change per repository.
+/// Every repository is backed by its real service: the news provider,
+/// SQLite for bookmarks, Firestore for articles, Cloud Storage for photos,
+/// Firebase Auth for accounts and the platform key-value store for settings.
 void _registerRepositories() {
   sl.registerSingleton<NewsRepository>(NewsRepositoryImpl(sl()));
   sl.registerSingleton<SavedArticleRepository>(
     SavedArticleRepositoryImpl(sl<AppDatabase>().savedArticleDao),
   );
-  sl.registerSingleton<UserArticleRepository>(InMemoryUserArticleRepository());
-  sl.registerSingleton<ThumbnailStorageRepository>(
-    InMemoryThumbnailStorageRepository(),
-  );
-  sl.registerSingleton<AuthRepository>(InMemoryAuthRepository());
+  sl.registerSingleton<UserArticleRepository>(UserArticleRepositoryImpl(sl()));
+  sl.registerSingleton<ThumbnailStorageRepository>(ThumbnailStorageRepositoryImpl(sl()));
   sl.registerSingleton<ImagePickerRepository>(ImagePickerRepositoryImpl(sl()));
-  sl.registerSingleton<SettingsRepository>(InMemorySettingsRepository());
+  sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
+  sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
 }
 
 void _registerArticleUseCases() {
