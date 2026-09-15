@@ -14,8 +14,28 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/empty_state.dart';
 
 /// Today's Brief, full screen: topics → card stack → summary.
-class BriefScreen extends StatelessWidget {
+class BriefScreen extends StatefulWidget {
   const BriefScreen({super.key});
+
+  @override
+  State<BriefScreen> createState() => _BriefScreenState();
+}
+
+class _BriefScreenState extends State<BriefScreen> {
+  late final ListenCubit _listen;
+
+  @override
+  void initState() {
+    super.initState();
+    _listen = context.read<ListenCubit>();
+  }
+
+  @override
+  void dispose() {
+    // Closing the brief silences whatever card was being read.
+    _listen.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -57,13 +77,23 @@ class BriefScreen extends StatelessWidget {
                 context.pushReader(article);
               },
               onSave: context.read<SavedArticlesCubit>().toggle,
-              onListen: (article) => context.read<ListenCubit>().toggle(
+              onListen: (article) {
+                final listen = context.read<ListenCubit>();
+                if (listen.isReading(article.id)) {
+                  listen.stop();
+                } else {
+                  listen.toggle(
                     id: article.id,
                     text: '${article.title}. ${article.description ?? ''}',
                     rate: speechRate.multiplier,
-                  ),
+                  );
+                }
+              },
               listeningId: listening,
-              onFinish: () => cubit.finish(DateTime.now()),
+              onFinish: () {
+                context.read<ListenCubit>().stop();
+                cubit.finish(DateTime.now());
+              },
               onClose: () => Navigator.of(context).pop(),
             ),
           BriefStep.summary => BriefSummaryStep(
