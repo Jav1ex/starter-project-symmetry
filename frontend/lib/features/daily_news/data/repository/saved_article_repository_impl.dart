@@ -31,6 +31,15 @@ class SavedArticleRepositoryImpl implements SavedArticleRepository {
   }
 
   @override
+  Future<DataState<void>> clear() {
+    return _guard(() async {
+      for (final model in await _dao.getArticles()) {
+        await _dao.deleteById(model.id);
+      }
+    });
+  }
+
+  @override
   Future<DataState<bool>> isSaved(String id) {
     return _guard(() async => await _dao.findById(id) != null);
   }

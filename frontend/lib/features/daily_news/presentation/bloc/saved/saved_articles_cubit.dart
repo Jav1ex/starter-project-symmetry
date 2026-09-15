@@ -65,4 +65,7 @@ class SavedArticlesCubit extends Cubit<SavedArticlesState> {
     final article = state.lastRemoved;
     if (article != null) await save(article);
   }
+
+  /// Back to a fresh start: the next visit to Saved loads again.
+  void reset() => emit(const SavedArticlesState());
 }
