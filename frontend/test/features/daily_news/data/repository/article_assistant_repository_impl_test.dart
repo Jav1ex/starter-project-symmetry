@@ -8,7 +8,6 @@ import 'package:news_app_clean_architecture/features/daily_news/data/models/edit
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/article_assistant_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_article_assistant_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -25,12 +24,12 @@ void main() {
 
   test('suggest sends the draft as the suggest task and maps the answer', () async {
     when(() => service.call(task: 'suggest', title: 'A valid title', content: 'A valid body.'))
-        .thenAnswer((_) async => {'headlines': ['H1', 'H2'], 'summary': 'S', 'category': 'health'});
+        .thenAnswer((_) async => {'headlines': ['H1', 'H2'], 'summary': 'S'});
 
     final result = await repository.suggest(buildDraft());
 
     expect(result.dataOrNull?.headlines, ['H1', 'H2']);
-    expect(result.dataOrNull?.category, NewsCategory.health);
+    expect(result.dataOrNull?.summary, 'S');
   });
 
   test('each lens maps to its task', () async {
@@ -59,10 +58,9 @@ void main() {
   });
 
   test('models tolerate sloppy answers', () {
-    final suggestions = EditorSuggestionsModel.fromRawData({'headlines': ['ok', 3, ' '], 'category': 'nope'});
+    final suggestions = EditorSuggestionsModel.fromRawData({'headlines': ['ok', 3, ' ']});
     expect(suggestions.headlines, ['ok']);
     expect(suggestions.summary, '');
-    expect(suggestions.category, NewsCategory.general);
 
     final lens = ArticleLensResultModel.fromRawData(ArticleLens.plain, {});
     expect(lens.isEmpty, isTrue);

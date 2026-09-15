@@ -3,7 +3,6 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/skeleton/skeleton_box.dart';
 
 /// Bottom sheet with the desk editor's proposals. Every proposal has its
@@ -14,7 +13,6 @@ class EditorSuggestionsSheet extends StatelessWidget {
   final String? errorMessage;
   final ValueChanged<String> onUseHeadline;
   final ValueChanged<String> onUseSummary;
-  final ValueChanged<NewsCategory> onUseCategory;
 
   const EditorSuggestionsSheet({
     super.key,
@@ -23,14 +21,13 @@ class EditorSuggestionsSheet extends StatelessWidget {
     required this.errorMessage,
     required this.onUseHeadline,
     required this.onUseSummary,
-    required this.onUseCategory,
   });
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
     return SafeArea(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.lg, AppSpacing.xxl, AppSpacing.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -78,12 +75,6 @@ class EditorSuggestionsSheet extends StatelessWidget {
                   onUse: () => onUseSummary(s.summary),
                 ),
               ],
-              const SizedBox(height: AppSpacing.md),
-              _SectionLabel('Category'),
-              _Proposal(
-                child: Text(s.category.label, style: AppTypography.label.copyWith(color: palette.ink)),
-                onUse: () => onUseCategory(s.category),
-              ),
             ],
           ],
         ),

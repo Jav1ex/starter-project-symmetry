@@ -1,7 +1,7 @@
 // Prompt building and answer parsing for the editorial assistant. Pure
 // functions: no network, fully unit-tested.
 
-import { CATEGORIES, LANGUAGES, TITLE_MAX } from './validate.js';
+import { LANGUAGES, TITLE_MAX } from './validate.js';
 
 const EDITOR_VOICE =
   'You are the desk editor of a small, serious newspaper. You write in plain, ' +
@@ -22,8 +22,7 @@ export function buildPrompt({ task, title, content, language }) {
           `"headlines": three alternative headlines, each under ${TITLE_MAX} characters, ` +
           `factual, no clickbait;\n` +
           `"summary": one or two sentences (under 300 characters) that a reader sees before opening ` +
-          `the article;\n` +
-          `"category": the single best fit from ${JSON.stringify(CATEGORIES)}.`,
+          `the article.`,
       };
     case 'brief':
       return {
@@ -73,8 +72,7 @@ function normalise(task, parsed) {
     case 'suggest': {
       const headlines = asStringList(parsed.headlines).slice(0, 3).map((h) => h.slice(0, TITLE_MAX));
       if (headlines.length === 0) throw new Error('No headlines in the answer.');
-      const category = CATEGORIES.includes(parsed.category) ? parsed.category : 'general';
-      return { headlines, summary: asString(parsed.summary).slice(0, 300), category };
+      return { headlines, summary: asString(parsed.summary).slice(0, 300) };
     }
     case 'brief': {
       const bullets = asStringList(parsed.bullets).slice(0, 3);

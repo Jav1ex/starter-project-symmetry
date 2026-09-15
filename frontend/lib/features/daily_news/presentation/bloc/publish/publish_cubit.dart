@@ -49,8 +49,6 @@ class PublishCubit extends Cubit<PublishState> {
 
   void categoryChanged(NewsCategory value) => emit(_keepingErrors(category: value));
 
-  void publishedAtChanged(DateTime value) => emit(_keepingErrors(publishedAt: value));
-
   void removePhoto() =>
       emit(_keepingErrors(clearPickedImage: true, removedExistingImage: true));
 
@@ -91,8 +89,12 @@ class PublishCubit extends Cubit<PublishState> {
     }
   }
 
-  Future<DataState<ArticleEntity>> _publish() =>
-      _publishArticle(PublishArticleParams(draft: state.draft, thumbnail: state.pickedImage));
+  /// A new article is dated at the moment it is published; edits keep the
+  /// original date.
+  Future<DataState<ArticleEntity>> _publish() => _publishArticle(PublishArticleParams(
+        draft: state.draft.copyWith(publishedAt: DateTime.now()),
+        thumbnail: state.pickedImage,
+      ));
 
   Future<DataState<ArticleEntity>> _update() => _updateArticle(UpdateArticleParams(
         article: state.original!,

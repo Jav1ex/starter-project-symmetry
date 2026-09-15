@@ -25,16 +25,15 @@ describe('parseAnswer', () => {
     assert.deepEqual(fenced, { bullets: ['a', 'b', 'c'] });
   });
 
-  it('normalises suggestions: caps lengths, unknown category falls back to general', () => {
+  it('normalises suggestions: keeps three headlines and caps lengths', () => {
     const answer = parseAnswer('suggest', JSON.stringify({
       headlines: ['One', 'x'.repeat(200), 3, 'Four'],
       summary: 's'.repeat(400),
-      category: 'gossip',
     }));
     assert.equal(answer.headlines.length, 3);
     assert.equal(answer.headlines[1].length, 150);
     assert.equal(answer.summary.length, 300);
-    assert.equal(answer.category, 'general');
+    assert.equal('category' in answer, false);
   });
 
   it('rejects answers without JSON or without the expected field', () => {

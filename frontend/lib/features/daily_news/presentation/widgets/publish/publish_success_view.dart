@@ -27,7 +27,6 @@ class PublishSuccessView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final scheduled = article.isScheduledAt(DateTime.now());
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -53,11 +52,7 @@ class PublishSuccessView extends StatelessWidget {
               StaggeredEntrance(
                 index: 3,
                 child: Text(
-                  wasEdit
-                      ? 'Your changes are live'
-                      : scheduled
-                      ? 'Your article is scheduled'
-                      : 'Your article is live',
+                  wasEdit ? 'Your changes are live' : 'Your article is live',
                   textAlign: TextAlign.center,
                   style: AppTypography.briefSummaryTitle.copyWith(color: palette.ink),
                 ),

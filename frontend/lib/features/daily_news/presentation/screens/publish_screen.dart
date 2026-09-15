@@ -13,7 +13,6 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/category_chips.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/editor_suggestions_sheet.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/photo_field.dart';
-import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/publish_date_row.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/publish_success_view.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
@@ -95,10 +94,6 @@ class _PublishViewState extends State<PublishView> {
             onUseSummary: (summary) {
               _description.text = summary;
               publish.descriptionChanged(summary);
-              Navigator.of(sheetContext).pop();
-            },
-            onUseCategory: (category) {
-              publish.categoryChanged(category);
               Navigator.of(sheetContext).pop();
             },
           ),
@@ -213,12 +208,6 @@ class _PublishViewState extends State<PublishView> {
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       CategoryChips(selected: state.category, onChanged: cubit.categoryChanged),
-                      const SizedBox(height: AppSpacing.lg),
-                      PublishDateRow(
-                        value: state.publishedAt,
-                        now: DateTime.now(),
-                        onChanged: cubit.publishedAtChanged,
-                      ),
                     ],
                   ),
                 ),

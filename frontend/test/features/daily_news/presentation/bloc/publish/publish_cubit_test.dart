@@ -84,24 +84,22 @@ void main() {
     expect(cubit.state.titleError, isNull);
   });
 
-  test('a new article is published with the picked photo, category and date', () async {
+  test('a new article is published with the picked photo and category, dated now', () async {
     final cubit = newCubit();
-    final scheduled = now.add(const Duration(days: 2));
     cubit
       ..titleChanged('A title')
       ..contentChanged('Body')
-      ..categoryChanged(NewsCategory.science)
-      ..publishedAtChanged(scheduled);
+      ..categoryChanged(NewsCategory.science);
     await cubit.pickPhoto();
     expect(cubit.state.pickedImage, buildImage());
-    expect(cubit.state.isScheduledAt(now), isTrue);
 
+    final before = DateTime.now();
     await cubit.submit();
 
     final params = verify(() => publish(captureAny())).captured.single as PublishArticleParams;
     expect(params.thumbnail, buildImage());
     expect(params.draft.category, NewsCategory.science);
-    expect(params.draft.publishedAt, scheduled);
+    expect(params.draft.publishedAt.isBefore(before), isFalse);
     expect(cubit.state.status, PublishStatus.success);
   });
 
