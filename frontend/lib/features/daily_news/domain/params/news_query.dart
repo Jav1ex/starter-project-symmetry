@@ -5,7 +5,9 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 class NewsQuery extends Equatable {
   final NewsCategory category;
 
-  /// Two-letter ISO country code.
+  /// Two-letter ISO country code. The app is US/English-only by design, so
+  /// this stays at its default; it remains a query field because the
+  /// provider requires it.
   final String country;
 
   const NewsQuery({

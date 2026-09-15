@@ -40,21 +40,15 @@ enum SpeechRatePreference {
 
 /// User preferences that persist on the device.
 class AppSettings extends Equatable {
-  static const String defaultCountry = 'us';
-
   final AppThemeMode themeMode;
   final TextSizePreference textSize;
   final NewsCategory defaultCategory;
-
-  /// Two-letter ISO country code used for the provider feed.
-  final String country;
   final SpeechRatePreference speechRate;
 
   const AppSettings({
     this.themeMode = AppThemeMode.system,
     this.textSize = TextSizePreference.medium,
     this.defaultCategory = NewsCategory.general,
-    this.country = defaultCountry,
     this.speechRate = SpeechRatePreference.normal,
   });
 
@@ -64,18 +58,16 @@ class AppSettings extends Equatable {
     AppThemeMode? themeMode,
     TextSizePreference? textSize,
     NewsCategory? defaultCategory,
-    String? country,
     SpeechRatePreference? speechRate,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
       textSize: textSize ?? this.textSize,
       defaultCategory: defaultCategory ?? this.defaultCategory,
-      country: country ?? this.country,
       speechRate: speechRate ?? this.speechRate,
     );
   }
 
   @override
-  List<Object?> get props => [themeMode, textSize, defaultCategory, country, speechRate];
+  List<Object?> get props => [themeMode, textSize, defaultCategory, speechRate];
 }

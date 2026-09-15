@@ -7,14 +7,12 @@ class AppSettingsModel extends AppSettings {
     super.themeMode,
     super.textSize,
     super.defaultCategory,
-    super.country,
     super.speechRate,
   });
 
   static const String keyThemeMode = 'settings.themeMode';
   static const String keyTextSize = 'settings.textSize';
   static const String keyDefaultCategory = 'settings.defaultCategory';
-  static const String keyCountry = 'settings.country';
   static const String keySpeechRate = 'settings.speechRate';
 
   /// Unknown or missing values fall back to the defaults, so an old install
@@ -24,7 +22,6 @@ class AppSettingsModel extends AppSettings {
       themeMode: _enumByName(AppThemeMode.values, raw[keyThemeMode]) ?? AppThemeMode.system,
       textSize: _enumByName(TextSizePreference.values, raw[keyTextSize]) ?? TextSizePreference.medium,
       defaultCategory: NewsCategory.fromApiValue(raw[keyDefaultCategory]),
-      country: raw[keyCountry] ?? AppSettings.defaultCountry,
       speechRate: _enumByName(SpeechRatePreference.values, raw[keySpeechRate]) ?? SpeechRatePreference.normal,
     );
   }
@@ -33,7 +30,6 @@ class AppSettingsModel extends AppSettings {
         themeMode: settings.themeMode,
         textSize: settings.textSize,
         defaultCategory: settings.defaultCategory,
-        country: settings.country,
         speechRate: settings.speechRate,
       );
 
@@ -41,7 +37,6 @@ class AppSettingsModel extends AppSettings {
         keyThemeMode: themeMode.name,
         keyTextSize: textSize.name,
         keyDefaultCategory: defaultCategory.apiValue,
-        keyCountry: country,
         keySpeechRate: speechRate.name,
       };
 
@@ -49,7 +44,6 @@ class AppSettingsModel extends AppSettings {
         themeMode: themeMode,
         textSize: textSize,
         defaultCategory: defaultCategory,
-        country: country,
         speechRate: speechRate,
       );
 

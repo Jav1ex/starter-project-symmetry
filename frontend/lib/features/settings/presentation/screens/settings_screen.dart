@@ -6,7 +6,6 @@ import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/core/constants/app_info.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_country.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/danger_zone_card.dart';
@@ -127,11 +126,6 @@ class _FeedSection extends StatelessWidget {
               value: state.settings.defaultCategory.label,
               onTap: context.pushDefaultCategoryPicker,
             ),
-            SettingsRow(
-              label: 'Country',
-              value: NewsCountry.fromCode(state.settings.country).label,
-              onTap: context.pushCountryPicker,
-            ),
           ],
         );
       },
@@ -158,6 +152,7 @@ class _ReadingSection extends StatelessWidget {
                   Text('Reading speed', style: AppTypography.body.copyWith(color: palette.ink)),
                   const SizedBox(height: AppSpacing.md),
                   SegmentedButton<SpeechRatePreference>(
+                    showSelectedIcon: false,
                     segments: [
                       for (final rate in SpeechRatePreference.values)
                         ButtonSegment(value: rate, label: Text(rate.label)),

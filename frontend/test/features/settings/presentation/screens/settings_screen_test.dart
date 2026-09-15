@@ -39,7 +39,6 @@ void main() {
       routes: {
         AppRoutes.settings: (_) => const SettingsScreen(),
         AppRoutes.settingsCategory: (_) => const Text('category picker'),
-        AppRoutes.settingsCountry: (_) => const Text('country picker'),
         ...extra,
       },
       providers: [
@@ -52,12 +51,11 @@ void main() {
 
   testWidgets('shows the current values and the account email', (tester) async {
     createHarnesses();
-    settings.settings.add(const AppSettings(country: 'pt'));
     await pumpSettings(tester);
 
     expect(find.text('Settings'), findsOneWidget);
     expect(find.text('Top stories'), findsOneWidget);
-    expect(find.text('Portugal'), findsOneWidget);
+    expect(find.text('Reading speed'), findsOneWidget);
     expect(find.text('ACCOUNT · ADA@EXAMPLE.COM'), findsOneWidget);
   });
 

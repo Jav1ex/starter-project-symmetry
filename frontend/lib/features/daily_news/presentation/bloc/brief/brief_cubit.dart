@@ -38,14 +38,14 @@ class BriefCubit extends Cubit<BriefState> {
 
   /// Fetches the headlines of every chosen topic, interleaves them so the
   /// brief mixes topics, and keeps the first [storyCount].
-  Future<void> start({required String country}) async {
+  Future<void> start() async {
     if (state.selectedTopics.isEmpty) return;
     emit(state.copyWith(step: BriefStep.loading));
 
     final topics = state.selectedTopics.toList();
     final results = await Future.wait([
       for (final topic in topics)
-        _getTopHeadlines(NewsQuery(category: topic, country: country)),
+        _getTopHeadlines(NewsQuery(category: topic)),
     ]);
     if (isClosed) return;
 

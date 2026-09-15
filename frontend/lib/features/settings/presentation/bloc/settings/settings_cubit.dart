@@ -6,7 +6,6 @@ import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/core/usecase/usecase.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_country.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/save_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/watch_settings.dart';
@@ -45,9 +44,6 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   Future<void> setSpeechRate(SpeechRatePreference rate) =>
       _save(state.settings.copyWith(speechRate: rate));
-
-  Future<void> setCountry(NewsCountry country) =>
-      _save(state.settings.copyWith(country: country.code));
 
   Future<void> _save(AppSettings next) async {
     if (next == state.settings) return;

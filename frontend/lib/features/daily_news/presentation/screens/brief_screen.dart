@@ -42,7 +42,6 @@ class _BriefScreenState extends State<BriefScreen> {
     final cubit = context.read<BriefCubit>();
     final firstName = context.select((SessionCubit c) => c.state.user?.firstName ?? 'there');
     final savedIds = context.select((SavedArticlesCubit c) => c.state.savedIds);
-    final country = context.select((SettingsCubit c) => c.state.settings.country);
     final speechRate = context.select((SettingsCubit c) => c.state.settings.speechRate);
     final listening = context.select((ListenCubit c) => c.state.isSpeaking ? c.state.currentId : null);
 
@@ -54,7 +53,7 @@ class _BriefScreenState extends State<BriefScreen> {
               isLoading: state.step == BriefStep.loading,
               onToggle: cubit.toggleTopic,
               onSurpriseMe: cubit.selectAllTopics,
-              onStart: () => cubit.start(country: country),
+              onStart: cubit.start,
               onClose: () => Navigator.of(context).pop(),
             ),
           BriefStep.failure => Scaffold(

@@ -50,7 +50,7 @@ void main() {
 
     test('private routes stay', () {
       expect(redirect(session, AppRoutes.home), isNull);
-      expect(redirect(session, AppRoutes.settingsCountry), isNull);
+      expect(redirect(session, AppRoutes.settingsCategory), isNull);
     });
   });
 }
