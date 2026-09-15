@@ -127,17 +127,15 @@ never reaches the app.
 
 | Request field | Type   | Rule                                                                 |
 |---------------|--------|----------------------------------------------------------------------|
-| `task`        | string | `suggest`, `brief`, `plain` or `translate`                           |
+| `task`        | string | `suggest`, `brief` or `plain`                                         |
 | `title`       | string | optional, up to 150 characters                                       |
 | `content`     | string | required, 1 to 20 000 characters (same cap as `articles.content`)     |
-| `language`    | string | `translate` only: `es` (default), `en`, `pt`, `fr`                   |
 
 | Task        | Answer                                                              |
 |-------------|---------------------------------------------------------------------|
-| `suggest`   | `{ headlines: [up to 3], summary: string, category: string }`       |
+| `suggest`   | `{ headlines: [up to 3], summary: string }`                         |
 | `brief`     | `{ bullets: [up to 3] }`                                            |
 | `plain`     | `{ text: string }`                                                  |
-| `translate` | `{ text: string }`                                                  |
 
 Callers must be signed in (`unauthenticated` otherwise). Bad input answers `invalid-argument`,
 model rate limits `resource-exhausted`, outages `unavailable`, and an unusable model answer

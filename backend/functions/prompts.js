@@ -1,7 +1,7 @@
 // Prompt building and answer parsing for the editorial assistant. Pure
 // functions: no network, fully unit-tested.
 
-import { LANGUAGES, TITLE_MAX } from './validate.js';
+import { TITLE_MAX } from './validate.js';
 
 const EDITOR_VOICE =
   'You are the desk editor of a small, serious newspaper. You write in plain, ' +
@@ -9,7 +9,7 @@ const EDITOR_VOICE =
   'article. Answer with JSON only, no prose, no code fences.';
 
 /** System + user prompt for a task. */
-export function buildPrompt({ task, title, content, language }) {
+export function buildPrompt({ task, title, content }) {
   const article = title ? `Title: ${title}\n\n${content}` : content;
 
   switch (task) {
@@ -41,14 +41,6 @@ export function buildPrompt({ task, title, content, language }) {
           `words, one idea per sentence, keep every fact and name, keep the same language as the ` +
           `article, keep paragraphs. Return JSON {"text": "..."}.`,
       };
-    case 'translate':
-      return {
-        system: EDITOR_VOICE,
-        user:
-          `Article:\n\n${article}\n\n` +
-          `Translate the whole article into ${LANGUAGES[language]}. Keep names, numbers and ` +
-          `paragraph breaks; do not summarise. Return JSON {"text": "..."}.`,
-      };
     default:
       throw new Error(`Unknown task ${task}`);
   }
@@ -79,8 +71,7 @@ function normalise(task, parsed) {
       if (bullets.length === 0) throw new Error('No bullets in the answer.');
       return { bullets };
     }
-    case 'plain':
-    case 'translate': {
+    case 'plain': {
       const text = asString(parsed.text);
       if (!text) throw new Error('No text in the answer.');
       return { text };
