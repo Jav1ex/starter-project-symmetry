@@ -37,7 +37,7 @@ class BriefCard extends StatelessWidget {
               children: [
                 Text(
                   completedToday ? 'BRIEF DONE' : "TODAY'S BRIEF",
-                  style: AppTypography.overline.copyWith(color: palette.primaryContainer),
+                  style: AppTypography.overline.copyWith(color: palette.accent),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(

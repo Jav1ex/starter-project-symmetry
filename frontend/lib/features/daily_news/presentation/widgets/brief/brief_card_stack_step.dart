@@ -57,9 +57,8 @@ class _BriefCardStackStepState extends State<BriefCardStackStep> {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    const ink = Color(0xFF1E1A20);
     return Scaffold(
-      backgroundColor: ink,
+      backgroundColor: const Color(0xFF0B1A1F),
       body: SafeArea(
         child: Column(
           children: [
@@ -80,7 +79,7 @@ class _BriefCardStackStepState extends State<BriefCardStackStep> {
                       width: i <= widget.index ? 24 : 8,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: i <= widget.index ? palette.primaryContainer : Colors.white.withValues(alpha: 0.35),
+                        color: i <= widget.index ? palette.accent : Colors.white.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),

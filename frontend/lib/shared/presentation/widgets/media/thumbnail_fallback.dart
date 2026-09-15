@@ -36,13 +36,8 @@ class ThumbnailFallback extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         _initial,
-        style: TextStyle(
-          fontFamily: AppTypography.serif,
-          fontWeight: FontWeight.w500,
-          fontSize: size * 0.46,
-          height: 1,
-          color: initialColor ?? const Color(0xFF3B1F4E),
-        ),
+        style: AppTypography.serifGlyph(size * 0.46)
+            .copyWith(color: initialColor ?? AppPalette.onThumbnailFallback),
       ),
     );
   }

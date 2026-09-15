@@ -83,13 +83,8 @@ class _Initials extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         InitialsFormatter.of(name),
-        style: TextStyle(
-          fontFamily: AppTypography.serif,
-          fontWeight: FontWeight.w600,
-          fontSize: size * 0.4,
-          height: 1,
-          color: isCurrentUser ? palette.onPrimaryContainer : palette.primaryDeep,
-        ),
+        style: AppTypography.serifGlyph(size * 0.4, weight: FontWeight.w600)
+            .copyWith(color: isCurrentUser ? palette.onPrimaryContainer : palette.primaryDeep),
       ),
     );
   }

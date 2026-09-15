@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
@@ -26,14 +27,15 @@ class BriefSummaryStep extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final palette = context.palette;
     final savedCount = articles.where((a) => savedIds.contains(a.id)).length;
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [Color(0xFF5E3A7C), Color(0xFF7B4FA0), Color(0xFF9B6FB8)],
+            colors: [palette.primaryDeep, palette.primary, palette.primary.withValues(alpha: 0.85)],
           ),
         ),
         child: SafeArea(
@@ -87,7 +89,7 @@ class BriefSummaryStep extends StatelessWidget {
                                       : Icons.check_rounded,
                                   size: 20,
                                   color: savedIds.contains(article.id)
-                                      ? const Color(0xFFE3BEE8)
+                                      ? palette.accent
                                       : Colors.white.withValues(alpha: readIds.contains(article.id) ? 0.55 : 0.25),
                                 ),
                                 const SizedBox(width: AppSpacing.md),
@@ -96,12 +98,7 @@ class BriefSummaryStep extends StatelessWidget {
                                     article.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      fontFamily: AppTypography.serif,
-                                      fontSize: 17,
-                                      fontWeight: FontWeight.w500,
-                                      color: Colors.white,
-                                    ),
+                                    style: AppTypography.serifGlyph(17).copyWith(height: 1.3, color: Colors.white),
                                   ),
                                 ),
                               ],
@@ -116,7 +113,7 @@ class BriefSummaryStep extends StatelessWidget {
                   onPressed: onBackToFeed,
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.white,
-                    foregroundColor: const Color(0xFF5E3A7C),
+                    foregroundColor: palette.primaryDeep,
                   ),
                   icon: const Icon(Icons.arrow_forward_rounded),
                   label: const Text('Back to feed'),
