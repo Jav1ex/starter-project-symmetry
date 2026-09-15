@@ -76,11 +76,11 @@ void main() {
     expect(find.byType(EmptyState), findsOneWidget);
     expect(find.textContaining('Nothing new in Top stories'), findsOneWidget);
 
-    harness.settings.settings.add(const AppSettings(defaultCategory: NewsCategory.health, country: 'pt'));
+    harness.settings.settings.add(const AppSettings(defaultCategory: NewsCategory.health));
     await tester.pumpAndSettle();
 
     expect(find.textContaining('Nothing new in Health'), findsOneWidget);
-    verify(() => harness.getFeed(const NewsQuery(category: NewsCategory.health, country: 'pt'))).called(1);
+    verify(() => harness.getFeed(const NewsQuery(category: NewsCategory.health))).called(1);
 
     await tester.tap(find.text('Change category'));
     await tester.pumpAndSettle();

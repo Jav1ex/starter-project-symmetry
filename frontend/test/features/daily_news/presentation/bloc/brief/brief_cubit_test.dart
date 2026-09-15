@@ -23,7 +23,7 @@ void main() {
 
   test('topics toggle, Surprise me selects all, and nothing starts without one', () async {
     expect(cubit.state.canStart, isFalse);
-    await cubit.start(country: 'us');
+    await cubit.start();
     verifyNever(() => getTopHeadlines(any()));
 
     cubit.toggleTopic(NewsCategory.health);
@@ -36,15 +36,15 @@ void main() {
   });
 
   test('start interleaves the chosen topics, drops duplicates and keeps five', () async {
-    when(() => getTopHeadlines(const NewsQuery(category: NewsCategory.health, country: 'pt')))
+    when(() => getTopHeadlines(const NewsQuery(category: NewsCategory.health)))
         .thenAnswer((_) async => DataSuccess([for (var i = 0; i < 4; i++) buildArticle(id: 'h$i')]));
-    when(() => getTopHeadlines(const NewsQuery(category: NewsCategory.science, country: 'pt')))
+    when(() => getTopHeadlines(const NewsQuery(category: NewsCategory.science)))
         .thenAnswer((_) async => DataSuccess([buildArticle(id: 's0'), buildArticle(id: 'h1')]));
     cubit
       ..toggleTopic(NewsCategory.health)
       ..toggleTopic(NewsCategory.science);
 
-    await cubit.start(country: 'pt');
+    await cubit.start();
 
     expect(cubit.state.step, BriefStep.reading);
     final ids = cubit.state.articles.map((a) => a.id).toList();
@@ -57,7 +57,7 @@ void main() {
     when(() => getTopHeadlines(any())).thenAnswer((_) async => const DataFailed(Failure.network()));
     cubit.toggleTopic(NewsCategory.sports);
 
-    await cubit.start(country: 'us');
+    await cubit.start();
 
     expect(cubit.state.step, BriefStep.failure);
     expect(cubit.state.failure, const Failure.network());
@@ -66,7 +66,7 @@ void main() {
   test('reading tracks the cards shown, finish stamps today, restart keeps it', () async {
     when(() => getTopHeadlines(any())).thenAnswer((_) async => DataSuccess([buildArticle(id: 'a'), buildArticle(id: 'b')]));
     cubit.toggleTopic(NewsCategory.sports);
-    await cubit.start(country: 'us');
+    await cubit.start();
 
     cubit.cardShown(0);
     cubit.cardShown(1);

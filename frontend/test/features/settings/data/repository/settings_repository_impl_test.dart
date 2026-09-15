@@ -18,7 +18,7 @@ void main() {
   test('starts with the defaults and persists a save for the next read', () async {
     expect(await repository.getSettings(), AppSettings.defaults);
 
-    const changed = AppSettings(themeMode: AppThemeMode.dark, defaultCategory: NewsCategory.health, country: 'pt');
+    const changed = AppSettings(themeMode: AppThemeMode.dark, defaultCategory: NewsCategory.health);
     expect((await repository.saveSettings(changed)).isSuccess, isTrue);
 
     expect(await repository.getSettings(), changed);
@@ -43,13 +43,13 @@ void main() {
       AppSettingsModel.keyThemeMode: 'sepia',
       AppSettingsModel.keyTextSize: null,
       AppSettingsModel.keyDefaultCategory: 'nope',
-      AppSettingsModel.keyCountry: 'pt',
+      AppSettingsModel.keySpeechRate: 'fast',
     });
 
     expect(model.themeMode, AppThemeMode.system);
     expect(model.textSize, TextSizePreference.medium);
     expect(model.defaultCategory, NewsCategory.general);
-    expect(model.country, 'pt');
-    expect(AppSettingsModel.fromEntity(model.toEntity()).toRawData()[AppSettingsModel.keyCountry], 'pt');
+    expect(model.speechRate, SpeechRatePreference.fast);
+    expect(AppSettingsModel.fromEntity(model.toEntity()).toRawData()[AppSettingsModel.keySpeechRate], 'fast');
   });
 }

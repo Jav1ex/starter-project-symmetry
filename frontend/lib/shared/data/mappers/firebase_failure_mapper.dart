@@ -44,6 +44,8 @@ abstract final class FirebaseFailureMapper {
       'unauthenticated' => const Failure.unauthenticated(),
       'unavailable' || 'deadline-exceeded' || 'retry-limit-exceeded' => const Failure.network(),
       'canceled' => const Failure.cancelled(),
+      'resource-exhausted' => const Failure.server('The editor is busy. Try again in a moment.'),
+      'invalid-argument' => const Failure.validation('The editor could not accept that text.'),
       _ => const Failure.server(),
     };
   }

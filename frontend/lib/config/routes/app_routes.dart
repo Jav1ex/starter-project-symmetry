@@ -12,7 +12,6 @@ abstract final class AppRoutes {
   static const String editProfile = '/profile/edit';
   static const String settings = '/settings';
   static const String settingsCategory = '/settings/category';
-  static const String settingsCountry = '/settings/country';
 
   /// Reachable without an account.
   static const Set<String> public = {welcome, signIn, signUp};

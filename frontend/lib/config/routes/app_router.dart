@@ -15,7 +15,6 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/scr
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/my_articles_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/publish_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/reader_screen.dart';
-import 'package:news_app_clean_architecture/features/settings/presentation/screens/country_screen.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/screens/default_category_screen.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/screens/settings_screen.dart';
 
@@ -82,10 +81,6 @@ abstract final class AppRouter {
               path: 'category',
               builder: (context, state) => const DefaultCategoryScreen(),
             ),
-            GoRoute(
-              path: 'country',
-              builder: (context, state) => const CountryScreen(),
-            ),
           ],
         ),
       ],
@@ -117,6 +112,4 @@ extension AppNavigation on BuildContext {
   void pushBrief() => push(AppRoutes.brief);
 
   void pushDefaultCategoryPicker() => push(AppRoutes.settingsCategory);
-
-  void pushCountryPicker() => push(AppRoutes.settingsCountry);
 }

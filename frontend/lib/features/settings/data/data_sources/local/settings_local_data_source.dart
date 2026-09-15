@@ -11,7 +11,7 @@ class SettingsLocalDataSource {
     AppSettingsModel.keyThemeMode,
     AppSettingsModel.keyTextSize,
     AppSettingsModel.keyDefaultCategory,
-    AppSettingsModel.keyCountry,
+    AppSettingsModel.keySpeechRate,
   ];
 
   AppSettingsModel read() {

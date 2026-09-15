@@ -9,18 +9,22 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/b
 /// control carries a visible word.
 class ReaderBottomBar extends StatelessWidget {
   final bool isSaved;
+  final bool isListening;
   final TextSizePreference textSize;
   final VoidCallback onSave;
   final VoidCallback onShare;
+  final VoidCallback onListen;
   final VoidCallback onSmallerText;
   final VoidCallback onLargerText;
 
   const ReaderBottomBar({
     super.key,
     required this.isSaved,
+    required this.isListening,
     required this.textSize,
     required this.onSave,
     required this.onShare,
+    required this.onListen,
     required this.onSmallerText,
     required this.onLargerText,
   });
@@ -50,6 +54,14 @@ class ReaderBottomBar extends StatelessWidget {
               ),
               Expanded(
                 child: _BarAction(icon: Icons.share_outlined, label: 'Share', color: palette.ink, onPressed: onShare),
+              ),
+              Expanded(
+                child: _BarAction(
+                  icon: isListening ? Icons.pause_circle_outline_rounded : Icons.volume_up_outlined,
+                  label: isListening ? 'Pause' : 'Listen',
+                  color: isListening ? palette.primary : palette.ink,
+                  onPressed: onListen,
+                ),
               ),
               Expanded(
                 child: FittedBox(

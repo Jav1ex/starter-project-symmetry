@@ -19,6 +19,10 @@ class BriefStoryCard extends StatelessWidget {
   final PageController? parallax;
   final int page;
 
+  /// Reading aloud: whether this card's story is playing, and the toggle.
+  final bool isListening;
+  final VoidCallback? onListen;
+
   const BriefStoryCard({
     super.key,
     required this.article,
@@ -27,6 +31,8 @@ class BriefStoryCard extends StatelessWidget {
     required this.onSave,
     this.parallax,
     this.page = 0,
+    this.isListening = false,
+    this.onListen,
   });
 
   static const double photoDrift = 40;
@@ -137,7 +143,19 @@ class BriefStoryCard extends StatelessWidget {
                           label: const Text('Read'),
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.md),
+                      const SizedBox(width: AppSpacing.sm),
+                      if (onListen != null)
+                        IconButton.outlined(
+                          onPressed: onListen,
+                          tooltip: isListening ? 'Stop' : 'Listen',
+                          style: IconButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: BorderSide(color: Colors.white.withValues(alpha: 0.7), width: 1.5),
+                            minimumSize: const Size(AppSizes.tertiaryButton, AppSizes.tertiaryButton),
+                          ),
+                          icon: Icon(isListening ? Icons.stop_rounded : Icons.volume_up_outlined),
+                        ),
+                      const SizedBox(width: AppSpacing.sm),
                       OutlinedButton.icon(
                         onPressed: onSave,
                         style: OutlinedButton.styleFrom(

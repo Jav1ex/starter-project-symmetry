@@ -6,7 +6,7 @@ import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/core/constants/app_info.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_country.dart';
+import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/danger_zone_card.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/delete_account_dialog.dart';
@@ -70,6 +70,8 @@ class SettingsScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.xxl),
               const _FeedSection(),
               const SizedBox(height: AppSpacing.xxl),
+              const _ReadingSection(),
+              const SizedBox(height: AppSpacing.xxl),
               const _AboutSection(),
               const SizedBox(height: AppSpacing.xxl),
               const _AccountSection(),
@@ -124,10 +126,43 @@ class _FeedSection extends StatelessWidget {
               value: state.settings.defaultCategory.label,
               onTap: context.pushDefaultCategoryPicker,
             ),
-            SettingsRow(
-              label: 'Country',
-              value: NewsCountry.fromCode(state.settings.country).label,
-              onTap: context.pushCountryPicker,
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _ReadingSection extends StatelessWidget {
+  const _ReadingSection();
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    return BlocBuilder<SettingsCubit, SettingsState>(
+      builder: (context, state) {
+        return SettingsSection(
+          title: 'Listen',
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(AppSpacing.xl),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Reading speed', style: AppTypography.body.copyWith(color: palette.ink)),
+                  const SizedBox(height: AppSpacing.md),
+                  SegmentedButton<SpeechRatePreference>(
+                    showSelectedIcon: false,
+                    segments: [
+                      for (final rate in SpeechRatePreference.values)
+                        ButtonSegment(value: rate, label: Text(rate.label)),
+                    ],
+                    selected: {state.settings.speechRate},
+                    onSelectionChanged: (selection) =>
+                        context.read<SettingsCubit>().setSpeechRate(selection.first),
+                  ),
+                ],
+              ),
             ),
           ],
         );

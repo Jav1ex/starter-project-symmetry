@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app_clean_architecture/config/routes/app_router.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/listen/listen_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/brief/brief_card_stack_step.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/brief/brief_summary_step.dart';
@@ -13,15 +14,36 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/empty_state.dart';
 
 /// Today's Brief, full screen: topics → card stack → summary.
-class BriefScreen extends StatelessWidget {
+class BriefScreen extends StatefulWidget {
   const BriefScreen({super.key});
+
+  @override
+  State<BriefScreen> createState() => _BriefScreenState();
+}
+
+class _BriefScreenState extends State<BriefScreen> {
+  late final ListenCubit _listen;
+
+  @override
+  void initState() {
+    super.initState();
+    _listen = context.read<ListenCubit>();
+  }
+
+  @override
+  void dispose() {
+    // Closing the brief silences whatever card was being read.
+    _listen.stop();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final cubit = context.read<BriefCubit>();
     final firstName = context.select((SessionCubit c) => c.state.user?.firstName ?? 'there');
     final savedIds = context.select((SavedArticlesCubit c) => c.state.savedIds);
-    final country = context.select((SettingsCubit c) => c.state.settings.country);
+    final speechRate = context.select((SettingsCubit c) => c.state.settings.speechRate);
+    final listening = context.select((ListenCubit c) => c.state.isSpeaking ? c.state.currentId : null);
 
     return BlocBuilder<BriefCubit, BriefState>(
       builder: (context, state) {
@@ -31,7 +53,7 @@ class BriefScreen extends StatelessWidget {
               isLoading: state.step == BriefStep.loading,
               onToggle: cubit.toggleTopic,
               onSurpriseMe: cubit.selectAllTopics,
-              onStart: () => cubit.start(country: country),
+              onStart: cubit.start,
               onClose: () => Navigator.of(context).pop(),
             ),
           BriefStep.failure => Scaffold(
@@ -54,7 +76,23 @@ class BriefScreen extends StatelessWidget {
                 context.pushReader(article);
               },
               onSave: context.read<SavedArticlesCubit>().toggle,
-              onFinish: () => cubit.finish(DateTime.now()),
+              onListen: (article) {
+                final listen = context.read<ListenCubit>();
+                if (listen.isReading(article.id)) {
+                  listen.stop();
+                } else {
+                  listen.toggle(
+                    id: article.id,
+                    text: '${article.title}. ${article.description ?? ''}',
+                    rate: speechRate.multiplier,
+                  );
+                }
+              },
+              listeningId: listening,
+              onFinish: () {
+                context.read<ListenCubit>().stop();
+                cubit.finish(DateTime.now());
+              },
               onClose: () => Navigator.of(context).pop(),
             ),
           BriefStep.summary => BriefSummaryStep(

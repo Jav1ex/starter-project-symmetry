@@ -28,7 +28,7 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   static NewsQuery queryOf(AppSettings settings) =>
-      NewsQuery(category: settings.defaultCategory, country: settings.country);
+      NewsQuery(category: settings.defaultCategory);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -79,8 +79,7 @@ class _HomeViewState extends State<HomeView> {
   Widget build(BuildContext context) {
     return BlocListener<SettingsCubit, SettingsState>(
       listenWhen: (previous, current) =>
-          previous.settings.defaultCategory != current.settings.defaultCategory ||
-          previous.settings.country != current.settings.country,
+          previous.settings.defaultCategory != current.settings.defaultCategory,
       listener: (context, state) =>
           context.read<FeedCubit>().load(HomeScreen.queryOf(state.settings)),
       child: Scaffold(

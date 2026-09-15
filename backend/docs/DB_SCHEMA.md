@@ -118,6 +118,32 @@ enforcement with ownership:
 The feed stays public so readers never need an account; writing needs one so an article can
 always be traced to its author and nobody can edit somebody else's work.
 
+## Cloud Functions
+
+`functions/index.js` exposes one callable function, `assistArticle` (region `us-central1`,
+Node 22). It is the only place that talks to the language model (Claude, model
+`claude-haiku-4-5-20251001`); the API key lives in the Firebase secret `ANTHROPIC_API_KEY` and
+never reaches the app.
+
+| Request field | Type   | Rule                                                                 |
+|---------------|--------|----------------------------------------------------------------------|
+| `task`        | string | `suggest`, `brief`, `plain` or `translate`                           |
+| `title`       | string | optional, up to 150 characters                                       |
+| `content`     | string | required, 1 to 20 000 characters (same cap as `articles.content`)     |
+| `language`    | string | `translate` only: `es` (default), `en`, `pt`, `fr`                   |
+
+| Task        | Answer                                                              |
+|-------------|---------------------------------------------------------------------|
+| `suggest`   | `{ headlines: [up to 3], summary: string, category: string }`       |
+| `brief`     | `{ bullets: [up to 3] }`                                            |
+| `plain`     | `{ text: string }`                                                  |
+| `translate` | `{ text: string }`                                                  |
+
+Callers must be signed in (`unauthenticated` otherwise). Bad input answers `invalid-argument`,
+model rate limits `resource-exhausted`, outages `unavailable`, and an unusable model answer
+`internal`. Run `npm test` inside `functions/` for the unit tests (validation, prompts and the
+handler with a fake model client; no network).
+
 ## Upload flow
 
 1. Client generates `articleId = db.collection('articles').doc().id`.

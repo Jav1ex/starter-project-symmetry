@@ -3,7 +3,6 @@ import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_country.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
 
@@ -20,7 +19,7 @@ void main() {
   test('starts with the defaults and then takes whatever the stream says', () async {
     expect(harness.cubit.state, const SettingsState());
 
-    const stored = AppSettings(themeMode: AppThemeMode.dark, country: 'pt');
+    const stored = AppSettings(themeMode: AppThemeMode.dark, textSize: TextSizePreference.large);
     harness.settings.add(stored);
     await Future<void>.delayed(Duration.zero);
 
@@ -80,11 +79,11 @@ void main() {
     expect(harness.cubit.state.settings.textSize, TextSizePreference.large);
   });
 
-  test('setDefaultCategory and setCountry store the domain values', () async {
+  test('setDefaultCategory and setSpeechRate store the domain values', () async {
     await harness.cubit.setDefaultCategory(NewsCategory.health);
-    await harness.cubit.setCountry(NewsCountry.portugal);
+    await harness.cubit.setSpeechRate(SpeechRatePreference.fast);
 
     expect(harness.cubit.state.settings.defaultCategory, NewsCategory.health);
-    expect(harness.cubit.state.settings.country, 'pt');
+    expect(harness.cubit.state.settings.speechRate, SpeechRatePreference.fast);
   });
 }
