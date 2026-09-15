@@ -7,10 +7,7 @@ enum ArticleLens {
   brief('Brief it'),
 
   /// The same facts in short sentences and everyday words.
-  plain('Plain words'),
-
-  /// The article translated into Spanish.
-  spanish('En español');
+  plain('Plain words');
 
   final String label;
 

@@ -20,12 +20,16 @@ class DeviceSpeechService {
     _tts.setErrorHandler((_) => _set(SpeechStatus.idle));
   }
 
+  static const String language = 'en-US';
+
   SpeechStatus get status => _current;
 
   Stream<SpeechStatus> get statusChanges => _status.stream;
 
   Future<void> speak(String text, {required double rate}) async {
     await _tts.stop();
+    // The app is English-only, so the voice is too, whatever the device locale.
+    await _tts.setLanguage(language);
     // flutter_tts rates are 0..1 with 0.5 as normal on Android.
     await _tts.setSpeechRate((0.5 * rate).clamp(0.1, 1.0));
     await _tts.awaitSpeakCompletion(false);

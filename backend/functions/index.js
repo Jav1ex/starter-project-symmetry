@@ -11,6 +11,9 @@ const anthropicApiKey = defineSecret('ANTHROPIC_API_KEY');
 export const assistArticle = onCall(
   {
     region: 'us-central1',
+    // Anyone may reach the endpoint; the handler itself refuses callers
+    // without a Firebase Auth token (request.auth).
+    invoker: 'public',
     secrets: [anthropicApiKey],
     timeoutSeconds: 60,
     memory: '256MiB',

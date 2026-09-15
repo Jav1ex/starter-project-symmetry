@@ -143,7 +143,19 @@ class BriefStoryCard extends StatelessWidget {
                           label: const Text('Read'),
                         ),
                       ),
-                      const SizedBox(width: AppSpacing.md),
+                      const SizedBox(width: AppSpacing.sm),
+                      if (onListen != null)
+                        IconButton.outlined(
+                          onPressed: onListen,
+                          tooltip: isListening ? 'Pause' : 'Listen',
+                          style: IconButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            side: BorderSide(color: Colors.white.withValues(alpha: 0.7), width: 1.5),
+                            minimumSize: const Size(AppSizes.tertiaryButton, AppSizes.tertiaryButton),
+                          ),
+                          icon: Icon(isListening ? Icons.pause_rounded : Icons.volume_up_outlined),
+                        ),
+                      const SizedBox(width: AppSpacing.sm),
                       OutlinedButton.icon(
                         onPressed: onSave,
                         style: OutlinedButton.styleFrom(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 
-/// Three chips under the author row: Brief it · Plain words · En español.
+/// Two chips under the author row: Brief it · Plain words.
 /// The active one shows a check; tapping it again returns to the original.
 class ReaderLensBar extends StatelessWidget {
   final ArticleLens? active;
@@ -14,7 +14,6 @@ class ReaderLensBar extends StatelessWidget {
   static IconData iconFor(ArticleLens lens) => switch (lens) {
         ArticleLens.brief => Icons.bolt_rounded,
         ArticleLens.plain => Icons.spa_outlined,
-        ArticleLens.spanish => Icons.translate_rounded,
       };
 
   @override

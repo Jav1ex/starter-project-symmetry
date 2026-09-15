@@ -36,7 +36,6 @@ class InMemoryArticleAssistantRepository implements ArticleAssistantRepository {
     return DataSuccess(switch (lens) {
       ArticleLens.brief => ArticleLensResult(lens: lens, bullets: sentences.take(3).toList()),
       ArticleLens.plain => ArticleLensResult(lens: lens, text: sentences.join('\n\n')),
-      ArticleLens.spanish => ArticleLensResult(lens: lens, text: '[ES] ${article.content}'),
     });
   }
 

@@ -33,14 +33,14 @@ void main() {
     expect(result.dataOrNull?.category, NewsCategory.health);
   });
 
-  test('each lens maps to its task; Spanish adds the language', () async {
+  test('each lens maps to its task', () async {
     final article = buildArticle();
-    when(() => service.call(task: 'translate', title: 'Title', content: 'Content', language: 'es'))
-        .thenAnswer((_) async => {'text': 'Contenido'});
+    when(() => service.call(task: 'plain', title: 'Title', content: 'Content'))
+        .thenAnswer((_) async => {'text': 'Simple body'});
     when(() => service.call(task: 'brief', title: 'Title', content: 'Content'))
         .thenAnswer((_) async => {'bullets': ['a', 'b']});
 
-    expect((await repository.apply(ArticleLens.spanish, article)).dataOrNull?.text, 'Contenido');
+    expect((await repository.apply(ArticleLens.plain, article)).dataOrNull?.text, 'Simple body');
     expect((await repository.apply(ArticleLens.brief, article)).dataOrNull?.bullets, ['a', 'b']);
   });
 

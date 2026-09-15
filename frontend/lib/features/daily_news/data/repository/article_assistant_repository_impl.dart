@@ -18,7 +18,6 @@ class ArticleAssistantRepositoryImpl implements ArticleAssistantRepository {
   static const Map<ArticleLens, String> _taskFor = {
     ArticleLens.brief: 'brief',
     ArticleLens.plain: 'plain',
-    ArticleLens.spanish: 'translate',
   };
 
   @override
@@ -42,7 +41,6 @@ class ArticleAssistantRepositoryImpl implements ArticleAssistantRepository {
         task: _taskFor[lens]!,
         title: article.title,
         content: article.content,
-        language: lens == ArticleLens.spanish ? 'es' : null,
       );
       final model = ArticleLensResultModel.fromRawData(lens, raw);
       if (model.isEmpty) throw const _EmptyAnswer();
