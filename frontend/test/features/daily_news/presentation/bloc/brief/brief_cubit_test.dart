@@ -21,6 +21,10 @@ void main() {
   });
   tearDown(() => cubit.close());
 
+  test('starts with no topics chosen and nothing loaded', () {
+    expect(cubit.state, const BriefState());
+  });
+
   test('topics toggle, Surprise me selects all, and nothing starts without one', () async {
     expect(cubit.state.canStart, isFalse);
     await cubit.start();

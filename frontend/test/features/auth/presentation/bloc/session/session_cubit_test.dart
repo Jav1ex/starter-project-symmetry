@@ -48,7 +48,7 @@ void main() {
     final states = <SessionState>[];
     final subscription = harness.cubit.stream.listen(states.add);
     await harness.cubit.signOut();
-    await Future<void>.delayed(Duration.zero);
+    await flush();
     await subscription.cancel();
 
     expect(states, [

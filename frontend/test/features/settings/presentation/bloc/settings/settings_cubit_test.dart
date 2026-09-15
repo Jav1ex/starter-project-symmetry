@@ -21,7 +21,7 @@ void main() {
 
     const stored = AppSettings(themeMode: AppThemeMode.dark, textSize: TextSizePreference.large);
     harness.settings.add(stored);
-    await Future<void>.delayed(Duration.zero);
+    await flush();
 
     expect(harness.cubit.state.settings, stored);
   });

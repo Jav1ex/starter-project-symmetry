@@ -6,6 +6,8 @@ import 'package:news_app_clean_architecture/features/settings/data/repository/se
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../helpers/pump_app.dart';
+
 void main() {
   late SettingsRepositoryImpl repository;
 
@@ -30,9 +32,9 @@ void main() {
   test('watchSettings emits the current value first, then every save', () async {
     final emitted = <AppSettings>[];
     final sub = repository.watchSettings().listen(emitted.add);
-    await Future<void>.delayed(Duration.zero);
+    await flush();
     await repository.saveSettings(const AppSettings(textSize: TextSizePreference.large));
-    await Future<void>.delayed(Duration.zero);
+    await flush();
     await sub.cancel();
 
     expect(emitted, [AppSettings.defaults, const AppSettings(textSize: TextSizePreference.large)]);

@@ -4,6 +4,7 @@ import 'package:news_app_clean_architecture/features/auth/data/repository/in_mem
 import 'package:news_app_clean_architecture/features/auth/domain/params/credentials.dart';
 
 import '../../../../helpers/fixtures.dart';
+import '../../../../helpers/pump_app.dart';
 
 void main() {
   late InMemoryAuthRepository auth;
@@ -112,11 +113,11 @@ void main() {
   test('watchAuthState emits the current state first, then every change', () async {
     final events = <String?>[];
     final subscription = auth.watchAuthState().listen((u) => events.add(u?.id));
-    await Future<void>.delayed(Duration.zero);
+    await flush();
 
     await auth.signInWithGoogle();
     await auth.signOut();
-    await Future<void>.delayed(Duration.zero);
+    await flush();
     await subscription.cancel();
 
     expect(events, [null, InMemoryAuthRepository.googleUser.id, null]);

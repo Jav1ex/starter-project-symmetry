@@ -29,6 +29,10 @@ void main() {
   });
   tearDown(() => cubit.close());
 
+  test('starts empty and not loading', () {
+    expect(cubit.state, const MyArticlesState());
+  });
+
   test('load fills the list; a failure is reported', () async {
     await cubit.load();
     expect(cubit.state.status, MyArticlesStatus.loaded);
