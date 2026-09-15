@@ -11,7 +11,6 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/wid
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/home/home_header.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
-import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/secondary_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/app_snack_bar.dart';
@@ -19,19 +18,28 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback
 
 /// Home tab: greeting, then provider headlines and own articles in one
 /// timeline. Reloads whenever the feed settings change.
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  static NewsQuery queryOf(AppSettings settings) =>
+      NewsQuery(category: settings.defaultCategory, country: settings.country);
+
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => sl<FeedCubit>()..load(_queryOf(context.read<SettingsCubit>().state.settings)),
-      child: const HomeView(),
-    );
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final feed = context.read<FeedCubit>();
+    if (feed.state is FeedInitial) {
+      feed.load(HomeScreen.queryOf(context.read<SettingsCubit>().state.settings));
+    }
   }
 
-  static NewsQuery _queryOf(AppSettings settings) =>
-      NewsQuery(category: settings.defaultCategory, country: settings.country);
+  @override
+  Widget build(BuildContext context) => const HomeView();
 }
 
 class HomeView extends StatelessWidget {
@@ -44,8 +52,14 @@ class HomeView extends StatelessWidget {
           previous.settings.defaultCategory != current.settings.defaultCategory ||
           previous.settings.country != current.settings.country,
       listener: (context, state) =>
-          context.read<FeedCubit>().load(HomeScreen._queryOf(state.settings)),
+          context.read<FeedCubit>().load(HomeScreen.queryOf(state.settings)),
       child: Scaffold(
+        floatingActionButton: FloatingActionButton.extended(
+          onPressed: () => context.pushPublish(),
+          icon: const Icon(Icons.edit_rounded),
+          label: const Text('Write'),
+          tooltip: 'Write an article',
+        ),
         body: SafeArea(
           child: RefreshIndicator(
             onRefresh: () async {

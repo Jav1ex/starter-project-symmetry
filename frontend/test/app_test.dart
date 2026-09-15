@@ -29,6 +29,8 @@ void main() {
         sessionCubit: session.cubit,
         settingsCubit: settings.cubit,
         savedArticlesCubit: shell.savedCubit,
+        feedCubit: shell.feedCubit,
+        myArticlesCubit: shell.myArticlesCubit,
       ),
     );
     await tester.pumpAndSettle();
