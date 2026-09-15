@@ -1,7 +1,85 @@
 rules_version = '2';
 
+// Schema enforcement for the news app. See docs/DB_SCHEMA.md for the
+// human-readable description of every constraint below.
 service cloud.firestore {
   match /databases/{database}/documents {
-    // TODO: WRITE ANY NECESSARY FIRESTORE RULES HERE
+
+    // ---------- Generic helpers ----------
+
+    function isNonEmptyString(value, maxLength) {
+      return value is string && value.size() > 0 && value.size() <= maxLength;
+    }
+
+    function isServerTimestamp(value) {
+      return value is timestamp && value == request.time;
+    }
+
+    // ---------- Article schema ----------
+
+    function articleFields() {
+      return [
+        'title',
+        'description',
+        'content',
+        'author',
+        'thumbnailURL',
+        'thumbnailPath',
+        'publishedAt',
+        'createdAt',
+        'updatedAt'
+      ];
+    }
+
+    // A Firebase Storage download URL pointing inside media/articles/.
+    // Example:
+    // https://firebasestorage.googleapis.com/v0/b/<bucket>/o/media%2Farticles%2Fphoto.jpg?alt=media&token=...
+    function isArticleThumbnailUrl(value) {
+      return value is string
+        && value.matches('^https://firebasestorage\\.googleapis\\.com/v0/b/[^/]+/o/media%2Farticles%2F[^/?]+\\?alt=media.*$');
+    }
+
+    // The plain Storage object path, one file directly inside media/articles/.
+    function isArticleThumbnailPath(value) {
+      return value is string && value.matches('^media/articles/[^/]+$');
+    }
+
+    function hasExactlyArticleFields(data) {
+      return data.keys().hasAll(articleFields()) && data.keys().hasOnly(articleFields());
+    }
+
+    function isValidArticle(data) {
+      return hasExactlyArticleFields(data)
+        && isNonEmptyString(data.title, 150)
+        && isNonEmptyString(data.description, 300)
+        && isNonEmptyString(data.content, 20000)
+        && isNonEmptyString(data.author, 80)
+        && isArticleThumbnailUrl(data.thumbnailURL)
+        && isArticleThumbnailPath(data.thumbnailPath)
+        && data.publishedAt is timestamp
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    // ---------- Collections ----------
+
+    match /articles/{articleId} {
+      // The feed is public.
+      allow read: if true;
+
+      // createdAt and updatedAt must come from FieldValue.serverTimestamp().
+      allow create: if isValidArticle(request.resource.data)
+        && isServerTimestamp(request.resource.data.createdAt)
+        && isServerTimestamp(request.resource.data.updatedAt);
+
+      // createdAt is immutable; updatedAt must be refreshed on every write.
+      allow update: if isValidArticle(request.resource.data)
+        && request.resource.data.createdAt == resource.data.createdAt
+        && isServerTimestamp(request.resource.data.updatedAt);
+
+      allow delete: if true;
+    }
+
+    // Everything not matched above is denied by default.
   }
 }

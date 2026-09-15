@@ -1,7 +1,25 @@
 rules_version = '2';
 
+// Article thumbnails live in media/articles/. See docs/DB_SCHEMA.md.
 service firebase.storage {
   match /b/{bucket}/o {
-    //TODO: WRITE ANY NECESSARY STORAGE RULES HERE
+
+    function isSupportedImage() {
+      return request.resource.contentType.matches('^image/(jpeg|png|webp)$');
     }
+
+    function isWithinSizeLimit() {
+      // 5 MiB
+      return request.resource.size <= 5 * 1024 * 1024;
+    }
+
+    // One file directly inside media/articles/; sub-folders are not allowed.
+    match /media/articles/{fileName} {
+      allow read: if true;
+      allow create, update: if isSupportedImage() && isWithinSizeLimit();
+      allow delete: if true;
+    }
+
+    // Everything else in the bucket is denied by default.
+  }
 }
