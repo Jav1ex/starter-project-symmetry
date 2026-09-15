@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 
 /// Length limits for an article. They mirror the Firestore security rules in
 /// `backend/firestore.rules`, so a draft that passes here is accepted by the
@@ -31,12 +32,14 @@ class ArticleDraft extends Equatable {
   final String title;
   final String content;
   final String? description;
+  final NewsCategory category;
   final DateTime publishedAt;
 
   const ArticleDraft({
     required this.title,
     required this.content,
     required this.publishedAt,
+    this.category = NewsCategory.general,
     this.description,
   });
 
@@ -79,16 +82,18 @@ class ArticleDraft extends Equatable {
     String? title,
     String? content,
     String? description,
+    NewsCategory? category,
     DateTime? publishedAt,
   }) {
     return ArticleDraft(
       title: title ?? this.title,
       content: content ?? this.content,
       description: description ?? this.description,
+      category: category ?? this.category,
       publishedAt: publishedAt ?? this.publishedAt,
     );
   }
 
   @override
-  List<Object?> get props => [title, content, description, publishedAt];
+  List<Object?> get props => [title, content, description, category, publishedAt];
 }

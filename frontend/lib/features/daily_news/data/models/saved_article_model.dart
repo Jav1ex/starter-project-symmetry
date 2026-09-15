@@ -3,8 +3,8 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 
 /// Row of the `saved_article` table: an article bookmarked on this device.
 ///
-/// Floor maps every inherited field to a column; `publishedAt` and `source`
-/// go through the type converters registered on the database.
+/// Floor maps every inherited field to a column; `publishedAt`, `source` and
+/// `category` go through the type converters registered on the database.
 @Entity(tableName: 'saved_article', primaryKeys: ['id'])
 class SavedArticleModel extends ArticleEntity {
   const SavedArticleModel({
@@ -14,6 +14,7 @@ class SavedArticleModel extends ArticleEntity {
     required super.content,
     required super.author,
     required super.publishedAt,
+    required super.category,
     super.description,
     super.authorId,
     super.imageUrl,
@@ -29,6 +30,7 @@ class SavedArticleModel extends ArticleEntity {
       content: entity.content,
       description: entity.description,
       author: entity.author,
+      category: entity.category,
       authorId: entity.authorId,
       imageUrl: entity.imageUrl,
       imagePath: entity.imagePath,
@@ -45,6 +47,7 @@ class SavedArticleModel extends ArticleEntity {
       content: content,
       description: description,
       author: author,
+      category: category,
       authorId: authorId,
       imageUrl: imageUrl,
       imagePath: imagePath,

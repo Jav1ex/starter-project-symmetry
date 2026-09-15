@@ -1,0 +1,78 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
+import 'package:news_app_clean_architecture/config/routes/app_router.dart';
+import 'package:news_app_clean_architecture/config/theme/app_theme.dart';
+import 'package:news_app_clean_architecture/config/theme/theme_mode_mapper.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
+
+/// Root widget: provides the app-wide cubits, applies the user's theme and
+/// text size, and hands navigation to the router.
+class DailyNewsApp extends StatefulWidget {
+  final SessionCubit sessionCubit;
+  final SettingsCubit settingsCubit;
+
+  const DailyNewsApp({
+    super.key,
+    required this.sessionCubit,
+    required this.settingsCubit,
+  });
+
+  @override
+  State<DailyNewsApp> createState() => _DailyNewsAppState();
+}
+
+class _DailyNewsAppState extends State<DailyNewsApp> {
+  late final GoRouter _router = AppRouter.build(widget.sessionCubit);
+
+  @override
+  void dispose() {
+    _router.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider.value(value: widget.sessionCubit),
+        BlocProvider.value(value: widget.settingsCubit),
+      ],
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
+          return MaterialApp.router(
+            title: 'Daily News',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.light(),
+            darkTheme: AppTheme.dark(),
+            themeMode: state.settings.themeMode.material,
+            routerConfig: _router,
+            builder: (context, child) => _TextSizeScope(
+              factor: state.settings.textSize.factor,
+              child: child ?? const SizedBox.shrink(),
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+/// Multiplies the platform text scale by the user's reading-size choice.
+class _TextSizeScope extends StatelessWidget {
+  final double factor;
+  final Widget child;
+
+  const _TextSizeScope({required this.factor, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final media = MediaQuery.of(context);
+    final platformScale = media.textScaler.scale(1);
+    return MediaQuery(
+      data: media.copyWith(textScaler: TextScaler.linear(platformScale * factor)),
+      child: child,
+    );
+  }
+}

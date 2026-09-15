@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -33,6 +34,34 @@ void main() {
         expect(buildUserArticle(authorId: 'uid-1').isOwnedBy(null), isFalse);
         expect(buildArticle(authorId: null).isOwnedBy('uid-1'), isFalse);
       });
+    });
+
+    test('category defaults to general', () {
+      expect(buildArticle().category, NewsCategory.general);
+      expect(buildArticle(category: NewsCategory.sports).category, NewsCategory.sports);
+    });
+
+    group('readingTimeMinutes', () {
+      test('is never below one minute', () {
+        expect(buildArticle(content: '').readingTimeMinutes, 1);
+        expect(buildArticle(content: 'Three short words.').readingTimeMinutes, 1);
+      });
+
+      test('rounds up at the reading speed', () {
+        final words = List.filled(ArticleEntity.wordsPerMinute * 2 + 1, 'word').join(' ');
+        expect(buildArticle(content: words).readingTimeMinutes, 3);
+      });
+
+      test('ignores runs of whitespace', () {
+        expect(buildArticle(content: 'a   b\n\nc').readingTimeMinutes, 1);
+      });
+    });
+
+    test('isScheduledAt is true only for a future publication date', () {
+      final now = DateTime.utc(2026, 9, 15, 12);
+      expect(buildArticle(publishedAt: now.add(const Duration(hours: 1))).isScheduledAt(now), isTrue);
+      expect(buildArticle(publishedAt: now).isScheduledAt(now), isFalse);
+      expect(buildArticle(publishedAt: now.subtract(const Duration(days: 1))).isScheduledAt(now), isFalse);
     });
 
     test('copyWith replaces only the given fields', () {

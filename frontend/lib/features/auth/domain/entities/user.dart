@@ -26,6 +26,9 @@ class UserEntity extends Equatable {
     return 'Journalist';
   }
 
+  /// First word of [preferredName], for greetings.
+  String get firstName => preferredName.split(RegExp(r'\s+')).first;
+
   bool get hasPhoto => photoUrl != null && photoUrl!.trim().isNotEmpty;
 
   UserEntity copyWith({String? email, String? displayName, String? photoUrl}) {

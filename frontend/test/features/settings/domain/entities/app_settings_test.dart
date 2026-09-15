@@ -29,12 +29,16 @@ void main() {
     expect(const AppSettings(country: 'gb'), isNot(AppSettings.defaults));
   });
 
-  test('text size factors grow monotonically around 1.0', () {
-    final factors = TextSizePreference.values.map((t) => t.factor).toList();
-    expect(factors, orderedEquals([...factors]..sort()));
-    expect(TextSizePreference.medium.factor, 1.0);
-    for (final size in TextSizePreference.values) {
-      expect(size.label, isNotEmpty);
-    }
+  test('text size factors render the 17sp body at 16 / 17 / 19 / 21 sp', () {
+    final rendered = TextSizePreference.values.map((t) => (17 * t.factor).round());
+    expect(rendered, [16, 17, 19, 21]);
+    expect(TextSizePreference.values.map((t) => t.label), ['Small', 'Default', 'Large', 'Largest']);
+  });
+
+  test('smaller and larger step through the scale and clamp at the ends', () {
+    expect(TextSizePreference.medium.larger, TextSizePreference.large);
+    expect(TextSizePreference.medium.smaller, TextSizePreference.small);
+    expect(TextSizePreference.small.smaller, TextSizePreference.small);
+    expect(TextSizePreference.extraLarge.larger, TextSizePreference.extraLarge);
   });
 }

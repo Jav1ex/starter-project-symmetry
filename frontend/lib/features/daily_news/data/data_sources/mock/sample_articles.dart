@@ -1,4 +1,5 @@
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 
 /// Journalist articles used while the real backend is not wired in.
 ///
@@ -18,6 +19,7 @@ abstract final class SampleArticles {
       ArticleEntity(
         id: 'sample-1',
         source: ArticleSource.user,
+        category: NewsCategory.general,
         title: 'City council approves twelve kilometres of protected bike lanes',
         description:
             'The plan passed 9-2 and construction starts downtown next spring.',
@@ -37,6 +39,7 @@ abstract final class SampleArticles {
       ArticleEntity(
         id: 'sample-2',
         source: ArticleSource.user,
+        category: NewsCategory.business,
         title: 'Local bakery wins national sourdough award',
         content: 'A family bakery on Elm Street took first prize at the national '
             'artisan bread championship with a 48-hour fermented sourdough. '
@@ -51,6 +54,7 @@ abstract final class SampleArticles {
       ArticleEntity(
         id: 'sample-3',
         source: ArticleSource.user,
+        category: NewsCategory.general,
         title: 'Opinion: why the new transit fare needs a second look',
         description: 'A flat fare sounds fair until you look at who rides the longest.',
         content: 'The transit authority presents the flat fare as a simplification. '
@@ -65,6 +69,7 @@ abstract final class SampleArticles {
       ArticleEntity(
         id: 'sample-4',
         source: ArticleSource.user,
+        category: NewsCategory.science,
         title: 'Weekend weather: clear skies and a cold front on Sunday',
         content: 'Expect sunshine on Saturday with highs near 22 degrees. A cold '
             'front arrives Sunday afternoon bringing scattered showers.',
@@ -75,6 +80,7 @@ abstract final class SampleArticles {
       ArticleEntity(
         id: 'sample-5',
         source: ArticleSource.user,
+        category: NewsCategory.technology,
         title: 'Inside the makerspace that repairs one thousand appliances a year',
         description: 'Volunteers, soldering irons and a strict no-landfill policy.',
         content: 'Every Thursday evening the community makerspace opens its doors '

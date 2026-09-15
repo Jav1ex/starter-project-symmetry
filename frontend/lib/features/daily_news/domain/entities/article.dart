@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 
 /// Where an article comes from.
 enum ArticleSource {
@@ -11,10 +12,13 @@ enum ArticleSource {
 
 /// A news article as the rest of the app sees it, regardless of its source.
 ///
-/// Only [title], [content], [author] and [publishedAt] are guaranteed.
-/// [description] and [imageUrl] may be missing; the presentation layer must
-/// render both cases.
+/// Only [title], [content], [author], [category] and [publishedAt] are
+/// guaranteed. [description] and [imageUrl] may be missing; the presentation
+/// layer must render both cases.
 class ArticleEntity extends Equatable {
+  /// Average adult reading speed used for the reading-time estimate.
+  static const int wordsPerMinute = 220;
+
   /// Stable identifier. Provider articles use their URL; own articles use the
   /// backend document id.
   final String id;
@@ -23,6 +27,7 @@ class ArticleEntity extends Equatable {
   final String content;
   final String? description;
   final String author;
+  final NewsCategory category;
 
   /// Identifier of the journalist who wrote the article. Only own articles
   /// have one.
@@ -46,6 +51,7 @@ class ArticleEntity extends Equatable {
     required this.content,
     required this.author,
     required this.publishedAt,
+    this.category = NewsCategory.general,
     this.description,
     this.authorId,
     this.imageUrl,
@@ -65,6 +71,16 @@ class ArticleEntity extends Equatable {
     return userId != null && authorId != null && authorId == userId;
   }
 
+  /// Whether the publication date is still in the future at [now].
+  bool isScheduledAt(DateTime now) => publishedAt.isAfter(now);
+
+  /// Estimated minutes to read the body, never less than one.
+  int get readingTimeMinutes {
+    final words = content.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);
+    final minutes = (words.length / wordsPerMinute).ceil();
+    return minutes < 1 ? 1 : minutes;
+  }
+
   ArticleEntity copyWith({
     String? id,
     ArticleSource? source,
@@ -72,6 +88,7 @@ class ArticleEntity extends Equatable {
     String? content,
     String? description,
     String? author,
+    NewsCategory? category,
     String? authorId,
     String? imageUrl,
     String? imagePath,
@@ -85,6 +102,7 @@ class ArticleEntity extends Equatable {
       content: content ?? this.content,
       description: description ?? this.description,
       author: author ?? this.author,
+      category: category ?? this.category,
       authorId: authorId ?? this.authorId,
       imageUrl: imageUrl ?? this.imageUrl,
       imagePath: imagePath ?? this.imagePath,
@@ -101,6 +119,7 @@ class ArticleEntity extends Equatable {
         content,
         description,
         author,
+        category,
         authorId,
         imageUrl,
         imagePath,

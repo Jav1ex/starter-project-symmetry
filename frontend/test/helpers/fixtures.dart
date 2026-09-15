@@ -2,6 +2,7 @@ import 'package:news_app_clean_architecture/features/auth/domain/entities/user.d
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 
 /// Test data builders. Every field has a sensible default so a test only
 /// spells out what matters to it.
@@ -12,6 +13,7 @@ ArticleEntity buildArticle({
   String content = 'Content',
   String? description = 'Description',
   String author = 'Ada',
+  NewsCategory category = NewsCategory.general,
   String? authorId,
   String? imageUrl = 'https://img.example/1.jpg',
   String? imagePath,
@@ -25,6 +27,7 @@ ArticleEntity buildArticle({
     content: content,
     description: description,
     author: author,
+    category: category,
     authorId: authorId,
     imageUrl: imageUrl,
     imagePath: imagePath,

@@ -5,17 +5,25 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 /// free of framework types.
 enum AppThemeMode { system, light, dark }
 
-/// Reading text size. [factor] multiplies the base text scale.
+/// Reading text size. [factor] multiplies the base text scale so that the
+/// 17sp body renders at 16 / 17 / 19 / 21 sp.
 enum TextSizePreference {
-  small(0.9, 'Small'),
-  medium(1.0, 'Medium'),
-  large(1.15, 'Large'),
-  extraLarge(1.3, 'Extra large');
+  small(16 / 17, 'Small'),
+  medium(1.0, 'Default'),
+  large(19 / 17, 'Large'),
+  extraLarge(21 / 17, 'Largest');
 
   final double factor;
   final String label;
 
   const TextSizePreference(this.factor, this.label);
+
+  TextSizePreference get smaller =>
+      index == 0 ? this : TextSizePreference.values[index - 1];
+
+  TextSizePreference get larger => index == TextSizePreference.values.length - 1
+      ? this
+      : TextSizePreference.values[index + 1];
 }
 
 /// User preferences that persist on the device.
