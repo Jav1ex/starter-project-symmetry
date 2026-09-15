@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/app.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/welcome_screen.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/home_screen.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 
@@ -70,5 +72,24 @@ void main() {
       MediaQuery.textScalerOf(context).scale(17),
       closeTo(21, 0.01),
     );
+  });
+
+  testWidgets('signing out leaves no bookmarks or own articles for the next account', (tester) async {
+    createHarnesses();
+    await pumpDailyNews(tester);
+    session.signIn(user);
+    await tester.pump();
+    await tester.pumpAndSettle();
+    await shell.savedCubit.save(buildArticle());
+    shell.myArticlesCubit.upsert(buildUserArticle(authorId: user.id));
+    expect(shell.savedCubit.state.articles, isNotEmpty);
+    expect(shell.myArticlesCubit.state.articles, isNotEmpty);
+
+    session.signOutUser();
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(shell.savedCubit.state, const SavedArticlesState());
+    expect(shell.myArticlesCubit.state, const MyArticlesState());
   });
 }

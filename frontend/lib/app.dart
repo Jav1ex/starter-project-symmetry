@@ -59,21 +59,31 @@ class _DailyNewsAppState extends State<DailyNewsApp> {
         BlocProvider.value(value: widget.briefCubit),
         BlocProvider.value(value: widget.listenCubit),
       ],
-      child: BlocBuilder<SettingsCubit, SettingsState>(
-        builder: (context, state) {
-          return MaterialApp.router(
-            title: 'Headline News',
-            debugShowCheckedModeBanner: false,
-            theme: AppTheme.light(),
-            darkTheme: AppTheme.dark(),
-            themeMode: state.settings.themeMode.material,
-            routerConfig: _router,
-            builder: (context, child) => _TextSizeScope(
-              factor: state.settings.textSize.factor,
-              child: child ?? const SizedBox.shrink(),
-            ),
-          );
+      child: BlocListener<SessionCubit, SessionState>(
+        // Whatever the previous account had loaded must not show to the next
+        // one; the device data itself is wiped by the sign-out use case.
+        listenWhen: (previous, current) =>
+            previous is SessionAuthenticated && current is SessionUnauthenticated,
+        listener: (context, _) {
+          context.read<SavedArticlesCubit>().reset();
+          context.read<MyArticlesCubit>().reset();
         },
+        child: BlocBuilder<SettingsCubit, SettingsState>(
+          builder: (context, state) {
+            return MaterialApp.router(
+              title: 'Headline News',
+              debugShowCheckedModeBanner: false,
+              theme: AppTheme.light(),
+              darkTheme: AppTheme.dark(),
+              themeMode: state.settings.themeMode.material,
+              routerConfig: _router,
+              builder: (context, child) => _TextSizeScope(
+                factor: state.settings.textSize.factor,
+                child: child ?? const SizedBox.shrink(),
+              ),
+            );
+          },
+        ),
       ),
     );
   }

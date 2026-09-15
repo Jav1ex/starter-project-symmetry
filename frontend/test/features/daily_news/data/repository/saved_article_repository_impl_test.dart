@@ -85,6 +85,20 @@ void main() {
     });
   });
 
+  group('clear', () {
+    test('deletes every stored article by id', () async {
+      final other = SavedArticleModel.fromEntity(entity.copyWith(id: 'doc-2'));
+      when(() => dao.getArticles()).thenAnswer((_) async => [model, other]);
+      when(() => dao.deleteById(any())).thenAnswer((_) async {});
+
+      final result = await repository.clear();
+
+      expect(result, isA<DataSuccess<void>>());
+      verify(() => dao.deleteById('doc-1')).called(1);
+      verify(() => dao.deleteById('doc-2')).called(1);
+    });
+  });
+
   group('isSaved', () {
     test('is true when a row exists', () async {
       when(() => dao.findById('doc-1')).thenAnswer((_) async => model);

@@ -95,4 +95,13 @@ void main() {
     expect(cubit.state.savedIds, {'a', 'b'});
     expect(cubit.state.failure, const Failure.unknown());
   });
+
+  test('reset forgets the loaded list', () async {
+    await cubit.load();
+    expect(cubit.state.articles, isNotEmpty);
+
+    cubit.reset();
+
+    expect(cubit.state, const SavedArticlesState());
+  });
 }

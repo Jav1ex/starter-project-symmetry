@@ -12,6 +12,7 @@ import 'package:news_app_clean_architecture/features/auth/data/repository/profil
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/profile_photo_repository.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/use_cases/clear_account_local_data.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/delete_account.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/get_current_user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_email.dart';
@@ -169,8 +170,9 @@ void _registerAuthUseCases() {
   sl.registerSingleton<SignInWithEmailUseCase>(SignInWithEmailUseCase(sl()));
   sl.registerSingleton<SignUpWithEmailUseCase>(SignUpWithEmailUseCase(sl()));
   sl.registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(sl()));
-  sl.registerSingleton<SignOutUseCase>(SignOutUseCase(sl()));
-  sl.registerSingleton<DeleteAccountUseCase>(DeleteAccountUseCase(sl()));
+  sl.registerSingleton<ClearAccountLocalDataUseCase>(ClearAccountLocalDataUseCase(sl(), sl(), sl()));
+  sl.registerSingleton<SignOutUseCase>(SignOutUseCase(sl(), sl()));
+  sl.registerSingleton<DeleteAccountUseCase>(DeleteAccountUseCase(sl(), sl()));
   sl.registerSingleton<UpdateProfileUseCase>(UpdateProfileUseCase(sl(), sl()));
 }
 
