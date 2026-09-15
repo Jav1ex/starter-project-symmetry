@@ -15,7 +15,7 @@ void main() {
   late MockUserArticleRepository userArticles;
   late GetFeedUseCase useCase;
 
-  const query = NewsQuery(category: NewsCategory.technology, country: 'gb');
+  const query = NewsQuery(category: NewsCategory.technology);
   final remote = buildArticle(id: 'r', publishedAt: DateTime.utc(2026, 9, 1));
   final own = buildUserArticle(id: 'u', publishedAt: DateTime.utc(2026, 9, 2));
 

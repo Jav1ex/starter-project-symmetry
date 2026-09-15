@@ -16,10 +16,7 @@ class NewsRepositoryImpl implements NewsRepository {
   @override
   Future<DataState<List<ArticleEntity>>> getTopHeadlines(NewsQuery query) {
     return _guard(
-      () => _newsApiService.getTopHeadlines(
-        country: query.country,
-        category: query.category.apiValue,
-      ),
+      () => _newsApiService.getTopHeadlines(category: query.category.apiValue),
       category: query.category,
     );
   }
