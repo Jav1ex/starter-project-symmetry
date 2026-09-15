@@ -10,6 +10,9 @@ import 'package:news_app_clean_architecture/features/daily_news/data/repository/
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/apply_article_lens.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/clear_draft.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/load_draft.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/control_reading.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/delete_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_feed.dart';
@@ -65,6 +68,12 @@ class MockSuggestArticleEditsUseCase extends Mock implements SuggestArticleEdits
 
 class MockApplyArticleLensUseCase extends Mock implements ApplyArticleLensUseCase {}
 
+class MockLoadDraftUseCase extends Mock implements LoadDraftUseCase {}
+
+class MockSaveDraftUseCase extends Mock implements SaveDraftUseCase {}
+
+class MockClearDraftUseCase extends Mock implements ClearDraftUseCase {}
+
 /// Everything the Home shell needs: session, settings and the app-wide
 /// cubits (saved, feed, my articles), plus a PublishCubit factory in the
 /// service locator. Create it inside the test body and pass [providers] to
@@ -81,6 +90,9 @@ class ShellHarness {
   final MockPublishArticleUseCase publishArticle = MockPublishArticleUseCase();
   final MockUpdateArticleUseCase updateArticle = MockUpdateArticleUseCase();
   final MockPickThumbnailUseCase pickThumbnail = MockPickThumbnailUseCase();
+  final MockLoadDraftUseCase loadDraft = MockLoadDraftUseCase();
+  final MockSaveDraftUseCase saveDraft = MockSaveDraftUseCase();
+  final MockClearDraftUseCase clearDraft = MockClearDraftUseCase();
   late final SavedArticlesCubit savedCubit;
   late final FeedCubit feedCubit;
   final MockGetTopHeadlinesUseCase getTopHeadlines = MockGetTopHeadlinesUseCase();
@@ -104,6 +116,9 @@ class ShellHarness {
     when(() => getMyArticles(any())).thenAnswer((_) async => DataSuccess(myArticles));
     when(() => deleteArticle(any())).thenAnswer((_) async => const DataSuccess(null));
     when(() => pickThumbnail(any())).thenAnswer((_) async => DataSuccess(buildImage()));
+    when(() => loadDraft(any())).thenAnswer((_) async => null);
+    when(() => saveDraft(any())).thenAnswer((_) async => const DataSuccess(null));
+    when(() => clearDraft(any())).thenAnswer((_) async => const DataSuccess(null));
     savedCubit = SavedArticlesCubit(getSaved, save, remove);
     feedCubit = FeedCubit(getFeed);
     myArticlesCubit = MyArticlesCubit(getMyArticles, deleteArticle);
@@ -139,7 +154,16 @@ class ShellHarness {
     sl.registerFactory<SearchCubit>(() => SearchCubit(searchArticles, debounce: Duration.zero));
     if (sl.isRegistered<PublishCubit>()) sl.unregister<PublishCubit>();
     sl.registerFactoryParam<PublishCubit, ArticleEntity?, void>(
-      (original, _) => PublishCubit(publishArticle, updateArticle, pickThumbnail, original: original),
+      (original, _) => PublishCubit(
+        publishArticle,
+        updateArticle,
+        pickThumbnail,
+        loadDraft: loadDraft,
+        saveDraft: saveDraft,
+        clearDraft: clearDraft,
+        original: original,
+        autosaveDelay: Duration.zero,
+      ),
     );
     session.signIn(user);
     addTearDown(() async {

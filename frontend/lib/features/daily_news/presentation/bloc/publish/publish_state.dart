@@ -2,6 +2,10 @@ part of 'publish_cubit.dart';
 
 enum PublishStatus { editing, submitting, success, failure }
 
+/// Why the cubit rewrote the whole form by itself, so the screen can resync
+/// its text controllers and say what happened. Cleared by the next change.
+enum DraftNotice { restored, cleared }
+
 class PublishState extends Equatable {
   /// Set when editing an existing article.
   final ArticleEntity? original;
@@ -25,6 +29,8 @@ class PublishState extends Equatable {
   /// The article as the backend returned it after a successful submit.
   final ArticleEntity? result;
 
+  final DraftNotice? draftNotice;
+
   const PublishState({
     this.original,
     this.title = '',
@@ -40,9 +46,26 @@ class PublishState extends Equatable {
     this.contentError,
     this.failure,
     this.result,
+    this.draftNotice,
   });
 
   bool get isEditing => original != null;
+
+  /// Something typed or picked in a new article, worth keeping as a draft.
+  bool get hasDraftContent =>
+      !isEditing &&
+      (title.trim().isNotEmpty ||
+          description.trim().isNotEmpty ||
+          content.trim().isNotEmpty ||
+          pickedImage != null);
+
+  SavedDraft get savedDraft => SavedDraft(
+        title: title,
+        description: description,
+        content: content,
+        category: category,
+        image: pickedImage,
+      );
 
   bool get isSubmitting => status == PublishStatus.submitting;
 
@@ -95,6 +118,7 @@ class PublishState extends Equatable {
     ArticleValidationError? contentError,
     Failure? failure,
     ArticleEntity? result,
+    DraftNotice? draftNotice,
   }) {
     return PublishState(
       original: original,
@@ -111,6 +135,7 @@ class PublishState extends Equatable {
       contentError: contentError,
       failure: failure,
       result: result ?? this.result,
+      draftNotice: draftNotice,
     );
   }
 
@@ -130,5 +155,6 @@ class PublishState extends Equatable {
         contentError,
         failure,
         result,
+        draftNotice,
       ];
 }

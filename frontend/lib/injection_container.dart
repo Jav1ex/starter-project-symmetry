@@ -55,6 +55,12 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_top_headlines.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/is_article_saved.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/load_draft.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_draft.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/clear_draft.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/draft_local_data_source.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/repository/draft_repository_impl.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/repository/draft_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/read_aloud.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/remove_saved_article.dart';
@@ -108,6 +114,9 @@ Future<void> _registerDataSources() async {
   sl.registerSingleton<SettingsLocalDataSource>(
     SettingsLocalDataSource(await SharedPreferences.getInstance()),
   );
+  sl.registerSingleton<DraftLocalDataSource>(
+    DraftLocalDataSource(await SharedPreferences.getInstance()),
+  );
 }
 
 /// Every repository is backed by its real service: the news provider,
@@ -126,6 +135,7 @@ void _registerRepositories() {
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
   sl.registerSingleton<ProfilePhotoRepository>(ProfilePhotoRepositoryImpl(sl()));
   sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
+  sl.registerSingleton<DraftRepository>(DraftRepositoryImpl(sl()));
 }
 
 void _registerArticleUseCases() {
@@ -141,6 +151,9 @@ void _registerArticleUseCases() {
   sl.registerSingleton<RemoveSavedArticleUseCase>(RemoveSavedArticleUseCase(sl()));
   sl.registerSingleton<IsArticleSavedUseCase>(IsArticleSavedUseCase(sl()));
   sl.registerSingleton<PickThumbnailUseCase>(PickThumbnailUseCase(sl()));
+  sl.registerSingleton<LoadDraftUseCase>(LoadDraftUseCase(sl()));
+  sl.registerSingleton<SaveDraftUseCase>(SaveDraftUseCase(sl()));
+  sl.registerSingleton<ClearDraftUseCase>(ClearDraftUseCase(sl()));
   sl.registerSingleton<SuggestArticleEditsUseCase>(SuggestArticleEditsUseCase(sl()));
   sl.registerSingleton<ApplyArticleLensUseCase>(ApplyArticleLensUseCase(sl()));
   sl.registerSingleton<ReadAloudUseCase>(ReadAloudUseCase(sl()));
@@ -183,7 +196,15 @@ void _registerBlocs() {
   );
   sl.registerLazySingleton<MyArticlesCubit>(() => MyArticlesCubit(sl(), sl()));
   sl.registerFactoryParam<PublishCubit, ArticleEntity?, void>(
-    (original, _) => PublishCubit(sl(), sl(), sl(), original: original),
+    (original, _) => PublishCubit(
+      sl(),
+      sl(),
+      sl(),
+      loadDraft: sl(),
+      saveDraft: sl(),
+      clearDraft: sl(),
+      original: original,
+    ),
   );
   sl.registerFactoryParam<EditProfileCubit, UserEntity, void>(
     (user, _) => EditProfileCubit(sl(), sl(), user: user),

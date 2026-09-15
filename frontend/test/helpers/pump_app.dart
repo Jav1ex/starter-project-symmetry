@@ -10,6 +10,7 @@ import 'package:news_app_clean_architecture/config/theme/app_theme.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/usecase/usecase.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/saved_draft.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
@@ -131,4 +132,5 @@ Future<void> flush() => pumpEventQueue();
 void registerCommonFallbacks() {
   registerFallbackValue(const NoParams());
   registerFallbackValue(AppSettings.defaults);
+  registerFallbackValue(const SavedDraft());
 }

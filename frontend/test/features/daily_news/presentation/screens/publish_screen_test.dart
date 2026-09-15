@@ -4,6 +4,7 @@ import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/config/routes/app_routes.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/saved_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/publish_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/editor_suggestions_sheet.dart';
@@ -23,8 +24,8 @@ void main() {
         matching: find.byType(TextField),
       );
 
-  Future<ShellHarness> pumpPublish(WidgetTester tester, {bool edit = false}) async {
-    final harness = ShellHarness();
+  Future<ShellHarness> pumpPublish(WidgetTester tester, {bool edit = false, ShellHarness? using}) async {
+    final harness = using ?? ShellHarness();
     tester.view.physicalSize = const Size(600, 1600);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -132,5 +133,24 @@ void main() {
 
     expect(find.byType(EditorSuggestionsSheet), findsNothing);
     expect(tester.widget<TextField>(fieldLabelled('Title')).controller?.text, 'Headline one');
+  });
+
+  testWidgets('a kept draft comes back on the next visit and Clear wipes it', (tester) async {
+    final harness = ShellHarness();
+    when(() => harness.loadDraft(any()))
+        .thenAnswer((_) async => const SavedDraft(title: 'Kept title', content: 'Kept body'));
+    await pumpPublish(tester, using: harness);
+
+    expect(tester.widget<TextField>(fieldLabelled('Title')).controller?.text, 'Kept title');
+    expect(tester.widget<TextField>(fieldLabelled('Article text')).controller?.text, 'Kept body');
+    expect(find.text('Your draft is back where you left it.'), findsOneWidget);
+
+    await tester.tap(find.text('Clear'));
+    await tester.pumpAndSettle();
+
+    expect(tester.widget<TextField>(fieldLabelled('Title')).controller?.text, isEmpty);
+    expect(find.text('Clear'), findsNothing);
+    expect(find.text('Draft cleared.'), findsOneWidget);
+    verify(() => harness.clearDraft(any())).called(1);
   });
 }
