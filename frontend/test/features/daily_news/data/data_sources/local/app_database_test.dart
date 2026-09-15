@@ -5,6 +5,7 @@ import 'package:news_app_clean_architecture/features/daily_news/data/data_source
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/migrations.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/saved_article_model.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../../../helpers/fixtures.dart';
@@ -75,7 +76,7 @@ void main() {
     });
   });
 
-  group('migration 1 -> 2', () {
+  group('migrations', () {
     late String path;
 
     setUp(() async {
@@ -88,7 +89,42 @@ void main() {
       if (await file.exists()) await file.delete();
     });
 
-    test('drops the legacy table and creates saved_article', () async {
+    test('from v2 adds the category column, defaulting existing rows to general', () async {
+      final v2 = await databaseFactory.openDatabase(
+        path,
+        options: OpenDatabaseOptions(
+          version: 2,
+          onCreate: (db, _) => db.execute(
+            'CREATE TABLE `saved_article` (`id` TEXT NOT NULL, `source` TEXT NOT NULL, '
+            '`title` TEXT NOT NULL, `content` TEXT NOT NULL, `description` TEXT, '
+            '`author` TEXT NOT NULL, `authorId` TEXT, `imageUrl` TEXT, `imagePath` TEXT, '
+            '`url` TEXT, `publishedAt` INTEGER NOT NULL, PRIMARY KEY (`id`))',
+          ),
+        ),
+      );
+      await v2.insert('saved_article', {
+        'id': 'kept',
+        'source': 'remote',
+        'title': 'Kept across the upgrade',
+        'content': 'body',
+        'author': 'Ada',
+        'publishedAt': DateTime.utc(2026, 1, 1).millisecondsSinceEpoch,
+      });
+      await v2.close();
+
+      final migrated = await $FloorAppDatabase
+          .databaseBuilder(path)
+          .addMigrations(migrations)
+          .build();
+
+      final kept = await migrated.savedArticleDao.findById('kept');
+      expect(kept?.title, 'Kept across the upgrade');
+      expect(kept?.category, NewsCategory.general);
+
+      await migrated.close();
+    });
+
+    test('from v1 drops the legacy table and creates saved_article', () async {
       final legacy = await databaseFactory.openDatabase(
         path,
         options: OpenDatabaseOptions(

@@ -24,6 +24,12 @@ void main() {
     });
   });
 
+  test('firstName is the first word of the preferred name', () {
+    expect(const UserEntity(id: '1', displayName: 'Miriam Hale').firstName, 'Miriam');
+    expect(const UserEntity(id: '1', email: 'ada@example.com').firstName, 'ada');
+    expect(const UserEntity(id: '1').firstName, 'Journalist');
+  });
+
   test('hasPhoto is false for a null or blank url', () {
     expect(const UserEntity(id: '1').hasPhoto, isFalse);
     expect(const UserEntity(id: '1', photoUrl: ' ').hasPhoto, isFalse);

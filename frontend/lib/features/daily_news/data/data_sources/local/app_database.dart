@@ -7,14 +7,15 @@ import 'package:floor/floor.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/DAO/saved_article_dao.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/converters/article_source_converter.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/converters/date_time_converter.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/converters/news_category_converter.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/migrations.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/saved_article_model.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 
 part 'app_database.g.dart';
 
-@TypeConverters([DateTimeConverter, ArticleSourceConverter])
-@Database(version: 2, entities: [SavedArticleModel])
+@TypeConverters([DateTimeConverter, ArticleSourceConverter, NewsCategoryConverter])
+@Database(version: 3, entities: [SavedArticleModel])
 abstract class AppDatabase extends FloorDatabase {
   static const String fileName = 'app_database.db';
 

@@ -14,9 +14,6 @@ dependencies:
 
   cupertino_icons: ^1.0.8
 
-  # Icons
-  ionicons: ^0.2.2
-
   # State management
   flutter_bloc: ^9.1.1
 
@@ -41,17 +38,25 @@ dependencies:
   cloud_firestore: ^6.0.0
   firebase_storage: ^13.0.0
 
-  # Hooks
-  flutter_hooks: ^0.21.0
-
   # Cached images
   cached_network_image: ^3.4.0
+
+  # Navigation with auth-aware redirects
+  go_router: ^16.0.0
+
+  # Skeleton loading
+  shimmer: ^3.0.0
+
+  # Vector assets (Google mark)
+  flutter_svg: ^2.0.10
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^6.0.0
   mocktail: ^1.0.4
+  # SingleChildWidget type for test helpers that build MultiBlocProvider
+  provider: ^6.1.0
   # Runs the Floor database on the host during tests
   sqflite_common_ffi: ^2.3.0
   floor_generator: ^1.5.0
@@ -60,11 +65,17 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  assets:
+    - assets/images/
+
   fonts:
-    - family: Muli
+    - family: Newsreader
       fonts:
-        - asset: assets/fonts/muli/Muli.ttf
-        - asset: assets/fonts/muli/Muli-Bold.ttf
-          weight: 700
-        - asset: assets/fonts/muli/Muli-Light.ttf
-          weight: 300
+        - asset: assets/fonts/newsreader/Newsreader-Variable.ttf
+        - asset: assets/fonts/newsreader/Newsreader-Italic-Variable.ttf
+          style: italic
+    - family: Mulish
+      fonts:
+        - asset: assets/fonts/mulish/Mulish-Variable.ttf
+        - asset: assets/fonts/mulish/Mulish-Italic-Variable.ttf
+          style: italic

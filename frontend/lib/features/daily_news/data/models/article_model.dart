@@ -1,4 +1,5 @@
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 
 /// Article as returned by the news provider's JSON API.
 class ArticleModel extends ArticleEntity {
@@ -40,7 +41,9 @@ class ArticleModel extends ArticleEntity {
     );
   }
 
-  ArticleEntity toEntity() {
+  /// The provider does not tag articles with a category, so the caller
+  /// supplies the one it queried for.
+  ArticleEntity toEntity({NewsCategory category = NewsCategory.general}) {
     return ArticleEntity(
       id: id,
       source: source,
@@ -48,6 +51,7 @@ class ArticleModel extends ArticleEntity {
       content: content,
       description: description,
       author: author,
+      category: category,
       imageUrl: imageUrl,
       url: url,
       publishedAt: publishedAt,

@@ -9,6 +9,9 @@ import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_out.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_up_with_email.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/watch_auth_state.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/sign_in/sign_in_cubit.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/sign_up/sign_up_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/app_database.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_thumbnail_storage_repository.dart';
@@ -30,13 +33,12 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/search_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/update_article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/local/local_article_bloc.dart';
-import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/remote/remote_article_bloc.dart';
 import 'package:news_app_clean_architecture/features/settings/data/repository/in_memory_settings_repository.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/repository/settings_repository.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/get_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/save_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/watch_settings.dart';
+import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
 
 final sl = GetIt.instance;
 
@@ -103,7 +105,11 @@ void _registerSettingsUseCases() {
   sl.registerSingleton<SaveSettingsUseCase>(SaveSettingsUseCase(sl()));
 }
 
+/// App-wide cubits live as long as the app; form cubits are created per
+/// screen.
 void _registerBlocs() {
-  sl.registerFactory<RemoteArticlesBloc>(() => RemoteArticlesBloc(sl()));
-  sl.registerFactory<LocalArticleBloc>(() => LocalArticleBloc(sl(), sl(), sl()));
+  sl.registerLazySingleton<SessionCubit>(() => SessionCubit(sl(), sl(), sl()));
+  sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit(sl(), sl()));
+  sl.registerFactory<SignInCubit>(() => SignInCubit(sl(), sl()));
+  sl.registerFactory<SignUpCubit>(() => SignUpCubit(sl(), sl()));
 }

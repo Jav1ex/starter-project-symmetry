@@ -80,7 +80,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 2,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -96,7 +96,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `saved_article` (`id` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `description` TEXT, `author` TEXT NOT NULL, `authorId` TEXT, `imageUrl` TEXT, `imagePath` TEXT, `url` TEXT, `publishedAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `saved_article` (`id` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `description` TEXT, `author` TEXT NOT NULL, `category` TEXT NOT NULL, `authorId` TEXT, `imageUrl` TEXT, `imagePath` TEXT, `url` TEXT, `publishedAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -126,6 +126,7 @@ class _$SavedArticleDao extends SavedArticleDao {
                   'content': item.content,
                   'description': item.description,
                   'author': item.author,
+                  'category': _newsCategoryConverter.encode(item.category),
                   'authorId': item.authorId,
                   'imageUrl': item.imageUrl,
                   'imagePath': item.imagePath,
@@ -152,6 +153,7 @@ class _$SavedArticleDao extends SavedArticleDao {
             content: row['content'] as String,
             author: row['author'] as String,
             publishedAt: _dateTimeConverter.decode(row['publishedAt'] as int),
+            category: _newsCategoryConverter.decode(row['category'] as String),
             description: row['description'] as String?,
             authorId: row['authorId'] as String?,
             imageUrl: row['imageUrl'] as String?,
@@ -169,6 +171,7 @@ class _$SavedArticleDao extends SavedArticleDao {
             content: row['content'] as String,
             author: row['author'] as String,
             publishedAt: _dateTimeConverter.decode(row['publishedAt'] as int),
+            category: _newsCategoryConverter.decode(row['category'] as String),
             description: row['description'] as String?,
             authorId: row['authorId'] as String?,
             imageUrl: row['imageUrl'] as String?,
@@ -193,3 +196,4 @@ class _$SavedArticleDao extends SavedArticleDao {
 // ignore_for_file: unused_element
 final _dateTimeConverter = DateTimeConverter();
 final _articleSourceConverter = ArticleSourceConverter();
+final _newsCategoryConverter = NewsCategoryConverter();

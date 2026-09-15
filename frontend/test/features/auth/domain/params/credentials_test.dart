@@ -15,6 +15,30 @@ void main() {
     });
   });
 
+  group('PasswordStrength.of', () {
+    test('is weak below the minimum length regardless of variety', () {
+      expect(PasswordStrength.of('Ab1!x'), PasswordStrength.weak);
+      expect(PasswordStrength.of(''), PasswordStrength.weak);
+    });
+
+    test('is okay at the minimum length with little variety', () {
+      expect(PasswordStrength.of('abcdefgh'), PasswordStrength.okay);
+    });
+
+    test('is good when long or varied, but not both', () {
+      expect(PasswordStrength.of('harbourlamp42'), PasswordStrength.good);
+      expect(PasswordStrength.of('Abc123!!'), PasswordStrength.good);
+    });
+
+    test('is strong when long and varied', () {
+      expect(PasswordStrength.of('Harbour-lamp-42'), PasswordStrength.strong);
+    });
+
+    test('fills one more meter segment per level', () {
+      expect(PasswordStrength.values.map((s) => s.filledSegments), [1, 2, 3, 4]);
+    });
+  });
+
   group('SignInParams.validate', () {
     test('accepts a well-formed pair', () {
       const params = SignInParams(email: 'ada@example.com', password: 'x');

@@ -29,6 +29,39 @@ enum CredentialValidationError {
   const CredentialValidationError(this.message);
 }
 
+/// How hard a password is to guess. Only [weak] (fewer than
+/// [CredentialRules.passwordMinLength] characters) blocks sign-up; the rest
+/// is guidance shown next to the field.
+enum PasswordStrength {
+  weak('Weak password.', 'Use at least ${CredentialRules.passwordMinLength} characters.'),
+  okay('Okay password.', 'Longer or more varied would be safer.'),
+  good('Good password.', '12+ characters, hard to guess.'),
+  strong('Strong password.', 'Long and varied. Nice.');
+
+  final String title;
+  final String hint;
+
+  const PasswordStrength(this.title, this.hint);
+
+  /// Number of meter segments to fill, out of four.
+  int get filledSegments => index + 1;
+
+  static PasswordStrength of(String password) {
+    if (password.length < CredentialRules.passwordMinLength) return weak;
+
+    final classes = [
+      RegExp(r'[a-z]'),
+      RegExp(r'[A-Z]'),
+      RegExp(r'[0-9]'),
+      RegExp(r'[^A-Za-z0-9]'),
+    ].where((pattern) => pattern.hasMatch(password)).length;
+
+    if (password.length >= 12 && classes >= 3) return strong;
+    if (password.length >= 12 || classes >= 3) return good;
+    return okay;
+  }
+}
+
 /// Email and password typed on the sign-in form.
 class SignInParams extends Equatable {
   final String email;

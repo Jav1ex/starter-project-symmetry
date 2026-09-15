@@ -1,0 +1,82 @@
+import 'package:flutter/widgets.dart';
+import 'package:go_router/go_router.dart';
+import 'package:news_app_clean_architecture/config/routes/app_routes.dart';
+import 'package:news_app_clean_architecture/config/routes/session_redirect.dart';
+import 'package:news_app_clean_architecture/config/routes/stream_refresh_listenable.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/screens/sign_in_screen.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/screens/sign_up_screen.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/screens/splash_screen.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/screens/welcome_screen.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/home_screen.dart';
+import 'package:news_app_clean_architecture/features/settings/presentation/screens/country_screen.dart';
+import 'package:news_app_clean_architecture/features/settings/presentation/screens/default_category_screen.dart';
+import 'package:news_app_clean_architecture/features/settings/presentation/screens/settings_screen.dart';
+
+/// Builds the app's router. Redirects follow [SessionRedirect] and re-run
+/// every time the session changes.
+abstract final class AppRouter {
+  static GoRouter build(SessionCubit sessionCubit) {
+    return GoRouter(
+      initialLocation: AppRoutes.splash,
+      refreshListenable: StreamRefreshListenable(sessionCubit.stream),
+      redirect: (context, state) => SessionRedirect.resolve(
+        session: sessionCubit.state,
+        location: state.matchedLocation,
+      ),
+      routes: [
+        GoRoute(
+          path: AppRoutes.splash,
+          builder: (context, state) => const SplashScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.welcome,
+          builder: (context, state) => const WelcomeScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.signIn,
+          builder: (context, state) => const SignInScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.signUp,
+          builder: (context, state) => const SignUpScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.home,
+          builder: (context, state) => const HomeScreen(),
+        ),
+        GoRoute(
+          path: AppRoutes.settings,
+          builder: (context, state) => const SettingsScreen(),
+          routes: [
+            GoRoute(
+              path: 'category',
+              builder: (context, state) => const DefaultCategoryScreen(),
+            ),
+            GoRoute(
+              path: 'country',
+              builder: (context, state) => const CountryScreen(),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+/// Navigation helpers so screens never spell out paths.
+extension AppNavigation on BuildContext {
+  void goToSignIn() => go(AppRoutes.signIn);
+
+  void goToSignUp() => go(AppRoutes.signUp);
+
+  void goToWelcome() => go(AppRoutes.welcome);
+
+  void goHome() => go(AppRoutes.home);
+
+  void pushSettings() => push(AppRoutes.settings);
+
+  void pushDefaultCategoryPicker() => push(AppRoutes.settingsCategory);
+
+  void pushCountryPicker() => push(AppRoutes.settingsCountry);
+}
