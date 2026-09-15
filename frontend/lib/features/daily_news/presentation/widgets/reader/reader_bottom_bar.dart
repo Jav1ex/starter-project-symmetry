@@ -48,21 +48,19 @@ class ReaderBottomBar extends StatelessWidget {
                 child: _BarAction(icon: Icons.share_outlined, label: 'Share', color: palette.ink, onPressed: onShare),
               ),
               Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    IconButton(
-                      onPressed: onSmallerText,
-                      tooltip: 'Smaller text',
-                      icon: const Text('A−', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w700)),
-                    ),
-                    Text(textSize.label, style: AppTypography.navLabel.copyWith(color: palette.inkSecondary)),
-                    IconButton(
-                      onPressed: onLargerText,
-                      tooltip: 'Larger text',
-                      icon: const Text('A+', style: TextStyle(fontSize: 19, fontWeight: FontWeight.w700)),
-                    ),
-                  ],
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      _TextSizeButton(label: 'A−', fontSize: 15, tooltip: 'Smaller text', onPressed: onSmallerText),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                        child: Text(textSize.label, style: AppTypography.navLabel.copyWith(color: palette.inkSecondary)),
+                      ),
+                      _TextSizeButton(label: 'A+', fontSize: 19, tooltip: 'Larger text', onPressed: onLargerText),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -93,6 +91,26 @@ class _BarAction extends StatelessWidget {
           Text(label, style: AppTypography.navLabel.copyWith(color: color)),
         ],
       ),
+    );
+  }
+}
+
+class _TextSizeButton extends StatelessWidget {
+  final String label;
+  final double fontSize;
+  final String tooltip;
+  final VoidCallback onPressed;
+
+  const _TextSizeButton({required this.label, required this.fontSize, required this.tooltip, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      onPressed: onPressed,
+      tooltip: tooltip,
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(minWidth: AppSizes.touchTarget, minHeight: AppSizes.touchTarget),
+      icon: Text(label, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700, color: context.palette.ink)),
     );
   }
 }

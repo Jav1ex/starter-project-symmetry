@@ -12,5 +12,6 @@ Future<void> main() async {
     savedArticlesCubit: sl(),
     feedCubit: sl(),
     myArticlesCubit: sl(),
+    briefCubit: sl(),
   ));
 }

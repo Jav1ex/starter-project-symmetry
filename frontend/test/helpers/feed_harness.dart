@@ -10,15 +10,19 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_my_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_saved_articles.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_top_headlines.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/search_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/remove_saved_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/update_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/publish/publish_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/search/search_cubit.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:provider/single_child_widget.dart';
 
@@ -43,6 +47,10 @@ class MockUpdateArticleUseCase extends Mock implements UpdateArticleUseCase {}
 
 class MockPickThumbnailUseCase extends Mock implements PickThumbnailUseCase {}
 
+class MockGetTopHeadlinesUseCase extends Mock implements GetTopHeadlinesUseCase {}
+
+class MockSearchArticlesUseCase extends Mock implements SearchArticlesUseCase {}
+
 /// Everything the Home shell needs: session, settings and the app-wide
 /// cubits (saved, feed, my articles), plus a PublishCubit factory in the
 /// service locator. Create it inside the test body and pass [providers] to
@@ -61,7 +69,10 @@ class ShellHarness {
   final MockPickThumbnailUseCase pickThumbnail = MockPickThumbnailUseCase();
   late final SavedArticlesCubit savedCubit;
   late final FeedCubit feedCubit;
+  final MockGetTopHeadlinesUseCase getTopHeadlines = MockGetTopHeadlinesUseCase();
+  final MockSearchArticlesUseCase searchArticles = MockSearchArticlesUseCase();
   late final MyArticlesCubit myArticlesCubit;
+  late final BriefCubit briefCubit;
 
   ShellHarness({FeedEntity feed = FeedEntity.empty, List<ArticleEntity> myArticles = const []}) {
     registerFallbackValue(const NewsQuery());
@@ -78,6 +89,11 @@ class ShellHarness {
     savedCubit = SavedArticlesCubit(getSaved, save, remove);
     feedCubit = FeedCubit(getFeed);
     myArticlesCubit = MyArticlesCubit(getMyArticles, deleteArticle);
+    when(() => getTopHeadlines(any())).thenAnswer((_) async => DataSuccess(feed.articles));
+    when(() => searchArticles(any())).thenAnswer((_) async => DataSuccess(feed));
+    briefCubit = BriefCubit(getTopHeadlines);
+    if (sl.isRegistered<SearchCubit>()) sl.unregister<SearchCubit>();
+    sl.registerFactory<SearchCubit>(() => SearchCubit(searchArticles, debounce: Duration.zero));
     if (sl.isRegistered<PublishCubit>()) sl.unregister<PublishCubit>();
     sl.registerFactoryParam<PublishCubit, ArticleEntity?, void>(
       (original, _) => PublishCubit(publishArticle, updateArticle, pickThumbnail, original: original),
@@ -85,6 +101,8 @@ class ShellHarness {
     session.signIn(user);
     addTearDown(() async {
       sl.unregister<PublishCubit>();
+      sl.unregister<SearchCubit>();
+      await briefCubit.close();
       await savedCubit.close();
       await feedCubit.close();
       await myArticlesCubit.close();
@@ -99,5 +117,6 @@ class ShellHarness {
         BlocProvider.value(value: savedCubit),
         BlocProvider.value(value: feedCubit),
         BlocProvider.value(value: myArticlesCubit),
+        BlocProvider.value(value: briefCubit),
       ];
 }

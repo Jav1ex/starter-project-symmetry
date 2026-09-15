@@ -3,6 +3,7 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/search/highlighted_text.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/relative_time_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/labels/category_label.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/labels/you_badge.dart';
@@ -21,6 +22,9 @@ class FeedItem extends StatelessWidget {
   final bool thumbnailLeft;
   final String? metaOverride;
 
+  /// Search query whose matches are marked in the title and teaser.
+  final String highlight;
+
   const FeedItem({
     super.key,
     required this.article,
@@ -28,6 +32,7 @@ class FeedItem extends StatelessWidget {
     this.isOwn = false,
     this.thumbnailLeft = false,
     this.metaOverride,
+    this.highlight = '',
   });
 
   @override
@@ -46,13 +51,13 @@ class FeedItem extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.xs),
-        Text(article.title, style: AppTypography.title.copyWith(color: palette.ink)),
+        HighlightedText(text: article.title, query: highlight, style: AppTypography.title.copyWith(color: palette.ink)),
         if (article.description case final teaser?) ...[
           const SizedBox(height: AppSpacing.xs),
-          Text(
-            teaser,
+          HighlightedText(
+            text: teaser,
+            query: highlight,
             maxLines: 2,
-            overflow: TextOverflow.ellipsis,
             style: AppTypography.bodySmall.copyWith(color: palette.inkSecondary),
           ),
         ],
