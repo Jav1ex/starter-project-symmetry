@@ -72,7 +72,7 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
-  ArticleDao? _articleDAOInstance;
+  SavedArticleDao? _savedArticleDaoInstance;
 
   Future<sqflite.Database> open(
     String path,
@@ -80,7 +80,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -96,7 +96,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `article` (`id` INTEGER, `author` TEXT, `title` TEXT, `description` TEXT, `url` TEXT, `urlToImage` TEXT, `publishedAt` TEXT, `content` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `saved_article` (`id` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `description` TEXT, `author` TEXT NOT NULL, `authorId` TEXT, `imageUrl` TEXT, `imagePath` TEXT, `url` TEXT, `publishedAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -105,42 +105,32 @@ class _$AppDatabase extends AppDatabase {
   }
 
   @override
-  ArticleDao get articleDAO {
-    return _articleDAOInstance ??= _$ArticleDao(database, changeListener);
+  SavedArticleDao get savedArticleDao {
+    return _savedArticleDaoInstance ??=
+        _$SavedArticleDao(database, changeListener);
   }
 }
 
-class _$ArticleDao extends ArticleDao {
-  _$ArticleDao(
+class _$SavedArticleDao extends SavedArticleDao {
+  _$SavedArticleDao(
     this.database,
     this.changeListener,
   )   : _queryAdapter = QueryAdapter(database),
-        _articleModelInsertionAdapter = InsertionAdapter(
+        _savedArticleModelInsertionAdapter = InsertionAdapter(
             database,
-            'article',
-            (ArticleModel item) => <String, Object?>{
+            'saved_article',
+            (SavedArticleModel item) => <String, Object?>{
                   'id': item.id,
-                  'author': item.author,
+                  'source': _articleSourceConverter.encode(item.source),
                   'title': item.title,
+                  'content': item.content,
                   'description': item.description,
-                  'url': item.url,
-                  'urlToImage': item.urlToImage,
-                  'publishedAt': item.publishedAt,
-                  'content': item.content
-                }),
-        _articleModelDeletionAdapter = DeletionAdapter(
-            database,
-            'article',
-            ['id'],
-            (ArticleModel item) => <String, Object?>{
-                  'id': item.id,
                   'author': item.author,
-                  'title': item.title,
-                  'description': item.description,
+                  'authorId': item.authorId,
+                  'imageUrl': item.imageUrl,
+                  'imagePath': item.imagePath,
                   'url': item.url,
-                  'urlToImage': item.urlToImage,
-                  'publishedAt': item.publishedAt,
-                  'content': item.content
+                  'publishedAt': _dateTimeConverter.encode(item.publishedAt)
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -149,32 +139,57 @@ class _$ArticleDao extends ArticleDao {
 
   final QueryAdapter _queryAdapter;
 
-  final InsertionAdapter<ArticleModel> _articleModelInsertionAdapter;
-
-  final DeletionAdapter<ArticleModel> _articleModelDeletionAdapter;
+  final InsertionAdapter<SavedArticleModel> _savedArticleModelInsertionAdapter;
 
   @override
-  Future<List<ArticleModel>> getArticles() async {
-    return _queryAdapter.queryList('SELECT * FROM article',
-        mapper: (Map<String, Object?> row) => ArticleModel(
-            id: row['id'] as int?,
-            author: row['author'] as String?,
-            title: row['title'] as String?,
+  Future<List<SavedArticleModel>> getArticles() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM saved_article ORDER BY publishedAt DESC',
+        mapper: (Map<String, Object?> row) => SavedArticleModel(
+            id: row['id'] as String,
+            source: _articleSourceConverter.decode(row['source'] as String),
+            title: row['title'] as String,
+            content: row['content'] as String,
+            author: row['author'] as String,
+            publishedAt: _dateTimeConverter.decode(row['publishedAt'] as int),
             description: row['description'] as String?,
-            url: row['url'] as String?,
-            urlToImage: row['urlToImage'] as String?,
-            publishedAt: row['publishedAt'] as String?,
-            content: row['content'] as String?));
+            authorId: row['authorId'] as String?,
+            imageUrl: row['imageUrl'] as String?,
+            imagePath: row['imagePath'] as String?,
+            url: row['url'] as String?));
   }
 
   @override
-  Future<void> insertArticle(ArticleModel article) async {
-    await _articleModelInsertionAdapter.insert(
-        article, OnConflictStrategy.abort);
+  Future<SavedArticleModel?> findById(String id) async {
+    return _queryAdapter.query('SELECT * FROM saved_article WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => SavedArticleModel(
+            id: row['id'] as String,
+            source: _articleSourceConverter.decode(row['source'] as String),
+            title: row['title'] as String,
+            content: row['content'] as String,
+            author: row['author'] as String,
+            publishedAt: _dateTimeConverter.decode(row['publishedAt'] as int),
+            description: row['description'] as String?,
+            authorId: row['authorId'] as String?,
+            imageUrl: row['imageUrl'] as String?,
+            imagePath: row['imagePath'] as String?,
+            url: row['url'] as String?),
+        arguments: [id]);
   }
 
   @override
-  Future<void> deleteArticle(ArticleModel articleModel) async {
-    await _articleModelDeletionAdapter.delete(articleModel);
+  Future<void> deleteById(String id) async {
+    await _queryAdapter.queryNoReturn('DELETE FROM saved_article WHERE id = ?1',
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> insertArticle(SavedArticleModel article) async {
+    await _savedArticleModelInsertionAdapter.insert(
+        article, OnConflictStrategy.replace);
   }
 }
+
+// ignore_for_file: unused_element
+final _dateTimeConverter = DateTimeConverter();
+final _articleSourceConverter = ArticleSourceConverter();

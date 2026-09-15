@@ -1,33 +1,46 @@
 import 'package:dio/dio.dart';
 import 'package:news_app_clean_architecture/core/constants/constants.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/models/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/models/article_model.dart';
 
-/// Remote data source for the NewsAPI `top-headlines` endpoint.
+/// Remote data source for the news provider.
 ///
-/// Converts the raw JSON payload into [ArticleModel]s and lets [DioException]s
-/// propagate, so the repository decides how failures surface to the domain.
+/// Converts raw JSON into [ArticleModel]s and lets [DioException]s propagate;
+/// the repository decides how failures surface to the domain.
 class NewsApiService {
   final Dio _dio;
 
   NewsApiService(this._dio);
 
   static const String _topHeadlinesPath = '/top-headlines';
+  static const String _everythingPath = '/everything';
   static const String _articlesKey = 'articles';
+  static const int _searchPageSize = 30;
 
-  Future<List<ArticleModel>> getNewsArticles({
-    required String apiKey,
+  Future<List<ArticleModel>> getTopHeadlines({
     required String country,
     required String category,
   }) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '$newsAPIBaseURL$_topHeadlinesPath',
       queryParameters: {
-        'apiKey': apiKey,
+        'apiKey': newsAPIKey,
         'country': country,
         'category': category,
       },
     );
+    return _parseArticles(response.data);
+  }
 
+  Future<List<ArticleModel>> searchArticles(String query) async {
+    final response = await _dio.get<Map<String, dynamic>>(
+      '$newsAPIBaseURL$_everythingPath',
+      queryParameters: {
+        'apiKey': newsAPIKey,
+        'q': query,
+        'sortBy': 'publishedAt',
+        'pageSize': _searchPageSize,
+      },
+    );
     return _parseArticles(response.data);
   }
 
@@ -38,7 +51,7 @@ class NewsApiService {
     }
     return rawArticles
         .whereType<Map<String, dynamic>>()
-        .map(ArticleModel.fromJson)
+        .map(ArticleModel.fromRawData)
         .toList();
   }
 }

@@ -39,7 +39,7 @@ class ArticleWidget extends StatelessWidget {
 
   Widget _buildImage(BuildContext context) {
     return CachedNetworkImage(
-        imageUrl: article!.urlToImage!,
+        imageUrl: article!.imageUrl ?? '',
         imageBuilder: (context, imageProvider) => Padding(
               padding: const EdgeInsetsDirectional.only(end: 14),
               child: ClipRRect(
@@ -94,7 +94,7 @@ class ArticleWidget extends StatelessWidget {
           children: [
             // Title
             Text(
-              article!.title ?? '',
+              article!.title,
               maxLines: 3,
               overflow: TextOverflow.ellipsis,
               style: const TextStyle(
@@ -122,7 +122,7 @@ class ArticleWidget extends StatelessWidget {
                 const Icon(Icons.timeline_outlined, size: 16),
                 const SizedBox(width: 4),
                 Text(
-                  article!.publishedAt!,
+                  article!.publishedAt.toLocal().toString(),
                   style: const TextStyle(
                     fontSize: 12,
                   ),
