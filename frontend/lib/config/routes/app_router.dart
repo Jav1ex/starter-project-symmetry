@@ -10,6 +10,8 @@ import 'package:news_app_clean_architecture/features/auth/presentation/screens/s
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/home_shell_screen.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/my_articles_screen.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/publish_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/reader_screen.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/screens/country_screen.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/screens/default_category_screen.dart';
@@ -52,6 +54,14 @@ abstract final class AppRouter {
           builder: (context, state) => ReaderScreen(article: state.extra! as ArticleEntity),
         ),
         GoRoute(
+          path: AppRoutes.publish,
+          builder: (context, state) => PublishScreen(article: state.extra as ArticleEntity?),
+        ),
+        GoRoute(
+          path: AppRoutes.myArticles,
+          builder: (context, state) => const MyArticlesScreen(),
+        ),
+        GoRoute(
           path: AppRoutes.settings,
           builder: (context, state) => const SettingsScreen(),
           routes: [
@@ -83,6 +93,10 @@ extension AppNavigation on BuildContext {
   void pushSettings() => push(AppRoutes.settings);
 
   void pushReader(ArticleEntity article) => push(AppRoutes.reader, extra: article);
+
+  void pushPublish({ArticleEntity? article}) => push(AppRoutes.publish, extra: article);
+
+  void pushMyArticles() => push(AppRoutes.myArticles);
 
   void pushDefaultCategoryPicker() => push(AppRoutes.settingsCategory);
 

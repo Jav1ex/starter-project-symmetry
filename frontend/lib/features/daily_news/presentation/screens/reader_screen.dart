@@ -1,15 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_app_clean_architecture/config/routes/app_router.dart';
 import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/my_articles/delete_article_dialog.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/reader/reader_bottom_bar.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/reader/reader_hero.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
+import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/relative_time_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/app_snack_bar.dart';
@@ -23,6 +28,22 @@ class ReaderScreen extends StatelessWidget {
   final ArticleEntity article;
 
   const ReaderScreen({super.key, required this.article});
+
+  Future<void> _delete(BuildContext context) async {
+    final myArticles = context.read<MyArticlesCubit>();
+    final feed = context.read<FeedCubit>();
+    final navigator = Navigator.of(context);
+    final confirmed = await DeleteArticleDialog.show(context, title: article.title);
+    if (!confirmed || !context.mounted) return;
+    final deleted = await myArticles.delete(article);
+    if (!context.mounted) return;
+    if (deleted) {
+      feed.refresh();
+      navigator.pop();
+    } else if (myArticles.state.failure case final failure?) {
+      showAppSnackBar(context, FailureMessageFormatter.of(failure));
+    }
+  }
 
   Future<void> _share(BuildContext context) async {
     await Clipboard.setData(ClipboardData(text: article.url ?? article.title));
@@ -88,6 +109,32 @@ class ReaderScreen extends StatelessWidget {
               ),
             ],
           ),
+          if (isOwn)
+            Positioned(
+              top: MediaQuery.paddingOf(context).top + AppSpacing.sm,
+              right: AppSpacing.lg,
+              child: MenuAnchor(
+                menuChildren: [
+                  MenuItemButton(
+                    leadingIcon: const Icon(Icons.edit_outlined),
+                    onPressed: () => context.pushPublish(article: article),
+                    child: const Text('Edit article'),
+                  ),
+                  MenuItemButton(
+                    leadingIcon: Icon(Icons.delete_outline_rounded, color: palette.error),
+                    onPressed: () => _delete(context),
+                    child: Text('Delete article', style: TextStyle(color: palette.error)),
+                  ),
+                ],
+                builder: (context, controller, _) => LabeledIconButton(
+                  icon: Icons.more_horiz_rounded,
+                  label: 'More',
+                  color: article.hasImage ? Colors.white : palette.primary,
+                  backgroundColor: article.hasImage ? palette.ink.withValues(alpha: 0.35) : palette.surface,
+                  onPressed: () => controller.isOpen ? controller.close() : controller.open(),
+                ),
+              ),
+            ),
           Positioned(
             top: MediaQuery.paddingOf(context).top + AppSpacing.sm,
             left: AppSpacing.lg,

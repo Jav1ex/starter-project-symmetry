@@ -2,13 +2,22 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/delete_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_feed.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_my_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_saved_articles.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/remove_saved_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/update_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/publish/publish_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:provider/single_child_widget.dart';
@@ -24,9 +33,20 @@ class MockSaveArticleUseCase extends Mock implements SaveArticleUseCase {}
 
 class MockRemoveSavedArticleUseCase extends Mock implements RemoveSavedArticleUseCase {}
 
-/// Everything the Home shell needs: session, settings, saved articles and a
-/// FeedCubit registered in the service locator. Create it inside the test
-/// body and pass [providers] to the pump helpers.
+class MockGetMyArticlesUseCase extends Mock implements GetMyArticlesUseCase {}
+
+class MockDeleteArticleUseCase extends Mock implements DeleteArticleUseCase {}
+
+class MockPublishArticleUseCase extends Mock implements PublishArticleUseCase {}
+
+class MockUpdateArticleUseCase extends Mock implements UpdateArticleUseCase {}
+
+class MockPickThumbnailUseCase extends Mock implements PickThumbnailUseCase {}
+
+/// Everything the Home shell needs: session, settings and the app-wide
+/// cubits (saved, feed, my articles), plus a PublishCubit factory in the
+/// service locator. Create it inside the test body and pass [providers] to
+/// the pump helpers.
 class ShellHarness {
   final SessionHarness session = SessionHarness();
   final SettingsHarness settings = SettingsHarness();
@@ -34,22 +54,40 @@ class ShellHarness {
   final MockGetSavedArticlesUseCase getSaved = MockGetSavedArticlesUseCase();
   final MockSaveArticleUseCase save = MockSaveArticleUseCase();
   final MockRemoveSavedArticleUseCase remove = MockRemoveSavedArticleUseCase();
+  final MockGetMyArticlesUseCase getMyArticles = MockGetMyArticlesUseCase();
+  final MockDeleteArticleUseCase deleteArticle = MockDeleteArticleUseCase();
+  final MockPublishArticleUseCase publishArticle = MockPublishArticleUseCase();
+  final MockUpdateArticleUseCase updateArticle = MockUpdateArticleUseCase();
+  final MockPickThumbnailUseCase pickThumbnail = MockPickThumbnailUseCase();
   late final SavedArticlesCubit savedCubit;
+  late final FeedCubit feedCubit;
+  late final MyArticlesCubit myArticlesCubit;
 
-  ShellHarness({FeedEntity feed = FeedEntity.empty}) {
+  ShellHarness({FeedEntity feed = FeedEntity.empty, List<ArticleEntity> myArticles = const []}) {
     registerFallbackValue(const NewsQuery());
     registerFallbackValue(buildArticle());
+    registerFallbackValue(PublishArticleParams(draft: buildDraft()));
+    registerFallbackValue(UpdateArticleParams(article: buildArticle(), draft: buildDraft()));
     when(() => getFeed(any())).thenAnswer((_) async => DataSuccess(feed));
     when(() => getSaved(any())).thenAnswer((_) async => const DataSuccess([]));
     when(() => save(any())).thenAnswer((_) async => const DataSuccess(null));
     when(() => remove(any())).thenAnswer((_) async => const DataSuccess(null));
+    when(() => getMyArticles(any())).thenAnswer((_) async => DataSuccess(myArticles));
+    when(() => deleteArticle(any())).thenAnswer((_) async => const DataSuccess(null));
+    when(() => pickThumbnail(any())).thenAnswer((_) async => DataSuccess(buildImage()));
     savedCubit = SavedArticlesCubit(getSaved, save, remove);
-    if (sl.isRegistered<FeedCubit>()) sl.unregister<FeedCubit>();
-    sl.registerFactory<FeedCubit>(() => FeedCubit(getFeed));
+    feedCubit = FeedCubit(getFeed);
+    myArticlesCubit = MyArticlesCubit(getMyArticles, deleteArticle);
+    if (sl.isRegistered<PublishCubit>()) sl.unregister<PublishCubit>();
+    sl.registerFactoryParam<PublishCubit, ArticleEntity?, void>(
+      (original, _) => PublishCubit(publishArticle, updateArticle, pickThumbnail, original: original),
+    );
     session.signIn(user);
     addTearDown(() async {
-      sl.unregister<FeedCubit>();
+      sl.unregister<PublishCubit>();
       await savedCubit.close();
+      await feedCubit.close();
+      await myArticlesCubit.close();
       await session.dispose();
       await settings.dispose();
     });
@@ -59,5 +97,7 @@ class ShellHarness {
         BlocProvider.value(value: session.cubit),
         BlocProvider.value(value: settings.cubit),
         BlocProvider.value(value: savedCubit),
+        BlocProvider.value(value: feedCubit),
+        BlocProvider.value(value: myArticlesCubit),
       ];
 }

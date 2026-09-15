@@ -5,20 +5,36 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
+import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/settings_row.dart';
+import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/settings_section.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/media/user_avatar.dart';
 
-/// The signed-in account: avatar, name, email and the saved counter.
-/// Published articles and their counter join in the publishing release.
-class ProfileScreen extends StatelessWidget {
+/// The signed-in account: avatar, name, email, the two counters and the
+/// links to My articles and Saved.
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    final myArticles = context.read<MyArticlesCubit>();
+    if (myArticles.state.status == MyArticlesStatus.initial) myArticles.load();
+  }
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
     final user = context.select((SessionCubit cubit) => cubit.state.user);
     final savedCount = context.select((SavedArticlesCubit cubit) => cubit.state.articles.length);
+    final publishedCount = context.select((MyArticlesCubit cubit) => cubit.state.articles.length);
     if (user == null) return const SizedBox.shrink();
 
     return Scaffold(
@@ -61,7 +77,30 @@ class ProfileScreen extends StatelessWidget {
               ),
             ],
             const SizedBox(height: AppSpacing.xxl),
-            _CounterCard(value: savedCount, label: 'Saved', hint: 'For later'),
+            Row(
+              children: [
+                Expanded(child: _CounterCard(value: publishedCount, label: 'Published', hint: 'My articles')),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(child: _CounterCard(value: savedCount, label: 'Saved', hint: 'For later')),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.xxl),
+            SettingsSection(
+              title: 'Your writing',
+              children: [
+                SettingsRow(
+                  label: 'My articles',
+                  value: '$publishedCount',
+                  icon: Icons.article_outlined,
+                  onTap: context.pushMyArticles,
+                ),
+                SettingsRow(
+                  label: 'Write an article',
+                  icon: Icons.edit_outlined,
+                  onTap: () => context.pushPublish(),
+                ),
+              ],
+            ),
           ],
         ),
       ),

@@ -6,5 +6,11 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDependencies();
 
-  runApp(DailyNewsApp(sessionCubit: sl(), settingsCubit: sl(), savedArticlesCubit: sl()));
+  runApp(DailyNewsApp(
+    sessionCubit: sl(),
+    settingsCubit: sl(),
+    savedArticlesCubit: sl(),
+    feedCubit: sl(),
+    myArticlesCubit: sl(),
+  ));
 }
