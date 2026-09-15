@@ -58,7 +58,7 @@ class _DailyNewsAppState extends State<DailyNewsApp> {
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
           return MaterialApp.router(
-            title: 'Daily News',
+            title: 'Headline News',
             debugShowCheckedModeBanner: false,
             theme: AppTheme.light(),
             darkTheme: AppTheme.dark(),

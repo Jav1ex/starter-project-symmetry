@@ -17,6 +17,7 @@ import 'package:news_app_clean_architecture/shared/presentation/formatters/failu
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/secondary_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/app_snack_bar.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/empty_state.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/staggered_entrance.dart';
 
 /// Home tab: greeting, then provider headlines and own articles in one
 /// timeline. Reloads whenever the feed settings change.
@@ -140,14 +141,21 @@ class _FeedBody extends StatelessWidget {
                   title: feed.remoteFailure == null ? 'Latest' : 'Your articles',
                   updatedAt: loadedAt,
                 ),
-                for (final article in feed.articles) ...[
-                  FeedItem(
-                    article: article,
-                    isOwn: article.isOwnedBy(userId),
-                    onTap: () => context.pushReader(article),
+                for (final (index, article) in feed.articles.indexed)
+                  StaggeredEntrance(
+                    key: ValueKey('feed-${article.id}'),
+                    index: index,
+                    child: Column(
+                      children: [
+                        FeedItem(
+                          article: article,
+                          isOwn: article.isOwnedBy(userId),
+                          onTap: () => context.pushReader(article),
+                        ),
+                        const Divider(),
+                      ],
+                    ),
                   ),
-                  const Divider(),
-                ],
               ],
             ),
         };

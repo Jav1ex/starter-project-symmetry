@@ -34,6 +34,7 @@ void main() {
     );
 
     expect(find.byType(Shimmer), findsNothing);
-    expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.6);
+    final opacity = find.descendant(of: find.byType(SkeletonArea), matching: find.byType(Opacity));
+    expect(tester.widget<Opacity>(opacity).opacity, 0.6);
   });
 }
