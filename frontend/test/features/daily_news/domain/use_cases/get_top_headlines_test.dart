@@ -10,7 +10,7 @@ import '../../../../helpers/mocks.dart';
 void main() {
   test('forwards the query and failures', () async {
     final news = MockNewsRepository();
-    const query = NewsQuery(country: 'gb');
+    const query = NewsQuery();
     when(() => news.getTopHeadlines(query))
         .thenAnswer((_) async => const DataFailed(Failure.network()));
 

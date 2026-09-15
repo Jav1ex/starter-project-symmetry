@@ -20,7 +20,7 @@ void main() {
 
   late MockGetFeedUseCase getFeed;
   late FeedCubit cubit;
-  const query = NewsQuery(category: NewsCategory.health, country: 'pt');
+  const query = NewsQuery(category: NewsCategory.health);
   final feed = FeedEntity(articles: [buildArticle()]);
 
   setUp(() {

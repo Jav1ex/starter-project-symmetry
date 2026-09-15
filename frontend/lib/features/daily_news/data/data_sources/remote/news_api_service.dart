@@ -16,15 +16,15 @@ class NewsApiService {
   static const String _articlesKey = 'articles';
   static const int _searchPageSize = 30;
 
-  Future<List<ArticleModel>> getTopHeadlines({
-    required String country,
-    required String category,
-  }) async {
+  /// The provider requires a country for top headlines. The app is
+  /// US/English-only by design, so it is fixed to [countryQuery] here and
+  /// never reaches the domain.
+  Future<List<ArticleModel>> getTopHeadlines({required String category}) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '$newsAPIBaseURL$_topHeadlinesPath',
       queryParameters: {
         'apiKey': newsAPIKey,
-        'country': country,
+        'country': countryQuery,
         'category': category,
       },
     );

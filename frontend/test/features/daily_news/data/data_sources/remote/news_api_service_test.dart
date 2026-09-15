@@ -40,10 +40,10 @@ void main() {
   });
 
   group('getTopHeadlines', () {
-    test('calls /top-headlines with country, category and the API key', () async {
+    test('calls /top-headlines with the fixed country, the category and the API key', () async {
       whenGet().thenAnswer((_) async => responseWith({'articles': []}));
 
-      await service.getTopHeadlines(country: 'us', category: 'science');
+      await service.getTopHeadlines(category: 'science');
 
       final captured = capturedGet();
       expect(captured[0], '$newsAPIBaseURL/top-headlines');
@@ -64,17 +64,17 @@ void main() {
         }),
       );
 
-      final articles = await service.getTopHeadlines(country: 'us', category: 'general');
+      final articles = await service.getTopHeadlines(category: 'general');
 
       expect(articles.map((a) => a.title), ['First', 'Second']);
     });
 
     test('returns an empty list when "articles" is missing or not a list', () async {
       whenGet().thenAnswer((_) async => responseWith({'status': 'ok', 'articles': 'x'}));
-      expect(await service.getTopHeadlines(country: 'us', category: 'general'), isEmpty);
+      expect(await service.getTopHeadlines(category: 'general'), isEmpty);
 
       whenGet().thenAnswer((_) async => responseWith(null));
-      expect(await service.getTopHeadlines(country: 'us', category: 'general'), isEmpty);
+      expect(await service.getTopHeadlines(category: 'general'), isEmpty);
     });
 
     test('skips entries that are not JSON objects', () async {
@@ -82,7 +82,7 @@ void main() {
         (_) async => responseWith({'articles': [1, 'x', {'title': 'Only'}]}),
       );
 
-      final articles = await service.getTopHeadlines(country: 'us', category: 'general');
+      final articles = await service.getTopHeadlines(category: 'general');
 
       expect(articles.single.title, 'Only');
     });
@@ -92,7 +92,7 @@ void main() {
       whenGet().thenThrow(failure);
 
       expect(
-        service.getTopHeadlines(country: 'us', category: 'general'),
+        service.getTopHeadlines(category: 'general'),
         throwsA(same(failure)),
       );
     });

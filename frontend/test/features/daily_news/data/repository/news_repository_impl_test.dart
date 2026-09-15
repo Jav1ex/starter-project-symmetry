@@ -37,12 +37,12 @@ void main() {
   });
 
   group('getTopHeadlines', () {
-    test('forwards the category api value and country to the service', () async {
-      when(() => api.getTopHeadlines(country: 'gb', category: 'sports'))
+    test('forwards the category api value to the service', () async {
+      when(() => api.getTopHeadlines(category: 'sports'))
           .thenAnswer((_) async => [model]);
 
       final result = await repository.getTopHeadlines(
-        const NewsQuery(category: NewsCategory.sports, country: 'gb'),
+        const NewsQuery(category: NewsCategory.sports),
       );
 
       expect(result, isA<DataSuccess<List<ArticleEntity>>>());
@@ -51,7 +51,7 @@ void main() {
     });
 
     test('maps a connection timeout to a network failure', () async {
-      when(() => api.getTopHeadlines(country: any(named: 'country'), category: any(named: 'category')))
+      when(() => api.getTopHeadlines(category: any(named: 'category')))
           .thenThrow(dioError(DioExceptionType.connectionTimeout));
 
       final result = await repository.getTopHeadlines(const NewsQuery());
@@ -60,7 +60,7 @@ void main() {
     });
 
     test('maps HTTP 401 to a permission failure', () async {
-      when(() => api.getTopHeadlines(country: any(named: 'country'), category: any(named: 'category')))
+      when(() => api.getTopHeadlines(category: any(named: 'category')))
           .thenThrow(dioError(DioExceptionType.badResponse, status: 401));
 
       final result = await repository.getTopHeadlines(const NewsQuery());
@@ -69,7 +69,7 @@ void main() {
     });
 
     test('maps HTTP 429 to a server failure', () async {
-      when(() => api.getTopHeadlines(country: any(named: 'country'), category: any(named: 'category')))
+      when(() => api.getTopHeadlines(category: any(named: 'category')))
           .thenThrow(dioError(DioExceptionType.badResponse, status: 429));
 
       final result = await repository.getTopHeadlines(const NewsQuery());
@@ -78,7 +78,7 @@ void main() {
     });
 
     test('maps a cancelled request to a cancelled failure', () async {
-      when(() => api.getTopHeadlines(country: any(named: 'country'), category: any(named: 'category')))
+      when(() => api.getTopHeadlines(category: any(named: 'category')))
           .thenThrow(dioError(DioExceptionType.cancel));
 
       final result = await repository.getTopHeadlines(const NewsQuery());
@@ -87,7 +87,7 @@ void main() {
     });
 
     test('does not swallow non-Dio exceptions', () {
-      when(() => api.getTopHeadlines(country: any(named: 'country'), category: any(named: 'category')))
+      when(() => api.getTopHeadlines(category: any(named: 'category')))
           .thenThrow(StateError('bug'));
 
       expect(repository.getTopHeadlines(const NewsQuery()), throwsStateError);

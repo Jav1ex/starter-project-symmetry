@@ -160,7 +160,7 @@ class _FeedBody extends StatelessWidget {
         child: EmptyState(
           glyph: 'n',
           title: 'Nothing new in ${state.query!.category.label} yet',
-          message: 'Try another category or country, or write the first story yourself.',
+          message: 'Try another category, or write the first story yourself.',
           action: SecondaryButton(
             label: 'Change category',
             onPressed: context.pushDefaultCategoryPicker,
