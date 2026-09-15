@@ -9,6 +9,7 @@ abstract final class AppRoutes {
   static const String brief = '/brief';
   static const String publish = '/publish';
   static const String myArticles = '/my-articles';
+  static const String editProfile = '/profile/edit';
   static const String settings = '/settings';
   static const String settingsCategory = '/settings/category';
   static const String settingsCountry = '/settings/country';

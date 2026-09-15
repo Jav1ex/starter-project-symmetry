@@ -25,6 +25,19 @@ service firebase.storage {
       allow delete: if isSignedIn();
     }
 
+    // Profile photos: one file per account, named after the uid, written
+    // only by that account. Anyone can view them (they appear on articles).
+    function isOwnAvatar(fileName) {
+      return isSignedIn()
+        && fileName in [request.auth.uid + '.jpg', request.auth.uid + '.png', request.auth.uid + '.webp'];
+    }
+
+    match /media/avatars/{fileName} {
+      allow read: if true;
+      allow create, update: if isOwnAvatar(fileName) && isSupportedImage() && isWithinSizeLimit();
+      allow delete: if isOwnAvatar(fileName);
+    }
+
     // Everything else in the bucket is denied by default.
   }
 }

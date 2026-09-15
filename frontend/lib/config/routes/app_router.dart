@@ -4,6 +4,8 @@ import 'package:news_app_clean_architecture/config/routes/app_routes.dart';
 import 'package:news_app_clean_architecture/config/routes/session_redirect.dart';
 import 'package:news_app_clean_architecture/config/routes/stream_refresh_listenable.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/screens/edit_profile_screen.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/sign_in_screen.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/sign_up_screen.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/splash_screen.dart';
@@ -69,6 +71,10 @@ abstract final class AppRouter {
           builder: (context, state) => const MyArticlesScreen(),
         ),
         GoRoute(
+          path: AppRoutes.editProfile,
+          builder: (context, state) => EditProfileScreen(user: state.extra! as UserEntity),
+        ),
+        GoRoute(
           path: AppRoutes.settings,
           builder: (context, state) => const SettingsScreen(),
           routes: [
@@ -99,6 +105,8 @@ extension AppNavigation on BuildContext {
   void goHome({int tab = 0}) => go(tab == 0 ? AppRoutes.home : '${AppRoutes.home}?tab=$tab');
 
   void pushSettings() => push(AppRoutes.settings);
+
+  void pushEditProfile(UserEntity user) => push(AppRoutes.editProfile, extra: user);
 
   void pushReader(ArticleEntity article) => push(AppRoutes.reader, extra: article);
 

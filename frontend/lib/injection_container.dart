@@ -7,14 +7,19 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:news_app_clean_architecture/features/auth/data/data_sources/remote/firebase_auth_service.dart';
 import 'package:news_app_clean_architecture/features/auth/data/repository/auth_repository_impl.dart';
+import 'package:news_app_clean_architecture/features/auth/data/repository/profile_photo_repository_impl.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/repository/profile_photo_repository.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/delete_account.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/get_current_user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_email.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_google.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_out.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_up_with_email.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/use_cases/update_profile.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/watch_auth_state.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/edit_profile/edit_profile_cubit.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/sign_in/sign_in_cubit.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/sign_up/sign_up_cubit.dart';
@@ -101,6 +106,7 @@ void _registerRepositories() {
   sl.registerSingleton<ThumbnailStorageRepository>(ThumbnailStorageRepositoryImpl(sl()));
   sl.registerSingleton<ImagePickerRepository>(ImagePickerRepositoryImpl(sl()));
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
+  sl.registerSingleton<ProfilePhotoRepository>(ProfilePhotoRepositoryImpl(sl()));
   sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
 }
 
@@ -127,6 +133,7 @@ void _registerAuthUseCases() {
   sl.registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(sl()));
   sl.registerSingleton<SignOutUseCase>(SignOutUseCase(sl()));
   sl.registerSingleton<DeleteAccountUseCase>(DeleteAccountUseCase(sl()));
+  sl.registerSingleton<UpdateProfileUseCase>(UpdateProfileUseCase(sl(), sl()));
 }
 
 void _registerSettingsUseCases() {
@@ -147,6 +154,9 @@ void _registerBlocs() {
   sl.registerLazySingleton<MyArticlesCubit>(() => MyArticlesCubit(sl(), sl()));
   sl.registerFactoryParam<PublishCubit, ArticleEntity?, void>(
     (original, _) => PublishCubit(sl(), sl(), sl(), original: original),
+  );
+  sl.registerFactoryParam<EditProfileCubit, UserEntity, void>(
+    (user, _) => EditProfileCubit(sl(), sl(), user: user),
   );
   sl.registerFactory<SignInCubit>(() => SignInCubit(sl(), sl()));
   sl.registerFactory<SignUpCubit>(() => SignUpCubit(sl(), sl()));

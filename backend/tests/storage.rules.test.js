@@ -1,7 +1,7 @@
 import { after, before, beforeEach, describe, it } from 'node:test';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
 import { deleteObject, getBytes, ref, uploadBytes } from 'firebase/storage';
-import { AUTHOR_UID, createTestEnvironment, fakeImageBytes } from './helpers.js';
+import { AUTHOR_UID, OTHER_UID, createTestEnvironment, fakeImageBytes } from './helpers.js';
 
 const FIVE_MIB = 5 * 1024 * 1024;
 
@@ -160,7 +160,31 @@ describe('media/articles: read and delete', () => {
   });
 
   it('denies reading objects outside media/articles/', async () => {
-    await seedImage('media/avatars/private.jpg');
-    await assertFails(getBytes(objectRef('media/avatars/private.jpg')));
+    await seedImage('media/private/secret.jpg');
+    await assertFails(getBytes(objectRef('media/private/secret.jpg')));
+  });
+});
+
+describe('media/avatars: profile photos', () => {
+  const own = `media/avatars/${AUTHOR_UID}.jpg`;
+
+  it('lets a signed-in user upload and replace their own photo', async () => {
+    await assertSucceeds(uploadBytes(objectRef(own), fakeImageBytes(), { contentType: 'image/jpeg' }));
+    await assertSucceeds(uploadBytes(objectRef(own), fakeImageBytes(), { contentType: 'image/png' }));
+  });
+
+  it('rejects a photo named after somebody else, an anonymous upload and a non-image', async () => {
+    await assertFails(
+      uploadBytes(objectRef(`media/avatars/${OTHER_UID}.jpg`), fakeImageBytes(), { contentType: 'image/jpeg' }),
+    );
+    await assertFails(uploadBytes(anonymousRef(own), fakeImageBytes(), { contentType: 'image/jpeg' }));
+    await assertFails(uploadBytes(objectRef(own), fakeImageBytes(), { contentType: 'application/pdf' }));
+  });
+
+  it('is readable by anyone and deletable only by its owner', async () => {
+    await seedImage(own);
+    await assertSucceeds(getBytes(anonymousRef(own)));
+    await assertFails(deleteObject(ref(testEnv.authenticatedContext(OTHER_UID).storage(), own)));
+    await assertSucceeds(deleteObject(objectRef(own)));
   });
 });

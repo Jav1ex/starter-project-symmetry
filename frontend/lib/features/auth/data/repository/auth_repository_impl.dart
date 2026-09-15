@@ -47,6 +47,14 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<DataState<UserEntity>> updateProfile({String? displayName, String? photoUrl}) {
+    return _guard(() async {
+      final model = await _service.updateProfile(displayName: displayName, photoUrl: photoUrl);
+      return model.toEntity();
+    });
+  }
+
+  @override
   Future<DataState<void>> signOut() => _guard(_service.signOut);
 
   @override
