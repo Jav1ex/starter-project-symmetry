@@ -38,12 +38,12 @@ describe('assist', () => {
 
   it('asks the configured model and returns the parsed suggestion', async () => {
     const client = fakeClient({
-      text: '{"headlines":["A","B","C"],"summary":"S","category":"science"}',
+      text: '{"headlines":["A","B","C"],"summary":"S"}',
     });
 
     const result = await assist({ auth: signedIn, data: { task: 'suggest', title: 'T', content: 'Body' } }, client);
 
-    assert.deepEqual(result, { headlines: ['A', 'B', 'C'], summary: 'S', category: 'science' });
+    assert.deepEqual(result, { headlines: ['A', 'B', 'C'], summary: 'S' });
     assert.equal(client.calls[0].model, MODEL);
     assert.match(client.calls[0].messages[0].content, /Title: T/);
   });

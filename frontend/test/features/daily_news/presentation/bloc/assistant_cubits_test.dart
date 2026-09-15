@@ -4,7 +4,6 @@ import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/apply_article_lens.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/editor_assistant/editor_assistant_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/reader_lens/reader_lens_cubit.dart';
@@ -20,7 +19,7 @@ void main() {
 
   group('EditorAssistantCubit', () {
     late MockSuggestArticleEditsUseCase suggest;
-    const suggestions = EditorSuggestions(headlines: ['A'], summary: 'S', category: NewsCategory.science);
+    const suggestions = EditorSuggestions(headlines: ['A'], summary: 'S');
 
     setUp(() => suggest = MockSuggestArticleEditsUseCase());
 

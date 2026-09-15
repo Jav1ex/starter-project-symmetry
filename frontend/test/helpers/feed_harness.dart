@@ -9,7 +9,6 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/params/pu
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_speech_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/apply_article_lens.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/control_reading.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/delete_article.dart';
@@ -116,7 +115,6 @@ class ShellHarness {
     when(() => suggestEdits(any())).thenAnswer((_) async => const DataSuccess(EditorSuggestions(
           headlines: ['Headline one', 'Headline two', 'Headline three'],
           summary: 'A short summary.',
-          category: NewsCategory.science,
         )));
     when(() => applyLens(any())).thenAnswer((invocation) async {
       final params = invocation.positionalArguments.single as ApplyArticleLensParams;
