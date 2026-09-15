@@ -3,6 +3,7 @@ import 'package:news_app_clean_architecture/config/theme/app_motion.dart';
 import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/brief/brief_scroll_physics.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/brief/brief_story_card.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
 
@@ -35,7 +36,10 @@ class BriefCardStackStep extends StatefulWidget {
 }
 
 class _BriefCardStackStepState extends State<BriefCardStackStep> {
-  late final PageController _controller = PageController(viewportFraction: 0.86, initialPage: widget.index);
+  late final PageController _controller = PageController(
+    viewportFraction: 0.86,
+    initialPage: widget.index,
+  );
 
   @override
   void dispose() {
@@ -79,7 +83,9 @@ class _BriefCardStackStepState extends State<BriefCardStackStep> {
                       width: i <= widget.index ? 24 : 8,
                       height: 6,
                       decoration: BoxDecoration(
-                        color: i <= widget.index ? palette.accent : Colors.white.withValues(alpha: 0.35),
+                        color: i <= widget.index
+                            ? palette.accent
+                            : Colors.white.withValues(alpha: 0.35),
                         borderRadius: BorderRadius.circular(3),
                       ),
                     ),
@@ -89,18 +95,38 @@ class _BriefCardStackStepState extends State<BriefCardStackStep> {
             Expanded(
               child: PageView.builder(
                 controller: _controller,
+                physics: const BriefScrollPhysics(),
                 scrollDirection: Axis.vertical,
                 onPageChanged: widget.onPageChanged,
                 itemCount: widget.articles.length,
                 itemBuilder: (context, i) {
                   final article = widget.articles[i];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.sm),
-                    child: BriefStoryCard(
-                      article: article,
-                      isSaved: widget.savedIds.contains(article.id),
-                      onRead: () => widget.onRead(article),
-                      onSave: () => widget.onSave(article),
+                  return AnimatedBuilder(
+                    animation: _controller,
+                    builder: (context, child) {
+                      final page = _controller.hasClients && _controller.position.haveDimensions
+                          ? _controller.page ?? widget.index.toDouble()
+                          : widget.index.toDouble();
+                      final delta = (page - i).clamp(-1.0, 1.0);
+                      final distance = delta.abs();
+                      return Transform.scale(
+                        scale: 1 - 0.06 * distance,
+                        child: Opacity(opacity: 1 - 0.4 * distance, child: child),
+                      );
+                    },
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.xxl,
+                        vertical: AppSpacing.sm,
+                      ),
+                      child: BriefStoryCard(
+                        article: article,
+                        isSaved: widget.savedIds.contains(article.id),
+                        parallax: _controller,
+                        page: i,
+                        onRead: () => widget.onRead(article),
+                        onSave: () => widget.onSave(article),
+                      ),
                     ),
                   );
                 },
@@ -112,9 +138,11 @@ class _BriefCardStackStepState extends State<BriefCardStackStep> {
                 onPressed: _next,
                 style: TextButton.styleFrom(foregroundColor: Colors.white.withValues(alpha: 0.8)),
                 icon: const Icon(Icons.keyboard_arrow_up_rounded),
-                label: Text(widget.index >= widget.articles.length - 1
-                    ? 'Finish the brief'
-                    : 'Swipe up for the next story'),
+                label: Text(
+                  widget.index >= widget.articles.length - 1
+                      ? 'Finish the brief'
+                      : 'Swipe up for the next story',
+                ),
               ),
             ),
           ],

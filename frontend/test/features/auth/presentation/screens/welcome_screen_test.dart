@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/config/routes/app_routes.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/welcome_screen.dart';
-import 'package:news_app_clean_architecture/features/auth/presentation/widgets/welcome/app_logo.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/media/brand_mark.dart';
 
 import '../../../../helpers/pump_app.dart';
 
@@ -14,8 +14,8 @@ void main() {
       routes: {AppRoutes.welcome: (_) => const WelcomeScreen()},
     );
 
-    expect(find.byType(AppLogo), findsOneWidget);
-    expect(find.text('Daily\nNews'), findsOneWidget);
+    expect(find.byType(BrandMark), findsOneWidget);
+    expect(find.text('Headline\nNews'), findsOneWidget);
     expect(find.text(WelcomeScreen.valueLine), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Sign in'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Create account'), findsOneWidget);

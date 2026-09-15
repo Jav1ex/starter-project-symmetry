@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
+import 'package:news_app_clean_architecture/config/theme/app_transitions.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 
 /// Builds the Material 3 themes from the design tokens.
@@ -195,8 +196,8 @@ abstract final class AppTheme {
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: FadeForwardsPageTransitionsBuilder(),
-          TargetPlatform.iOS: FadeForwardsPageTransitionsBuilder(),
+          TargetPlatform.android: EditorialPageTransitionsBuilder(),
+          TargetPlatform.iOS: EditorialPageTransitionsBuilder(),
         },
       ),
     );

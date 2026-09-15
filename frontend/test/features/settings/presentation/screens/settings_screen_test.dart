@@ -168,7 +168,7 @@ void main() {
     createHarnesses();
     await pumpSettings(tester);
 
-    await tester.tap(find.textContaining('About Daily News'));
+    await tester.tap(find.textContaining('About Headline News'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AboutDialog), findsOneWidget);

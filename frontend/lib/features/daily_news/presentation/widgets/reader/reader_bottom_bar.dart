@@ -3,6 +3,7 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/bounce_on_change.dart';
 
 /// Sticky 72dp bar: Save, Share and the A− / A+ text-size stepper. Every
 /// control carries a visible word.
@@ -37,11 +38,14 @@ class ReaderBottomBar extends StatelessWidget {
           child: Row(
             children: [
               Expanded(
-                child: _BarAction(
-                  icon: isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
-                  label: isSaved ? 'Saved' : 'Save',
-                  color: isSaved ? palette.primary : palette.ink,
-                  onPressed: onSave,
+                child: BounceOnChange(
+                  trigger: isSaved,
+                  child: _BarAction(
+                    icon: isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+                    label: isSaved ? 'Saved' : 'Save',
+                    color: isSaved ? palette.primary : palette.ink,
+                    onPressed: onSave,
+                  ),
                 ),
               ),
               Expanded(

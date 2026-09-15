@@ -3,7 +3,7 @@ import 'package:news_app_clean_architecture/config/routes/app_router.dart';
 import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
-import 'package:news_app_clean_architecture/features/auth/presentation/widgets/welcome/app_logo.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/media/brand_mark.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/primary_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/secondary_button.dart';
 
@@ -29,10 +29,10 @@ class WelcomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              const Center(child: AppLogo()),
+              const Center(child: BrandMark(size: 96)),
               const SizedBox(height: AppSpacing.xxl),
               Text(
-                'Daily\nNews',
+                'Headline\nNews',
                 textAlign: TextAlign.center,
                 style: AppTypography.wordmark.copyWith(color: palette.ink),
               ),

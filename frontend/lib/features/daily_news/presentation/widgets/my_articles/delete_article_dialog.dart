@@ -3,6 +3,7 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/destructive_button.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/editorial_dialog.dart';
 
 /// Plain-English confirmation before an article is deleted. Resolves to
 /// `true` only when the user confirmed.
@@ -15,7 +16,7 @@ class DeleteArticleDialog extends StatelessWidget {
       'The article and its photo will be removed. Readers who saved it will lose it too.';
 
   static Future<bool> show(BuildContext context, {required String title}) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showEditorialDialog<bool>(
       context: context,
       builder: (_) => DeleteArticleDialog(title: title),
     );

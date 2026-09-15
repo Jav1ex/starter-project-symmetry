@@ -3,6 +3,7 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/scr
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/saved_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/search_screen.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/screens/profile_screen.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/brand/brand_bar.dart';
 
 /// The four tabs behind the bottom bar. Pages live in an [IndexedStack] so
 /// switching keeps each tab's scroll position and there is no slide.
@@ -34,9 +35,16 @@ class _HomeShellScreenState extends State<HomeShellScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: IndexedStack(
-        index: _index,
-        children: const [HomeScreen(), SearchScreen(), SavedScreen(), ProfileScreen()],
+      body: Column(
+        children: [
+          const SafeArea(bottom: false, child: BrandBar()),
+          Expanded(
+            child: IndexedStack(
+              index: _index,
+              children: const [HomeScreen(), SearchScreen(), SavedScreen(), ProfileScreen()],
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
