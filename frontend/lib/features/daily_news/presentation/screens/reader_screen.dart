@@ -8,11 +8,16 @@ import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/listen/listen_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/reader_lens/reader_lens_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/my_articles/delete_article_dialog.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/reader/reader_bottom_bar.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/reader/reader_hero.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/reader/reader_lens_bar.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/reader/reader_lens_body.dart';
+import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/relative_time_formatter.dart';
@@ -24,10 +29,44 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/media/us
 
 /// Full article. Text size follows the Settings preference and the bar's
 /// A− / A+ buttons change that same preference.
-class ReaderScreen extends StatelessWidget {
+class ReaderScreen extends StatefulWidget {
   final ArticleEntity article;
 
   const ReaderScreen({super.key, required this.article});
+
+  @override
+  State<ReaderScreen> createState() => _ReaderScreenState();
+}
+
+class _ReaderScreenState extends State<ReaderScreen> {
+  late final ListenCubit _listen;
+
+  @override
+  void initState() {
+    super.initState();
+    _listen = context.read<ListenCubit>();
+  }
+
+  @override
+  void dispose() {
+    // Leaving the article silences the voice; the cubit outlives this screen.
+    _listen.stop();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (_) => sl<ReaderLensCubit>(param1: widget.article),
+      child: ReaderView(article: widget.article),
+    );
+  }
+}
+
+class ReaderView extends StatelessWidget {
+  final ArticleEntity article;
+
+  const ReaderView({super.key, required this.article});
 
   Future<void> _delete(BuildContext context) async {
     final myArticles = context.read<MyArticlesCubit>();
@@ -57,6 +96,9 @@ class ReaderScreen extends StatelessWidget {
     final isOwn = article.isOwnedBy(userId);
     final isSaved = context.select((SavedArticlesCubit cubit) => cubit.isSaved(article.id));
     final textSize = context.select((SettingsCubit cubit) => cubit.state.settings.textSize);
+    final speechRate = context.select((SettingsCubit cubit) => cubit.state.settings.speechRate);
+    final isListening = context.select((ListenCubit cubit) => cubit.isReading(article.id) && cubit.state.isSpeaking);
+    final lens = context.watch<ReaderLensCubit>().state;
 
     return Scaffold(
       body: Stack(
@@ -104,8 +146,25 @@ class ReaderScreen extends StatelessWidget {
                         ),
                       ],
                     ),
+                    const SizedBox(height: AppSpacing.lg),
+                    ReaderLensBar(
+                      active: lens.active,
+                      loading: lens.loading,
+                      onToggle: context.read<ReaderLensCubit>().toggle,
+                    ),
+                    if (lens.failure case final failure?) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        FailureMessageFormatter.of(failure),
+                        style: AppTypography.caption.copyWith(color: palette.error),
+                      ),
+                    ],
                     const SizedBox(height: AppSpacing.xxl),
-                    Text(article.content, style: AppTypography.body.copyWith(color: palette.inkBody)),
+                    ReaderLensBody(
+                      original: article.content,
+                      result: lens.current,
+                      isLoading: lens.isLoading,
+                    ),
                     const SizedBox(height: AppSizes.readerBar + AppSpacing.xxl),
                   ],
                 ),
@@ -151,7 +210,13 @@ class ReaderScreen extends StatelessWidget {
       ),
       bottomNavigationBar: ReaderBottomBar(
         isSaved: isSaved,
+        isListening: isListening,
         textSize: textSize,
+        onListen: () => context.read<ListenCubit>().toggle(
+              id: article.id,
+              text: '${article.title}. ${lens.current?.spokenText ?? article.content}',
+              rate: speechRate.multiplier,
+            ),
         onSave: () {
           HapticFeedback.lightImpact();
           context.read<SavedArticlesCubit>().toggle(article);

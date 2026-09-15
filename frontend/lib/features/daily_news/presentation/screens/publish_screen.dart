@@ -6,10 +6,12 @@ import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_draft.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/editor_assistant/editor_assistant_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/publish/publish_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/category_chips.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/editor_suggestions_sheet.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/photo_field.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/publish_date_row.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/publish_success_view.dart';
@@ -17,6 +19,7 @@ import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/primary_button.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/secondary_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/app_snack_bar.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/fields/labeled_text_field.dart';
 
@@ -29,8 +32,11 @@ class PublishScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (_) => sl<PublishCubit>(param1: article),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (_) => sl<PublishCubit>(param1: article)),
+        BlocProvider(create: (_) => sl<EditorAssistantCubit>()),
+      ],
       child: const PublishView(),
     );
   }
@@ -63,6 +69,43 @@ class _PublishViewState extends State<PublishView> {
     _description.dispose();
     _content.dispose();
     super.dispose();
+  }
+
+  /// Opens the editor's sheet and asks; "Use this" writes into the form.
+  Future<void> _askEditor(BuildContext context) async {
+    final publish = context.read<PublishCubit>();
+    final assistant = context.read<EditorAssistantCubit>();
+    assistant.ask(publish.state.draft);
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (_) => BlocProvider.value(
+        value: assistant,
+        child: BlocBuilder<EditorAssistantCubit, EditorAssistantState>(
+          builder: (sheetContext, state) => EditorSuggestionsSheet(
+            suggestions: state.suggestions,
+            isLoading: state.isLoading,
+            errorMessage: state.failure == null ? null : FailureMessageFormatter.of(state.failure!),
+            onUseHeadline: (headline) {
+              _title.text = headline;
+              publish.titleChanged(headline);
+              Navigator.of(sheetContext).pop();
+            },
+            onUseSummary: (summary) {
+              _description.text = summary;
+              publish.descriptionChanged(summary);
+              Navigator.of(sheetContext).pop();
+            },
+            onUseCategory: (category) {
+              publish.categoryChanged(category);
+              Navigator.of(sheetContext).pop();
+            },
+          ),
+        ),
+      ),
+    );
+    assistant.dismiss();
   }
 
   void _onSuccess(BuildContext context, PublishState state) {
@@ -161,6 +204,12 @@ class _PublishViewState extends State<PublishView> {
                         textCapitalization: TextCapitalization.sentences,
                         errorText: state.contentError?.message,
                         onChanged: cubit.contentChanged,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      SecondaryButton(
+                        label: 'Ask the editor',
+                        icon: Icons.auto_awesome_rounded,
+                        onPressed: state.canSubmit && !state.isSubmitting ? () => _askEditor(context) : null,
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       CategoryChips(selected: state.category, onChanged: cubit.categoryChanged),

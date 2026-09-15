@@ -32,6 +32,7 @@ void main() {
         feedCubit: shell.feedCubit,
         myArticlesCubit: shell.myArticlesCubit,
         briefCubit: shell.briefCubit,
+        listenCubit: shell.listenCubit,
       ),
     );
     await tester.pumpAndSettle();

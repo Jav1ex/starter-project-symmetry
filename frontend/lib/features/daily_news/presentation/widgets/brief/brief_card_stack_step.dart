@@ -16,6 +16,8 @@ class BriefCardStackStep extends StatefulWidget {
   final ValueChanged<int> onPageChanged;
   final ValueChanged<ArticleEntity> onRead;
   final ValueChanged<ArticleEntity> onSave;
+  final ValueChanged<ArticleEntity> onListen;
+  final String? listeningId;
   final VoidCallback onFinish;
   final VoidCallback onClose;
 
@@ -27,6 +29,8 @@ class BriefCardStackStep extends StatefulWidget {
     required this.onPageChanged,
     required this.onRead,
     required this.onSave,
+    required this.onListen,
+    required this.listeningId,
     required this.onFinish,
     required this.onClose,
   });
@@ -126,6 +130,8 @@ class _BriefCardStackStepState extends State<BriefCardStackStep> {
                         page: i,
                         onRead: () => widget.onRead(article),
                         onSave: () => widget.onSave(article),
+                        isListening: widget.listeningId == article.id,
+                        onListen: () => widget.onListen(article),
                       ),
                     ),
                   );

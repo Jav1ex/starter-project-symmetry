@@ -19,6 +19,10 @@ class BriefStoryCard extends StatelessWidget {
   final PageController? parallax;
   final int page;
 
+  /// Reading aloud: whether this card's story is playing, and the toggle.
+  final bool isListening;
+  final VoidCallback? onListen;
+
   const BriefStoryCard({
     super.key,
     required this.article,
@@ -27,6 +31,8 @@ class BriefStoryCard extends StatelessWidget {
     required this.onSave,
     this.parallax,
     this.page = 0,
+    this.isListening = false,
+    this.onListen,
   });
 
   static const double photoDrift = 40;

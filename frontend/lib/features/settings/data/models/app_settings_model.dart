@@ -8,12 +8,14 @@ class AppSettingsModel extends AppSettings {
     super.textSize,
     super.defaultCategory,
     super.country,
+    super.speechRate,
   });
 
   static const String keyThemeMode = 'settings.themeMode';
   static const String keyTextSize = 'settings.textSize';
   static const String keyDefaultCategory = 'settings.defaultCategory';
   static const String keyCountry = 'settings.country';
+  static const String keySpeechRate = 'settings.speechRate';
 
   /// Unknown or missing values fall back to the defaults, so an old install
   /// never breaks on a renamed option.
@@ -23,6 +25,7 @@ class AppSettingsModel extends AppSettings {
       textSize: _enumByName(TextSizePreference.values, raw[keyTextSize]) ?? TextSizePreference.medium,
       defaultCategory: NewsCategory.fromApiValue(raw[keyDefaultCategory]),
       country: raw[keyCountry] ?? AppSettings.defaultCountry,
+      speechRate: _enumByName(SpeechRatePreference.values, raw[keySpeechRate]) ?? SpeechRatePreference.normal,
     );
   }
 
@@ -31,6 +34,7 @@ class AppSettingsModel extends AppSettings {
         textSize: settings.textSize,
         defaultCategory: settings.defaultCategory,
         country: settings.country,
+        speechRate: settings.speechRate,
       );
 
   Map<String, String> toRawData() => {
@@ -38,6 +42,7 @@ class AppSettingsModel extends AppSettings {
         keyTextSize: textSize.name,
         keyDefaultCategory: defaultCategory.apiValue,
         keyCountry: country,
+        keySpeechRate: speechRate.name,
       };
 
   AppSettings toEntity() => AppSettings(
@@ -45,6 +50,7 @@ class AppSettingsModel extends AppSettings {
         textSize: textSize,
         defaultCategory: defaultCategory,
         country: country,
+        speechRate: speechRate,
       );
 
   static T? _enumByName<T extends Enum>(List<T> values, String? name) {

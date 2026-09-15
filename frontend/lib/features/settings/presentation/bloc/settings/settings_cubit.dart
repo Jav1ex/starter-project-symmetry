@@ -43,6 +43,9 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setDefaultCategory(NewsCategory category) =>
       _save(state.settings.copyWith(defaultCategory: category));
 
+  Future<void> setSpeechRate(SpeechRatePreference rate) =>
+      _save(state.settings.copyWith(speechRate: rate));
+
   Future<void> setCountry(NewsCountry country) =>
       _save(state.settings.copyWith(country: country.code));
 

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app_clean_architecture/config/routes/app_router.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/listen/listen_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/brief/brief_card_stack_step.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/brief/brief_summary_step.dart';
@@ -22,6 +23,8 @@ class BriefScreen extends StatelessWidget {
     final firstName = context.select((SessionCubit c) => c.state.user?.firstName ?? 'there');
     final savedIds = context.select((SavedArticlesCubit c) => c.state.savedIds);
     final country = context.select((SettingsCubit c) => c.state.settings.country);
+    final speechRate = context.select((SettingsCubit c) => c.state.settings.speechRate);
+    final listening = context.select((ListenCubit c) => c.state.isSpeaking ? c.state.currentId : null);
 
     return BlocBuilder<BriefCubit, BriefState>(
       builder: (context, state) {
@@ -54,6 +57,12 @@ class BriefScreen extends StatelessWidget {
                 context.pushReader(article);
               },
               onSave: context.read<SavedArticlesCubit>().toggle,
+              onListen: (article) => context.read<ListenCubit>().toggle(
+                    id: article.id,
+                    text: '${article.title}. ${article.description ?? ''}',
+                    rate: speechRate.multiplier,
+                  ),
+              listeningId: listening,
               onFinish: () => cubit.finish(DateTime.now()),
               onClose: () => Navigator.of(context).pop(),
             ),
