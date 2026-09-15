@@ -39,9 +39,15 @@ class _HomeShellScreenState extends State<HomeShellScreen> {
         children: [
           const SafeArea(bottom: false, child: BrandBar()),
           Expanded(
-            child: IndexedStack(
-              index: _index,
-              children: const [HomeScreen(), SearchScreen(), SavedScreen(), ProfileScreen()],
+            // The masthead already sits below the status bar; the tabs must
+            // not reserve that space a second time.
+            child: MediaQuery.removePadding(
+              context: context,
+              removeTop: true,
+              child: IndexedStack(
+                index: _index,
+                children: const [HomeScreen(), SearchScreen(), SavedScreen(), ProfileScreen()],
+              ),
             ),
           ),
         ],

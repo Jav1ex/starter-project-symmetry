@@ -10,7 +10,7 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/media/br
 class BrandBar extends StatelessWidget {
   const BrandBar({super.key});
 
-  static const double height = 44;
+  static const double height = 56;
 
   @override
   Widget build(BuildContext context) {
@@ -23,11 +23,11 @@ class BrandBar extends StatelessWidget {
         decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.outline))),
         child: Row(
           children: [
-            const BrandMark(size: 24),
-            const SizedBox(width: AppSpacing.sm),
+            const BrandMark(size: 28),
+            const SizedBox(width: AppSpacing.md),
             Text(
               AppInfo.name,
-              style: AppTypography.serifGlyph(20, weight: FontWeight.w600).copyWith(
+              style: AppTypography.serifGlyph(22, weight: FontWeight.w600).copyWith(
                 color: palette.primary,
                 letterSpacing: -0.2,
               ),
