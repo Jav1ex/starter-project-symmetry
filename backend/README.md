@@ -3,7 +3,22 @@ In this folder are all the [Firebase Firestore](https://firebase.google.com/docs
 You will use this folder to add the schema of the *Articles* you want to upload for the app and to add the rules that enforce this schema. 
 
 ## DB Schema
-**TODO: ADD YOUR DB SCHEMA (SCHEMA FOR "ARTICLES" AND ANY OTHER SCHEMAS) HERE**
+The Firestore and Cloud Storage schema is documented in [docs/DB_SCHEMA.md](./docs/DB_SCHEMA.md).
+It is enforced by [`firestore.rules`](./firestore.rules) and [`storage.rules`](./storage.rules), and every
+constraint has an automated test in [`tests/`](./tests) that runs against the Emulator Suite.
+
+## Testing the rules
+The rules are tested with [`@firebase/rules-unit-testing`](https://firebase.google.com/docs/rules/unit-tests)
+and Node's built-in test runner. The Emulator Suite requires **Java 21 or newer** on your `PATH`
+(Android Studio ships one at `C:\Program Files\Android\Android Studio\jbr` on Windows).
+
+```
+npm install
+npm test
+```
+
+`npm test` starts the Firestore and Storage emulators, runs every `tests/**/*.test.js` file and shuts the
+emulators down. Use `npm run test:watch` while editing rules.
 
 ## Getting Started
 Before starting to work on the backend, you must have a Firebase project with the [Firebase Firestore](https://firebase.google.com/docs/firestore), [Firebase Cloud Storage](https://firebase.google.com/docs/storage) and [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite) technologies enabled.
