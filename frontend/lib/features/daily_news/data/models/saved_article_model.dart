@@ -1,0 +1,55 @@
+import 'package:floor/floor.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+
+/// Row of the `saved_article` table: an article bookmarked on this device.
+///
+/// Floor maps every inherited field to a column; `publishedAt` and `source`
+/// go through the type converters registered on the database.
+@Entity(tableName: 'saved_article', primaryKeys: ['id'])
+class SavedArticleModel extends ArticleEntity {
+  const SavedArticleModel({
+    required super.id,
+    required super.source,
+    required super.title,
+    required super.content,
+    required super.author,
+    required super.publishedAt,
+    super.description,
+    super.authorId,
+    super.imageUrl,
+    super.imagePath,
+    super.url,
+  });
+
+  factory SavedArticleModel.fromEntity(ArticleEntity entity) {
+    return SavedArticleModel(
+      id: entity.id,
+      source: entity.source,
+      title: entity.title,
+      content: entity.content,
+      description: entity.description,
+      author: entity.author,
+      authorId: entity.authorId,
+      imageUrl: entity.imageUrl,
+      imagePath: entity.imagePath,
+      url: entity.url,
+      publishedAt: entity.publishedAt,
+    );
+  }
+
+  ArticleEntity toEntity() {
+    return ArticleEntity(
+      id: id,
+      source: source,
+      title: title,
+      content: content,
+      description: description,
+      author: author,
+      authorId: authorId,
+      imageUrl: imageUrl,
+      imagePath: imagePath,
+      url: url,
+      publishedAt: publishedAt,
+    );
+  }
+}

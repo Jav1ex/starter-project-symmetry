@@ -1,0 +1,53 @@
+import 'package:flutter_test/flutter_test.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+
+import '../../../../helpers/fixtures.dart';
+
+void main() {
+  group('LocalImage.validate', () {
+    for (final type in ['image/jpeg', 'image/png', 'image/webp', 'IMAGE/PNG']) {
+      test('accepts $type', () {
+        expect(buildImage(mimeType: type).isValid, isTrue);
+      });
+    }
+
+    test('rejects unsupported types', () {
+      expect(buildImage(mimeType: 'image/gif').validate(),
+          [ImageValidationError.unsupportedType]);
+      expect(buildImage(mimeType: 'application/pdf').validate(),
+          [ImageValidationError.unsupportedType]);
+    });
+
+    test('accepts exactly the maximum size', () {
+      expect(buildImage(sizeInBytes: ThumbnailLimits.maxSizeInBytes).isValid, isTrue);
+    });
+
+    test('rejects an image over the maximum size', () {
+      expect(buildImage(sizeInBytes: ThumbnailLimits.maxSizeInBytes + 1).validate(),
+          [ImageValidationError.tooLarge]);
+    });
+
+    test('reports both problems together', () {
+      final image = buildImage(mimeType: 'image/gif', sizeInBytes: 10 * 1024 * 1024);
+      expect(image.validate(), [
+        ImageValidationError.unsupportedType,
+        ImageValidationError.tooLarge,
+      ]);
+    });
+
+    test('limits match the backend storage rules', () {
+      expect(ThumbnailLimits.maxSizeInBytes, 5 * 1024 * 1024);
+      expect(ThumbnailLimits.allowedMimeTypes, {'image/jpeg', 'image/png', 'image/webp'});
+    });
+  });
+
+  test('ThumbnailReference is equal by value', () {
+    expect(
+      thumbnailReference,
+      const ThumbnailReference(
+        url: 'https://storage.example/media%2Farticles%2Fnew.jpg?alt=media',
+        path: 'media/articles/new.jpg',
+      ),
+    );
+  });
+}

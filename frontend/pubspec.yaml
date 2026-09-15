@@ -52,6 +52,8 @@ dev_dependencies:
     sdk: flutter
   flutter_lints: ^6.0.0
   mocktail: ^1.0.4
+  # Runs the Floor database on the host during tests
+  sqflite_common_ffi: ^2.3.0
   floor_generator: ^1.5.0
   build_runner: ^2.4.0
 

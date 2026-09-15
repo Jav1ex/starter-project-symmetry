@@ -3,7 +3,6 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/constants/constants.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/models/article.dart';
 
 class MockDio extends Mock implements Dio {}
 
@@ -11,31 +10,28 @@ void main() {
   late MockDio dio;
   late NewsApiService service;
 
-  const apiKey = 'test-key';
-  const country = 'us';
-  const category = 'general';
-
-  final requestOptions = RequestOptions(path: '/top-headlines');
+  final requestOptions = RequestOptions(path: '/');
 
   Response<Map<String, dynamic>> responseWith(Map<String, dynamic>? body) {
     return Response(data: body, statusCode: 200, requestOptions: requestOptions);
   }
 
-  void stubGet(Response<Map<String, dynamic>> response) {
-    when(
+  When<Future<Response<Map<String, dynamic>>>> whenGet() {
+    return when(
       () => dio.get<Map<String, dynamic>>(
         any(),
         queryParameters: any(named: 'queryParameters'),
       ),
-    ).thenAnswer((_) async => response);
+    );
   }
 
-  Future<List<ArticleModel>> fetch() {
-    return service.getNewsArticles(
-      apiKey: apiKey,
-      country: country,
-      category: category,
-    );
+  List<dynamic> capturedGet() {
+    return verify(
+      () => dio.get<Map<String, dynamic>>(
+        captureAny(),
+        queryParameters: captureAny(named: 'queryParameters'),
+      ),
+    ).captured;
   }
 
   setUp(() {
@@ -43,95 +39,78 @@ void main() {
     service = NewsApiService(dio);
   });
 
-  group('getNewsArticles', () {
-    test('calls the top-headlines endpoint with the expected query', () async {
-      stubGet(responseWith({'articles': []}));
+  group('getTopHeadlines', () {
+    test('calls /top-headlines with country, category and the API key', () async {
+      whenGet().thenAnswer((_) async => responseWith({'articles': []}));
 
-      await fetch();
+      await service.getTopHeadlines(country: 'us', category: 'science');
 
-      final captured = verify(
-        () => dio.get<Map<String, dynamic>>(
-          captureAny(),
-          queryParameters: captureAny(named: 'queryParameters'),
-        ),
-      ).captured;
-
+      final captured = capturedGet();
       expect(captured[0], '$newsAPIBaseURL/top-headlines');
       expect(captured[1], {
-        'apiKey': apiKey,
-        'country': country,
-        'category': category,
+        'apiKey': newsAPIKey,
+        'country': 'us',
+        'category': 'science',
       });
     });
 
-    test('maps every article in the payload to an ArticleModel', () async {
-      stubGet(
-        responseWith({
+    test('maps every JSON object in "articles" to a model', () async {
+      whenGet().thenAnswer(
+        (_) async => responseWith({
           'articles': [
-            {
-              'author': 'Ada',
-              'title': 'First',
-              'description': 'd1',
-              'url': 'https://example.com/1',
-              'urlToImage': 'https://example.com/1.jpg',
-              'publishedAt': '2026-09-15T10:00:00Z',
-              'content': 'c1',
-            },
-            {'title': 'Second'},
+            {'title': 'First', 'url': 'https://a.example/1'},
+            {'title': 'Second', 'url': 'https://a.example/2'},
           ],
         }),
       );
 
-      final articles = await fetch();
+      final articles = await service.getTopHeadlines(country: 'us', category: 'general');
 
-      expect(articles, hasLength(2));
-      expect(articles.first.author, 'Ada');
-      expect(articles.first.urlToImage, 'https://example.com/1.jpg');
-      expect(articles.last.title, 'Second');
-      expect(articles.last.author, '');
+      expect(articles.map((a) => a.title), ['First', 'Second']);
     });
 
-    test('falls back to the default image when urlToImage is missing', () async {
-      stubGet(responseWith({'articles': [{'title': 'No image'}]}));
+    test('returns an empty list when "articles" is missing or not a list', () async {
+      whenGet().thenAnswer((_) async => responseWith({'status': 'ok', 'articles': 'x'}));
+      expect(await service.getTopHeadlines(country: 'us', category: 'general'), isEmpty);
 
-      final articles = await fetch();
-
-      expect(articles.single.urlToImage, kDefaultImage);
+      whenGet().thenAnswer((_) async => responseWith(null));
+      expect(await service.getTopHeadlines(country: 'us', category: 'general'), isEmpty);
     });
 
-    test('returns an empty list when the payload has no articles key', () async {
-      stubGet(responseWith({'status': 'ok'}));
-
-      expect(await fetch(), isEmpty);
-    });
-
-    test('returns an empty list when the body is null', () async {
-      stubGet(responseWith(null));
-
-      expect(await fetch(), isEmpty);
-    });
-
-    test('ignores entries that are not JSON objects', () async {
-      stubGet(responseWith({'articles': ['garbage', 42, {'title': 'Valid'}]}));
-
-      final articles = await fetch();
-
-      expect(articles.single.title, 'Valid');
-    });
-
-    test('lets DioException propagate to the caller', () async {
-      final failure = DioException(
-        requestOptions: requestOptions,
-        type: DioExceptionType.connectionTimeout,
+    test('skips entries that are not JSON objects', () async {
+      whenGet().thenAnswer(
+        (_) async => responseWith({'articles': [1, 'x', {'title': 'Only'}]}),
       );
-      when(
-        () => dio.get<Map<String, dynamic>>(
-          any(),
-          queryParameters: any(named: 'queryParameters'),
-        ),
-      ).thenThrow(failure);
 
-      expect(fetch(), throwsA(same(failure)));
+      final articles = await service.getTopHeadlines(country: 'us', category: 'general');
+
+      expect(articles.single.title, 'Only');
+    });
+
+    test('lets DioException propagate', () {
+      final failure = DioException(requestOptions: requestOptions);
+      whenGet().thenThrow(failure);
+
+      expect(
+        service.getTopHeadlines(country: 'us', category: 'general'),
+        throwsA(same(failure)),
+      );
+    });
+  });
+
+  group('searchArticles', () {
+    test('calls /everything with the query sorted by date', () async {
+      whenGet().thenAnswer((_) async => responseWith({'articles': []}));
+
+      await service.searchArticles('bike lanes');
+
+      final captured = capturedGet();
+      expect(captured[0], '$newsAPIBaseURL/everything');
+      final query = captured[1] as Map<String, dynamic>;
+      expect(query['q'], 'bike lanes');
+      expect(query['sortBy'], 'publishedAt');
+      expect(query['apiKey'], newsAPIKey);
+      expect(query['pageSize'], isA<int>());
     });
   });
 }

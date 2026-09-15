@@ -1,41 +1,57 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:news_app_clean_architecture/core/resources/data_state.dart';
+import 'package:news_app_clean_architecture/core/usecase/usecase.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_saved_articles.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/remove_saved_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/local/local_article_event.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/article/local/local_article_state.dart';
 
-import '../../../../domain/usecases/get_saved_article.dart';
-import '../../../../domain/usecases/remove_article.dart';
-import '../../../../domain/usecases/save_article.dart';
-
-class LocalArticleBloc extends Bloc<LocalArticlesEvent,LocalArticlesState> {
-  final GetSavedArticleUseCase _getSavedArticleUseCase;
+class LocalArticleBloc extends Bloc<LocalArticlesEvent, LocalArticlesState> {
+  final GetSavedArticlesUseCase _getSavedArticlesUseCase;
   final SaveArticleUseCase _saveArticleUseCase;
-  final RemoveArticleUseCase _removeArticleUseCase;
+  final RemoveSavedArticleUseCase _removeSavedArticleUseCase;
 
   LocalArticleBloc(
-    this._getSavedArticleUseCase,
+    this._getSavedArticlesUseCase,
     this._saveArticleUseCase,
-    this._removeArticleUseCase
-  ) : super(const LocalArticlesLoading()){
-    on <GetSavedArticles> (onGetSavedArticles);
-    on <RemoveArticle> (onRemoveArticle);
-    on <SaveArticle> (onSaveArticle);
+    this._removeSavedArticleUseCase,
+  ) : super(const LocalArticlesLoading()) {
+    on<GetSavedArticles>(onGetSavedArticles);
+    on<RemoveArticle>(onRemoveArticle);
+    on<SaveArticle>(onSaveArticle);
   }
 
-
-  void onGetSavedArticles(GetSavedArticles event,Emitter<LocalArticlesState> emit) async {
-    final articles = await _getSavedArticleUseCase();
-    emit(LocalArticlesDone(articles));
-  }
-  
-  void onRemoveArticle(RemoveArticle removeArticle,Emitter<LocalArticlesState> emit) async {
-    await _removeArticleUseCase(params: removeArticle.article);
-    final articles = await _getSavedArticleUseCase();
-    emit(LocalArticlesDone(articles));
+  Future<void> onGetSavedArticles(
+    GetSavedArticles event,
+    Emitter<LocalArticlesState> emit,
+  ) async {
+    await _emitSavedArticles(emit);
   }
 
-  void onSaveArticle(SaveArticle saveArticle,Emitter<LocalArticlesState> emit) async {
-    await _saveArticleUseCase(params: saveArticle.article);
-    final articles = await _getSavedArticleUseCase();
-    emit(LocalArticlesDone(articles));
+  Future<void> onRemoveArticle(
+    RemoveArticle event,
+    Emitter<LocalArticlesState> emit,
+  ) async {
+    await _removeSavedArticleUseCase(event.article.id);
+    await _emitSavedArticles(emit);
+  }
+
+  Future<void> onSaveArticle(
+    SaveArticle event,
+    Emitter<LocalArticlesState> emit,
+  ) async {
+    await _saveArticleUseCase(event.article);
+    await _emitSavedArticles(emit);
+  }
+
+  Future<void> _emitSavedArticles(Emitter<LocalArticlesState> emit) async {
+    final result = await _getSavedArticlesUseCase(const NoParams());
+    emit(
+      switch (result) {
+        DataSuccess(:final data) => LocalArticlesDone(data),
+        DataFailed(:final failure) => LocalArticlesError(failure),
+      },
+    );
   }
 }
