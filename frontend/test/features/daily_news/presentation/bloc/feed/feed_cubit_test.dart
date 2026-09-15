@@ -11,6 +11,7 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
 
 import '../../../../../helpers/fixtures.dart';
+import '../../../../../helpers/pump_app.dart';
 
 class MockGetFeedUseCase extends Mock implements GetFeedUseCase {}
 
@@ -28,13 +29,17 @@ void main() {
   });
   tearDown(() => cubit.close());
 
+  test('starts in the initial state before any load', () {
+    expect(cubit.state, const FeedInitial());
+  });
+
   test('load goes loading then loaded with the query it was asked for', () async {
     when(() => getFeed(query)).thenAnswer((_) async => DataSuccess(feed));
     final states = <FeedState>[];
     final sub = cubit.stream.listen(states.add);
 
     await cubit.load(query);
-    await Future<void>.delayed(Duration.zero);
+    await flush();
     await sub.cancel();
 
     expect(states.first, const FeedLoading(query));

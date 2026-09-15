@@ -1,3 +1,4 @@
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
@@ -20,27 +21,35 @@ void main() {
   });
   tearDown(() => cubit.close());
 
-  test('typing is debounced: one request per pause, results afterwards', () async {
-    cubit.queryChanged('t');
-    cubit.queryChanged('tr');
-    cubit.queryChanged('tram');
-    verifyNever(() => search(any()));
-
-    await Future<void>.delayed(const Duration(milliseconds: 40));
-
-    verify(() => search('tram')).called(1);
-    expect(cubit.state.status, SearchStatus.results);
-    expect(cubit.state.results, [hit]);
-    expect(cubit.state.recent, ['tram']);
+  test('starts idle with an empty query and no recents', () {
+    expect(cubit.state, const SearchState());
   });
 
-  test('clearing the field returns to idle without a request', () async {
-    cubit.queryChanged('tram');
-    cubit.queryChanged('');
-    await Future<void>.delayed(const Duration(milliseconds: 40));
+  test('typing is debounced: one request per pause, results afterwards', () {
+    fakeAsync((async) {
+      cubit.queryChanged('t');
+      cubit.queryChanged('tr');
+      cubit.queryChanged('tram');
+      verifyNever(() => search(any()));
 
-    verifyNever(() => search(any()));
-    expect(cubit.state.status, SearchStatus.idle);
+      async.elapse(const Duration(milliseconds: 40));
+
+      verify(() => search('tram')).called(1);
+      expect(cubit.state.status, SearchStatus.results);
+      expect(cubit.state.results, [hit]);
+      expect(cubit.state.recent, ['tram']);
+    });
+  });
+
+  test('clearing the field returns to idle without a request', () {
+    fakeAsync((async) {
+      cubit.queryChanged('tram');
+      cubit.queryChanged('');
+      async.elapse(const Duration(milliseconds: 40));
+
+      verifyNever(() => search(any()));
+      expect(cubit.state.status, SearchStatus.idle);
+    });
   });
 
   test('search records recents newest first, without duplicates, capped', () async {

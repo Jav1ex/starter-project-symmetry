@@ -2,6 +2,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/reader_screen.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/reader/reader_lens_body.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/labels/you_badge.dart';
 
@@ -55,5 +56,39 @@ void main() {
     await tester.tap(find.text('Share'));
     await tester.pumpAndSettle();
     expect(find.text('Link copied to clipboard'), findsOneWidget);
+  });
+
+  testWidgets('lenses show bullets, toggle back, and Listen plays the current view', (tester) async {
+    final harness = ShellHarness();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (_) async => null);
+    addTearDown(() => TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, null));
+    tester.view.physicalSize = const Size(600, 1600);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final article = buildArticle(imageUrl: null, title: 'Tram strike', content: 'Long original body text.');
+    await tester.pump();
+    await pumpApp(tester, ReaderScreen(article: article), providers: harness.providers);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Long original body text.'), findsOneWidget);
+
+    await tester.tap(find.text('Brief it'));
+    await tester.pumpAndSettle();
+    expect(find.text('First fact'), findsOneWidget);
+    expect(find.textContaining('Written by AI'), findsOneWidget);
+    expect(find.text('Long original body text.'), findsNothing);
+
+    await tester.tap(find.text('Listen'));
+    await tester.pumpAndSettle();
+    expect(find.text('Pause'), findsOneWidget);
+    expect(harness.speech.spoken.single, 'Tram strike. First fact. Second fact. Third fact');
+
+    await tester.tap(find.text('Brief it'));
+    await tester.pumpAndSettle();
+    expect(find.text('Long original body text.'), findsOneWidget);
+    expect(find.byType(ReaderLensBody), findsOneWidget);
+    verify(() => harness.applyLens(any())).called(1);
   });
 }

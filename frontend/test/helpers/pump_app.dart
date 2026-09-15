@@ -122,9 +122,10 @@ class SettingsHarness {
   }
 }
 
-/// Lets queued stream events reach their listeners (plain tests only; inside
-/// `testWidgets` use `tester.pump()` instead).
-Future<void> flush() => Future<void>.delayed(Duration.zero);
+/// Lets queued stream events reach their listeners by draining the event
+/// queue, without waiting real time (plain tests only; inside `testWidgets`
+/// use `tester.pump()` instead).
+Future<void> flush() => pumpEventQueue();
 
 /// Registers the fallback values mocktail needs for `any()` on these types.
 void registerCommonFallbacks() {

@@ -5,6 +5,8 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/read_aloud.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/listen/listen_cubit.dart';
 
+import '../../../../../helpers/pump_app.dart';
+
 void main() {
   late InMemorySpeechRepository speech;
   late ListenCubit cubit;
@@ -24,26 +26,28 @@ void main() {
     await speech.dispose();
   });
 
-  Future<void> settle() => Future<void>.delayed(Duration.zero);
+  test('starts idle with no voice', () {
+    expect(cubit.state, const ListenState());
+  });
 
   test('toggle starts reading, pauses, resumes; another id replaces the voice', () async {
     await cubit.toggle(id: 'a', text: 'Story A', rate: 1.2);
-    await settle();
+    await flush();
     expect(cubit.isReading('a'), isTrue);
     expect(cubit.state.isSpeaking, isTrue);
     expect(speech.lastRate, 1.2);
 
     await cubit.toggle(id: 'a', text: 'Story A');
-    await settle();
+    await flush();
     expect(cubit.state.status, SpeechStatus.paused);
     expect(cubit.isReading('a'), isTrue);
 
     await cubit.toggle(id: 'a', text: 'Story A');
-    await settle();
+    await flush();
     expect(cubit.state.isSpeaking, isTrue);
 
     await cubit.toggle(id: 'b', text: 'Story B');
-    await settle();
+    await flush();
     expect(cubit.isReading('a'), isFalse);
     expect(cubit.isReading('b'), isTrue);
     expect(speech.spoken, ['Story A', 'Story B']);
@@ -51,10 +55,10 @@ void main() {
 
   test('the voice finishing on its own clears the current id; stop is a no-op when idle', () async {
     await cubit.toggle(id: 'a', text: 'Story A');
-    await settle();
+    await flush();
 
     speech.finish();
-    await settle();
+    await flush();
     expect(cubit.state.currentId, isNull);
     expect(cubit.state.status, SpeechStatus.idle);
 
@@ -64,7 +68,7 @@ void main() {
 
   test('blank text is reported and nothing plays', () async {
     await cubit.toggle(id: 'a', text: '   ');
-    await settle();
+    await flush();
 
     expect(cubit.state.failure, isNotNull);
     expect(cubit.state.currentId, isNull);

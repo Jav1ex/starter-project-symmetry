@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/config/routes/stream_refresh_listenable.dart';
 
+import '../../helpers/pump_app.dart';
+
 void main() {
   test('notifies once per stream event', () async {
     final controller = StreamController<int>();
@@ -13,7 +15,7 @@ void main() {
     controller
       ..add(1)
       ..add(2);
-    await Future<void>.delayed(Duration.zero);
+    await flush();
 
     expect(notifications, 2);
     listenable.dispose();

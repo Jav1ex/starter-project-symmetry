@@ -2,6 +2,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/features/settings/data/repository/in_memory_settings_repository.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 
+import '../../../../helpers/pump_app.dart';
+
 void main() {
   late InMemorySettingsRepository repository;
 
@@ -29,11 +31,11 @@ void main() {
     const large = AppSettings(themeMode: AppThemeMode.dark, textSize: TextSizePreference.large);
     final events = <AppSettings>[];
     final subscription = repository.watchSettings().listen(events.add);
-    await Future<void>.delayed(Duration.zero);
+    await flush();
 
     await repository.saveSettings(dark);
     await repository.saveSettings(large);
-    await Future<void>.delayed(Duration.zero);
+    await flush();
     await subscription.cancel();
 
     expect(events, [AppSettings.defaults, dark, large]);

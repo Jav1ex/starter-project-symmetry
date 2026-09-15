@@ -6,6 +6,8 @@ import 'package:news_app_clean_architecture/features/daily_news/data/data_source
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/speech_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/speech_status.dart';
 
+import '../../../../helpers/pump_app.dart';
+
 class MockDeviceSpeechService extends Mock implements DeviceSpeechService {}
 
 void main() {
@@ -29,9 +31,9 @@ void main() {
   test('watchStatus starts with the current status and then follows the engine', () async {
     final seen = <SpeechStatus>[];
     final sub = repository.watchStatus().listen(seen.add);
-    await Future<void>.delayed(Duration.zero);
+    await flush();
     statuses.add(SpeechStatus.speaking);
-    await Future<void>.delayed(Duration.zero);
+    await flush();
     await sub.cancel();
 
     expect(seen, [SpeechStatus.idle, SpeechStatus.speaking]);

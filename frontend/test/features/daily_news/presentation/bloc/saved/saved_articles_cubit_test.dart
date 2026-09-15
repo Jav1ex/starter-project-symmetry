@@ -40,6 +40,10 @@ void main() {
   });
   tearDown(() => cubit.close());
 
+  test('starts with nothing saved', () {
+    expect(cubit.state, const SavedArticlesState());
+  });
+
   test('load fills the list and the id set', () async {
     await cubit.load();
 

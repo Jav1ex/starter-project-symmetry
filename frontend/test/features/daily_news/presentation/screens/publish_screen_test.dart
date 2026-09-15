@@ -6,6 +6,7 @@ import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/publish_screen.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/editor_suggestions_sheet.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/publish_success_view.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/fields/labeled_text_field.dart';
 
@@ -110,5 +111,26 @@ void main() {
     final params = verify(() => harness.updateArticle(captureAny())).captured.single as UpdateArticleParams;
     expect(params.newThumbnail, buildImage());
     expect(find.text('Your changes are live'), findsOneWidget);
+  });
+
+  testWidgets('Ask the editor works with only the body and "Use this" fills the empty title', (tester) async {
+    final harness = await pumpPublish(tester);
+
+    await tester.enterText(fieldLabelled('Article text'), List.filled(45, 'word').join(' '));
+    await tester.pumpAndSettle();
+
+    await tester.ensureVisible(find.text('Ask the editor'));
+    await tester.tap(find.text('Ask the editor'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(EditorSuggestionsSheet), findsOneWidget);
+    expect(find.text('Headline one'), findsOneWidget);
+    verify(() => harness.suggestEdits(any())).called(1);
+
+    await tester.tap(find.text('Use this').first);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(EditorSuggestionsSheet), findsNothing);
+    expect(tester.widget<TextField>(fieldLabelled('Title')).controller?.text, 'Headline one');
   });
 }
