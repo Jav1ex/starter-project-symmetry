@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { initializeTestEnvironment } from '@firebase/rules-unit-testing';
-import { Timestamp, serverTimestamp, setLogLevel } from 'firebase/firestore';
+import { Timestamp, doc, serverTimestamp, setDoc, setLogLevel } from 'firebase/firestore';
 
 // Expected PERMISSION_DENIED responses would otherwise be printed as SDK errors.
 setLogLevel('silent');
@@ -66,4 +66,23 @@ export function stringOfLength(length) {
 /** A tiny but valid-looking payload; rules only inspect contentType and size. */
 export function fakeImageBytes(byteLength = 1024) {
   return new Uint8Array(byteLength);
+}
+
+/** The article document as seen by the signed-in author. */
+export function articleRefAs(testEnv, uid, id = 'article-1') {
+  const db = uid == null
+    ? testEnv.unauthenticatedContext().firestore()
+    : testEnv.authenticatedContext(uid).firestore();
+  return doc(db, 'articles', id);
+}
+
+/** Writes a valid article bypassing rules, so update/delete tests start from real data. */
+export async function seedArticle(testEnv, id = 'article-1', overrides = {}) {
+  await testEnv.withSecurityRulesDisabled(async (context) => {
+    await setDoc(doc(context.firestore(), 'articles', id), {
+      ...validArticle(overrides),
+      createdAt: Timestamp.fromDate(new Date('2026-09-01T00:00:00Z')),
+      updatedAt: Timestamp.fromDate(new Date('2026-09-01T00:00:00Z')),
+    });
+  });
 }

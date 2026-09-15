@@ -1,20 +1,13 @@
+// Reading and creating articles.
 import { after, before, beforeEach, describe, it } from 'node:test';
 import { assertFails, assertSucceeds } from '@firebase/rules-unit-testing';
-import {
-  Timestamp,
-  collection,
-  deleteDoc,
-  doc,
-  getDoc,
-  getDocs,
-  serverTimestamp,
-  setDoc,
-  updateDoc,
-} from 'firebase/firestore';
+import { Timestamp, collection, deleteDoc, doc, getDoc, getDocs, serverTimestamp, setDoc, updateDoc } from 'firebase/firestore';
 import {
   AUTHOR_UID,
   OTHER_UID,
+  articleRefAs,
   createTestEnvironment,
+  seedArticle as seed,
   stringOfLength,
   thumbnailUrlFor,
   validArticle,
@@ -23,29 +16,10 @@ import {
 
 let testEnv;
 
-/** The article document as seen by the signed-in author. */
-function articleRef(id = 'article-1') {
-  return doc(testEnv.authenticatedContext(AUTHOR_UID).firestore(), 'articles', id);
-}
-
-function asOther(id = 'article-1') {
-  return doc(testEnv.authenticatedContext(OTHER_UID).firestore(), 'articles', id);
-}
-
-function asAnonymous(id = 'article-1') {
-  return doc(testEnv.unauthenticatedContext().firestore(), 'articles', id);
-}
-
-/** Writes a valid article bypassing rules, so update/delete tests start from real data. */
-async function seedArticle(id = 'article-1', overrides = {}) {
-  await testEnv.withSecurityRulesDisabled(async (context) => {
-    await setDoc(doc(context.firestore(), 'articles', id), {
-      ...validArticle(overrides),
-      createdAt: Timestamp.fromDate(new Date('2026-09-01T00:00:00Z')),
-      updatedAt: Timestamp.fromDate(new Date('2026-09-01T00:00:00Z')),
-    });
-  });
-}
+const articleRef = (id) => articleRefAs(testEnv, AUTHOR_UID, id);
+const asOther = (id) => articleRefAs(testEnv, OTHER_UID, id);
+const asAnonymous = (id) => articleRefAs(testEnv, null, id);
+const seedArticle = (id, overrides) => seed(testEnv, id, overrides);
 
 before(async () => {
   testEnv = await createTestEnvironment();
@@ -240,95 +214,3 @@ describe('articles: create rejects forged timestamps', () => {
   });
 });
 
-describe('articles: update', () => {
-  it('allows the author to edit content when updatedAt is refreshed from the server', async () => {
-    await seedArticle();
-    await assertSucceeds(
-      updateDoc(articleRef(), { content: 'Corrected body.', updatedAt: serverTimestamp() }),
-    );
-  });
-
-  it('allows the author to drop the thumbnail', async () => {
-    await seedArticle();
-    await assertSucceeds(
-      updateDoc(articleRef(), {
-        thumbnailURL: null,
-        thumbnailPath: null,
-        updatedAt: serverTimestamp(),
-      }),
-    );
-  });
-
-  it('rejects an update by somebody who is not the author', async () => {
-    await seedArticle();
-    await assertFails(
-      updateDoc(asOther(), { content: 'Vandalised.', updatedAt: serverTimestamp() }),
-    );
-  });
-
-  it('rejects an update without a signed-in user', async () => {
-    await seedArticle();
-    await assertFails(
-      updateDoc(asAnonymous(), { content: 'Vandalised.', updatedAt: serverTimestamp() }),
-    );
-  });
-
-  it('rejects handing the article to another author', async () => {
-    await seedArticle();
-    await assertFails(
-      updateDoc(articleRef(), { authorId: OTHER_UID, updatedAt: serverTimestamp() }),
-    );
-  });
-
-  it('rejects an update that does not refresh updatedAt', async () => {
-    await seedArticle();
-    await assertFails(updateDoc(articleRef(), { content: 'Corrected body.' }));
-  });
-
-  it('rejects an update that changes createdAt', async () => {
-    await seedArticle();
-    await assertFails(
-      updateDoc(articleRef(), {
-        createdAt: Timestamp.fromDate(new Date('2030-01-01')),
-        updatedAt: serverTimestamp(),
-      }),
-    );
-  });
-
-  it('rejects an update that breaks a schema constraint', async () => {
-    await seedArticle();
-    await assertFails(
-      updateDoc(articleRef(), { title: stringOfLength(151), updatedAt: serverTimestamp() }),
-    );
-  });
-
-  it('rejects an update that adds an unknown field', async () => {
-    await seedArticle();
-    await assertFails(updateDoc(articleRef(), { views: 1, updatedAt: serverTimestamp() }));
-  });
-});
-
-describe('articles: delete', () => {
-  it('allows the author to delete their article', async () => {
-    await seedArticle();
-    await assertSucceeds(deleteDoc(articleRef()));
-  });
-
-  it('rejects a delete by somebody else or by an anonymous caller', async () => {
-    await seedArticle();
-    await assertFails(deleteDoc(asOther()));
-    await assertFails(deleteDoc(asAnonymous()));
-  });
-});
-
-describe('other collections', () => {
-  it('denies writes to collections that are not part of the schema', async () => {
-    const db = testEnv.authenticatedContext(AUTHOR_UID).firestore();
-    await assertFails(setDoc(doc(db, 'users', 'u1'), { name: 'Mallory' }));
-  });
-
-  it('denies reads from collections that are not part of the schema', async () => {
-    const db = testEnv.unauthenticatedContext().firestore();
-    await assertFails(getDoc(doc(db, 'users', 'u1')));
-  });
-});

@@ -5,8 +5,8 @@
   "description": "Firebase Firestore and Cloud Storage rules for the news app, with emulator-based rule tests.",
   "type": "module",
   "scripts": {
-    "test": "firebase emulators:exec --only firestore,storage \"node --test \"tests/**/*.test.js\"\"",
-    "test:watch": "firebase emulators:exec --only firestore,storage \"node --test --watch \"tests/**/*.test.js\"\"",
+    "test": "firebase emulators:exec --only firestore,storage \"node --test --test-concurrency=1 \"tests/**/*.test.js\"\"",
+    "test:watch": "firebase emulators:exec --only firestore,storage \"node --test --watch --test-concurrency=1 \"tests/**/*.test.js\"\"",
     "emulators": "firebase emulators:start",
     "deploy:rules": "firebase deploy --only firestore,storage"
   },
