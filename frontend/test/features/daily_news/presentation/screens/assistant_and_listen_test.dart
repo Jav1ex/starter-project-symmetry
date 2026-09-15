@@ -19,7 +19,7 @@ void main() {
   Finder fieldAt(int index) =>
       find.descendant(of: find.byType(LabeledTextField).at(index), matching: find.byType(TextField));
 
-  testWidgets('Ask the editor opens the sheet and "Use this" fills the title and category', (tester) async {
+  testWidgets('Ask the editor works with only the body and "Use this" fills the empty title', (tester) async {
     final harness = ShellHarness();
     tester.view.physicalSize = const Size(600, 1600);
     tester.view.devicePixelRatio = 1;
@@ -33,7 +33,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.enterText(fieldAt(0), 'Draft title');
     await tester.enterText(fieldAt(2), List.filled(45, 'word').join(' '));
     await tester.pumpAndSettle();
 

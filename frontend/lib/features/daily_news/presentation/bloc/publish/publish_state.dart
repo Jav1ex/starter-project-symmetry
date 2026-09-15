@@ -56,6 +56,10 @@ class PublishState extends Equatable {
   /// Publish is possible once both required texts have content.
   bool get canSubmit => title.trim().isNotEmpty && content.trim().isNotEmpty;
 
+  /// The editor only needs the article text: it is the one who proposes the
+  /// headline, so asking for one first would be backwards.
+  bool get canAskEditor => content.trim().isNotEmpty;
+
   /// What is still missing, in the words the helper under the button uses.
   String? get missingHint {
     final missingTitle = title.trim().isEmpty;

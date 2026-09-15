@@ -204,7 +204,7 @@ class _PublishViewState extends State<PublishView> {
                       SecondaryButton(
                         label: 'Ask the editor',
                         icon: Icons.auto_awesome_rounded,
-                        onPressed: state.canSubmit && !state.isSubmitting ? () => _askEditor(context) : null,
+                        onPressed: state.canAskEditor && !state.isSubmitting ? () => _askEditor(context) : null,
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       CategoryChips(selected: state.category, onChanged: cubit.categoryChanged),
