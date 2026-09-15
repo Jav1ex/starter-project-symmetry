@@ -5,6 +5,7 @@ import 'package:news_app_clean_architecture/config/routes/app_router.dart';
 import 'package:news_app_clean_architecture/config/theme/app_theme.dart';
 import 'package:news_app_clean_architecture/config/theme/theme_mode_mapper.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
@@ -18,6 +19,7 @@ class DailyNewsApp extends StatefulWidget {
   final SavedArticlesCubit savedArticlesCubit;
   final FeedCubit feedCubit;
   final MyArticlesCubit myArticlesCubit;
+  final BriefCubit briefCubit;
 
   const DailyNewsApp({
     super.key,
@@ -26,6 +28,7 @@ class DailyNewsApp extends StatefulWidget {
     required this.savedArticlesCubit,
     required this.feedCubit,
     required this.myArticlesCubit,
+    required this.briefCubit,
   });
 
   @override
@@ -50,6 +53,7 @@ class _DailyNewsAppState extends State<DailyNewsApp> {
         BlocProvider.value(value: widget.savedArticlesCubit),
         BlocProvider.value(value: widget.feedCubit),
         BlocProvider.value(value: widget.myArticlesCubit),
+        BlocProvider.value(value: widget.briefCubit),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {

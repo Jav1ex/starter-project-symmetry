@@ -6,6 +6,7 @@ abstract final class AppRoutes {
   static const String signUp = '/sign-up';
   static const String home = '/';
   static const String reader = '/article';
+  static const String brief = '/brief';
   static const String publish = '/publish';
   static const String myArticles = '/my-articles';
   static const String settings = '/settings';

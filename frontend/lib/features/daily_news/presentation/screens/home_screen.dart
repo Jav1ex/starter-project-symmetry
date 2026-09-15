@@ -3,11 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app_clean_architecture/config/routes/app_router.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_error_card.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_item.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_section_header.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_skeleton.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/home/brief_card.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/home/home_header.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
@@ -78,6 +80,14 @@ class HomeView extends StatelessWidget {
                             now: DateTime.now(),
                             onAvatarTap: context.pushSettings,
                           ),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: BlocBuilder<BriefCubit, BriefState>(
+                    builder: (context, state) => BriefCard(
+                      completedToday: state.isCompletedOn(DateTime.now()),
+                      onPressed: context.pushBrief,
+                    ),
                   ),
                 ),
                 const _FeedBody(),

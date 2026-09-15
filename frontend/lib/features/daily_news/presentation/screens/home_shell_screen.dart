@@ -7,14 +7,22 @@ import 'package:news_app_clean_architecture/features/settings/presentation/scree
 /// The four tabs behind the bottom bar. Pages live in an [IndexedStack] so
 /// switching keeps each tab's scroll position and there is no slide.
 class HomeShellScreen extends StatefulWidget {
-  const HomeShellScreen({super.key});
+  final int initialTab;
+
+  const HomeShellScreen({super.key, this.initialTab = 0});
 
   @override
   State<HomeShellScreen> createState() => _HomeShellScreenState();
 }
 
 class _HomeShellScreenState extends State<HomeShellScreen> {
-  int _index = 0;
+  late int _index = widget.initialTab.clamp(0, _tabs.length - 1);
+
+  @override
+  void didUpdateWidget(HomeShellScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTab != widget.initialTab) _index = widget.initialTab.clamp(0, _tabs.length - 1);
+  }
 
   static const _tabs = [
     (icon: Icons.home_outlined, activeIcon: Icons.home_rounded, label: 'Home'),

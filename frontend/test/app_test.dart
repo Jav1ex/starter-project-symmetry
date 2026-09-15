@@ -31,6 +31,7 @@ void main() {
         savedArticlesCubit: shell.savedCubit,
         feedCubit: shell.feedCubit,
         myArticlesCubit: shell.myArticlesCubit,
+        briefCubit: shell.briefCubit,
       ),
     );
     await tester.pumpAndSettle();

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:news_app_clean_architecture/config/routes/app_routes.dart';
 import 'package:news_app_clean_architecture/config/routes/session_redirect.dart';
@@ -9,6 +9,7 @@ import 'package:news_app_clean_architecture/features/auth/presentation/screens/s
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/splash_screen.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/welcome_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/brief_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/home_shell_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/my_articles_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/publish_screen.dart';
@@ -47,11 +48,17 @@ abstract final class AppRouter {
         ),
         GoRoute(
           path: AppRoutes.home,
-          builder: (context, state) => const HomeShellScreen(),
+          builder: (context, state) => HomeShellScreen(
+            initialTab: int.tryParse(state.uri.queryParameters['tab'] ?? '') ?? 0,
+          ),
         ),
         GoRoute(
           path: AppRoutes.reader,
           builder: (context, state) => ReaderScreen(article: state.extra! as ArticleEntity),
+        ),
+        GoRoute(
+          path: AppRoutes.brief,
+          pageBuilder: (context, state) => const MaterialPage(fullscreenDialog: true, child: BriefScreen()),
         ),
         GoRoute(
           path: AppRoutes.publish,
@@ -88,7 +95,8 @@ extension AppNavigation on BuildContext {
 
   void goToWelcome() => go(AppRoutes.welcome);
 
-  void goHome() => go(AppRoutes.home);
+  /// [tab]: 0 Home, 1 Search, 2 Saved, 3 Profile.
+  void goHome({int tab = 0}) => go(tab == 0 ? AppRoutes.home : '${AppRoutes.home}?tab=$tab');
 
   void pushSettings() => push(AppRoutes.settings);
 
@@ -97,6 +105,8 @@ extension AppNavigation on BuildContext {
   void pushPublish({ArticleEntity? article}) => push(AppRoutes.publish, extra: article);
 
   void pushMyArticles() => push(AppRoutes.myArticles);
+
+  void pushBrief() => push(AppRoutes.brief);
 
   void pushDefaultCategoryPicker() => push(AppRoutes.settingsCategory);
 
