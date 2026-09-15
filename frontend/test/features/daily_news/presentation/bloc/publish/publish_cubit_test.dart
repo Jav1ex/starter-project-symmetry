@@ -39,11 +39,14 @@ void main() {
     final cubit = newCubit();
     expect(cubit.state.publishedAt, now);
     expect(cubit.state.canSubmit, isFalse);
+    expect(cubit.state.canAskEditor, isFalse);
     expect(cubit.state.missingHint, 'Fill in the title and article text to publish.');
 
-    cubit.titleChanged('A title');
-    expect(cubit.state.missingHint, 'Write the article text to publish.');
     cubit.contentChanged('Body');
+    expect(cubit.state.canAskEditor, isTrue);
+    expect(cubit.state.canSubmit, isFalse);
+    expect(cubit.state.missingHint, 'Add a title to publish.');
+    cubit.titleChanged('A title');
     expect(cubit.state.canSubmit, isTrue);
     expect(cubit.state.missingHint, isNull);
   });
