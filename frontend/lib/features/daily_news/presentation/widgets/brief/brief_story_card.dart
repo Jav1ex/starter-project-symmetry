@@ -45,9 +45,9 @@ class BriefStoryCard extends StatelessWidget {
                 end: Alignment.bottomCenter,
                 stops: const [0, 0.35, 1],
                 colors: [
-                  const Color(0xFF140A19).withValues(alpha: 0.1),
-                  const Color(0xFF140A19).withValues(alpha: 0.2),
-                  const Color(0xFF140A19).withValues(alpha: 0.9),
+                  const Color(0xFF07171B).withValues(alpha: 0.1),
+                  const Color(0xFF07171B).withValues(alpha: 0.2),
+                  const Color(0xFF07171B).withValues(alpha: 0.9),
                 ],
               ),
             ),
@@ -65,7 +65,7 @@ class BriefStoryCard extends StatelessWidget {
                   '${RelativeTimeFormatter.ago(article.publishedAt)}',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: AppTypography.overline.copyWith(color: palette.primaryContainer),
+                  style: AppTypography.overline.copyWith(color: palette.accent),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
@@ -139,12 +139,7 @@ class _GradientInitial extends StatelessWidget {
       alignment: Alignment.topRight,
       child: Text(
         article.category.label[0].toUpperCase(),
-        style: TextStyle(
-          fontFamily: AppTypography.serif,
-          fontSize: 280,
-          height: 1,
-          color: Colors.white.withValues(alpha: 0.12),
-        ),
+        style: AppTypography.serifGlyph(280).copyWith(color: Colors.white.withValues(alpha: 0.12)),
       ),
     );
   }

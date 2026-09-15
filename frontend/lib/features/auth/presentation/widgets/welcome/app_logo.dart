@@ -20,13 +20,7 @@ class AppLogo extends StatelessWidget {
       alignment: Alignment.center,
       child: Text(
         'D',
-        style: TextStyle(
-          fontFamily: AppTypography.serif,
-          fontWeight: FontWeight.w600,
-          fontSize: size * 0.61,
-          height: 1,
-          color: Colors.white,
-        ),
+        style: AppTypography.serifGlyph(size * 0.61, weight: FontWeight.w600).copyWith(color: Colors.white),
       ),
     );
   }

@@ -71,12 +71,7 @@ class _TypographicHero extends StatelessWidget {
           alignment: const Alignment(1.1, 1.2),
           child: Text(
             article.category.label[0].toUpperCase(),
-            style: TextStyle(
-              fontFamily: AppTypography.serif,
-              fontSize: 300,
-              height: 1,
-              color: palette.primary.withValues(alpha: 0.14),
-            ),
+            style: AppTypography.serifGlyph(300).copyWith(color: palette.primary.withValues(alpha: 0.14)),
           ),
         ),
       ),

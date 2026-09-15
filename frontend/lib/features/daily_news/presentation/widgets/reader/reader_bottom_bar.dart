@@ -110,7 +110,7 @@ class _TextSizeButton extends StatelessWidget {
       tooltip: tooltip,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: AppSizes.touchTarget, minHeight: AppSizes.touchTarget),
-      icon: Text(label, style: TextStyle(fontSize: fontSize, fontWeight: FontWeight.w700, color: context.palette.ink)),
+      icon: Text(label, style: AppTypography.sansSized(fontSize, weight: FontWeight.w700).copyWith(color: context.palette.ink)),
     );
   }
 }

@@ -13,18 +13,18 @@ class YouBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
       decoration: BoxDecoration(
-        color: palette.primaryContainer,
+        color: palette.accent,
         borderRadius: BorderRadius.circular(AppRadius.badge),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.edit_rounded, size: 14, color: palette.onPrimaryContainer),
+          Icon(Icons.edit_rounded, size: 14, color: palette.onAccent),
           const SizedBox(width: AppSpacing.xs),
           Text(
             'You',
             style: AppTypography.overline.copyWith(
-              color: palette.onPrimaryContainer,
+              color: palette.onAccent,
               letterSpacing: 0,
             ),
           ),

@@ -51,13 +51,8 @@ class EmptyState extends StatelessWidget {
                 ? Icon(icon, size: 72, color: palette.primary)
                 : Text(
                     glyph!,
-                    style: TextStyle(
-                      fontFamily: AppTypography.serif,
-                      fontStyle: FontStyle.italic,
-                      fontSize: 64,
-                      height: 1,
-                      color: palette.primary,
-                    ),
+                    style: AppTypography.serifGlyph(64, weight: FontWeight.w400, italic: true)
+                        .copyWith(color: palette.primary),
                   ),
           ),
           const SizedBox(height: AppSpacing.xxl),

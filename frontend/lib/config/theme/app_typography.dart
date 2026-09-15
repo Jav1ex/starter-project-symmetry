@@ -57,6 +57,24 @@ abstract final class AppTypography {
     letterSpacing: 12 * 0.1,
   );
 
+  /// Large serif glyphs: logo letter, empty-state glyph, avatar initials,
+  /// hero and thumbnail fallbacks. Sized by the widget, never ad hoc.
+  static TextStyle serifGlyph(double size, {FontWeight weight = FontWeight.w500, bool italic = false}) {
+    return TextStyle(
+      fontFamily: serif,
+      fontSize: size,
+      height: 1,
+      fontWeight: weight,
+      fontStyle: italic ? FontStyle.italic : FontStyle.normal,
+    );
+  }
+
+  /// Sans text at an explicit size for controls that are not part of the
+  /// scale (the A- / A+ stepper, slider ends).
+  static TextStyle sansSized(double size, {FontWeight weight = FontWeight.w400}) {
+    return TextStyle(fontFamily: sans, fontSize: size, height: 1.2, fontWeight: weight);
+  }
+
   /// Material [TextTheme] fed from the same scale so M3 widgets pick it up.
   static TextTheme textTheme(Color ink, Color inkBody, Color inkSecondary) {
     return TextTheme(
