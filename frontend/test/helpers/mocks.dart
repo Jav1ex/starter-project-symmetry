@@ -5,6 +5,7 @@ import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_google.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_out.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_up_with_email.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/use_cases/update_profile.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/watch_auth_state.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/news_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/saved_article_repository.dart';
@@ -42,6 +43,8 @@ class MockSignInWithEmailUseCase extends Mock implements SignInWithEmailUseCase 
 class MockSignInWithGoogleUseCase extends Mock implements SignInWithGoogleUseCase {}
 
 class MockSignUpWithEmailUseCase extends Mock implements SignUpWithEmailUseCase {}
+
+class MockUpdateProfileUseCase extends Mock implements UpdateProfileUseCase {}
 
 class MockWatchSettingsUseCase extends Mock implements WatchSettingsUseCase {}
 

@@ -80,6 +80,19 @@ class InMemoryAuthRepository implements AuthRepository {
   }
 
   @override
+  Future<DataState<UserEntity>> updateProfile({String? displayName, String? photoUrl}) async {
+    await _simulateLatency();
+    final user = _currentUser;
+    if (user == null) return const DataFailed(Failure.unauthenticated());
+    final updated = user.copyWith(displayName: displayName, photoUrl: photoUrl);
+    final key = user.email?.toLowerCase();
+    final account = key == null ? null : _accounts[key];
+    if (account != null) _accounts[key!] = _Account(user: updated, password: account.password);
+    _setCurrentUser(updated);
+    return DataSuccess(updated);
+  }
+
+  @override
   Future<DataState<void>> signOut() async {
     await _simulateLatency();
     _setCurrentUser(null);

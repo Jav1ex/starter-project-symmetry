@@ -18,6 +18,10 @@ abstract interface class AuthRepository {
 
   Future<DataState<UserEntity>> signInWithGoogle();
 
+  /// Changes the profile fields that are given; `null` leaves a field as is.
+  /// The auth stream re-emits the updated user.
+  Future<DataState<UserEntity>> updateProfile({String? displayName, String? photoUrl});
+
   Future<DataState<void>> signOut();
 
   Future<DataState<void>> deleteAccount();

@@ -10,7 +10,8 @@ class FirebaseAuthService {
 
   FirebaseAuthService(this._auth, this._googleSignIn);
 
-  Stream<UserModel?> authStateChanges() => _auth.authStateChanges().map(_toModel);
+  /// `userChanges` also fires after a profile edit, unlike `authStateChanges`.
+  Stream<UserModel?> authStateChanges() => _auth.userChanges().map(_toModel);
 
   UserModel? get currentUser => _toModel(_auth.currentUser);
 
@@ -40,6 +41,17 @@ class FirebaseAuthService {
     }
     final credential = await _auth.signInWithCredential(GoogleAuthProvider.credential(idToken: idToken));
     return _toModel(credential.user)!;
+  }
+
+  Future<UserModel> updateProfile({String? displayName, String? photoUrl}) async {
+    final user = _auth.currentUser;
+    if (user == null) {
+      throw FirebaseAuthException(code: 'no-current-user', message: 'Nobody is signed in.');
+    }
+    if (displayName != null) await user.updateDisplayName(displayName);
+    if (photoUrl != null) await user.updatePhotoURL(photoUrl);
+    await user.reload();
+    return _toModel(_auth.currentUser ?? user)!;
   }
 
   Future<void> signOut() async {

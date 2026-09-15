@@ -10,6 +10,7 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/settings_row.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/settings_section.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/secondary_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/media/user_avatar.dart';
 
 /// The signed-in account: avatar, name, email, the two counters and the
@@ -76,6 +77,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 style: AppTypography.caption.copyWith(color: palette.inkSecondary),
               ),
             ],
+            const SizedBox(height: AppSpacing.xxl),
+            SecondaryButton(
+              label: 'Edit profile',
+              icon: Icons.edit_outlined,
+              onPressed: () => context.pushEditProfile(user),
+            ),
             const SizedBox(height: AppSpacing.xxl),
             Row(
               children: [
