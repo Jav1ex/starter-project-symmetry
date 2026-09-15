@@ -3,6 +3,7 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/destructive_button.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/editorial_dialog.dart';
 
 /// Confirmation for deleting the account. The red button stays disabled
 /// until the user ticks that they understand it cannot be undone.
@@ -18,7 +19,7 @@ class DeleteAccountDialog extends StatefulWidget {
   static const String acknowledgement = "I understand this can't be undone";
 
   static Future<bool> show(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
+    final confirmed = await showEditorialDialog<bool>(
       context: context,
       builder: (_) => const DeleteAccountDialog(),
     );

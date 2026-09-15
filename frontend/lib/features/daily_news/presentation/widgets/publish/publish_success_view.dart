@@ -5,6 +5,8 @@ import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_item.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/primary_button.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/pop_in.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/staggered_entrance.dart';
 
 /// Full-screen confirmation after publishing, with a preview of the new feed
 /// row and the two ways out.
@@ -34,26 +36,31 @@ class PublishSuccessView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Spacer(),
-              Center(
-                child: Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    color: palette.successContainer,
-                    borderRadius: BorderRadius.circular(30),
+              PopIn(
+                child: Center(
+                  child: Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      color: palette.successContainer,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: Icon(Icons.check_circle_rounded, size: 56, color: palette.success),
                   ),
-                  child: Icon(Icons.check_circle_rounded, size: 56, color: palette.success),
                 ),
               ),
               const SizedBox(height: AppSpacing.xxl),
-              Text(
-                wasEdit
-                    ? 'Your changes are live'
-                    : scheduled
-                        ? 'Your article is scheduled'
-                        : 'Your article is live',
-                textAlign: TextAlign.center,
-                style: AppTypography.briefSummaryTitle.copyWith(color: palette.ink),
+              StaggeredEntrance(
+                index: 3,
+                child: Text(
+                  wasEdit
+                      ? 'Your changes are live'
+                      : scheduled
+                      ? 'Your article is scheduled'
+                      : 'Your article is live',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.briefSummaryTitle.copyWith(color: palette.ink),
+                ),
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
@@ -62,15 +69,25 @@ class PublishSuccessView extends StatelessWidget {
                 style: AppTypography.bodySmall.copyWith(color: palette.inkBody),
               ),
               const SizedBox(height: AppSpacing.xxl),
-              Card(
-                child: FeedItem(article: article, isOwn: true, metaOverride: '${article.author} · just now', onTap: onRead),
+              StaggeredEntrance(
+                index: 6,
+                child: Card(
+                  child: FeedItem(
+                    article: article,
+                    isOwn: true,
+                    metaOverride: '${article.author} · just now',
+                    onTap: onRead,
+                  ),
+                ),
               ),
               const Spacer(),
               PrimaryButton(label: 'Read it', icon: Icons.menu_book_rounded, onPressed: onRead),
               const SizedBox(height: AppSpacing.sm),
               TextButton(
                 onPressed: onBackHome,
-                style: TextButton.styleFrom(minimumSize: const Size.fromHeight(AppSizes.tertiaryButton)),
+                style: TextButton.styleFrom(
+                  minimumSize: const Size.fromHeight(AppSizes.tertiaryButton),
+                ),
                 child: const Text('Back to Home'),
               ),
             ],

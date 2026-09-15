@@ -14,13 +14,42 @@ class BriefStoryCard extends StatelessWidget {
   final VoidCallback onRead;
   final VoidCallback onSave;
 
+  /// The stack's controller and this card's page, for the parallax: the
+  /// photo drifts with the swipe while the text drifts slightly against it.
+  final PageController? parallax;
+  final int page;
+
   const BriefStoryCard({
     super.key,
     required this.article,
     required this.isSaved,
     required this.onRead,
     required this.onSave,
+    this.parallax,
+    this.page = 0,
   });
+
+  static const double photoDrift = 40;
+  static const double textDrift = -12;
+
+  double _delta() {
+    final controller = parallax;
+    if (controller == null || !controller.hasClients || !controller.position.haveDimensions) {
+      return 0;
+    }
+    return ((controller.page ?? page.toDouble()) - page).clamp(-1.0, 1.0);
+  }
+
+  Widget _drifting(BuildContext context, Widget child, double amount) {
+    final controller = parallax;
+    if (controller == null || MediaQuery.of(context).disableAnimations) return child;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (_, child) =>
+          Transform.translate(offset: Offset(0, _delta() * amount), child: child),
+      child: child,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,14 +59,20 @@ class BriefStoryCard extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          if (article.hasImage)
-            CachedNetworkImage(
-              imageUrl: article.imageUrl!,
-              fit: BoxFit.cover,
-              errorWidget: (_, _, _) => _GradientInitial(article: article),
-            )
-          else
-            _GradientInitial(article: article),
+          _drifting(
+            context,
+            Transform.scale(
+              scale: 1.15,
+              child: article.hasImage
+                  ? CachedNetworkImage(
+                      imageUrl: article.imageUrl!,
+                      fit: BoxFit.cover,
+                      errorWidget: (_, _, _) => _GradientInitial(article: article),
+                    )
+                  : _GradientInitial(article: article),
+            ),
+            photoDrift,
+          ),
           DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -56,62 +91,71 @@ class BriefStoryCard extends StatelessWidget {
             left: AppSpacing.xxl,
             right: AppSpacing.xxl,
             bottom: AppSpacing.xxl,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  '${article.category.label.toUpperCase()} · ${article.author} · '
-                  '${RelativeTimeFormatter.ago(article.publishedAt)}',
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.overline.copyWith(color: palette.accent),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  article.title,
-                  maxLines: 4,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.briefCardHeadline.copyWith(color: Colors.white),
-                ),
-                if (article.description case final teaser?) ...[
+            child: _drifting(
+              context,
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    '${article.category.label.toUpperCase()} · ${article.author} · '
+                    '${RelativeTimeFormatter.ago(article.publishedAt)}',
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.overline.copyWith(color: palette.accent),
+                  ),
                   const SizedBox(height: AppSpacing.sm),
                   Text(
-                    teaser,
-                    maxLines: 3,
+                    article.title,
+                    maxLines: 4,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.bodySmall.copyWith(color: Colors.white.withValues(alpha: 0.88)),
+                    style: AppTypography.briefCardHeadline.copyWith(color: Colors.white),
                   ),
-                ],
-                const SizedBox(height: AppSpacing.lg),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.icon(
-                        onPressed: onRead,
-                        style: FilledButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: palette.primaryDeep,
-                          minimumSize: const Size(0, AppSizes.tertiaryButton),
-                        ),
-                        icon: const Icon(Icons.menu_book_rounded, size: 20),
-                        label: const Text('Read'),
+                  if (article.description case final teaser?) ...[
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      teaser,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: Colors.white.withValues(alpha: 0.88),
                       ),
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    OutlinedButton.icon(
-                      onPressed: onSave,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white,
-                        side: BorderSide(color: Colors.white.withValues(alpha: 0.7), width: 1.5),
-                        minimumSize: const Size(0, AppSizes.tertiaryButton),
-                      ),
-                      icon: Icon(isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded, size: 20),
-                      label: Text(isSaved ? 'Saved' : 'Save'),
                     ),
                   ],
-                ),
-              ],
+                  const SizedBox(height: AppSpacing.lg),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: FilledButton.icon(
+                          onPressed: onRead,
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.white,
+                            foregroundColor: palette.primaryDeep,
+                            minimumSize: const Size(0, AppSizes.tertiaryButton),
+                          ),
+                          icon: const Icon(Icons.menu_book_rounded, size: 20),
+                          label: const Text('Read'),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      OutlinedButton.icon(
+                        onPressed: onSave,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          side: BorderSide(color: Colors.white.withValues(alpha: 0.7), width: 1.5),
+                          minimumSize: const Size(0, AppSizes.tertiaryButton),
+                        ),
+                        icon: Icon(
+                          isSaved ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
+                          size: 20,
+                        ),
+                        label: Text(isSaved ? 'Saved' : 'Save'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              textDrift,
             ),
           ),
         ],
