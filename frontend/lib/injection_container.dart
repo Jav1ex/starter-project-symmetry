@@ -33,6 +33,8 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/search_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/update_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/settings/data/repository/in_memory_settings_repository.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/repository/settings_repository.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/get_settings.dart';
@@ -110,6 +112,8 @@ void _registerSettingsUseCases() {
 void _registerBlocs() {
   sl.registerLazySingleton<SessionCubit>(() => SessionCubit(sl(), sl(), sl()));
   sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit(sl(), sl()));
+  sl.registerLazySingleton<SavedArticlesCubit>(() => SavedArticlesCubit(sl(), sl(), sl()));
+  sl.registerFactory<FeedCubit>(() => FeedCubit(sl()));
   sl.registerFactory<SignInCubit>(() => SignInCubit(sl(), sl()));
   sl.registerFactory<SignUpCubit>(() => SignUpCubit(sl(), sl()));
 }

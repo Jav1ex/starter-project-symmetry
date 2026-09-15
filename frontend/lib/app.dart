@@ -5,6 +5,7 @@ import 'package:news_app_clean_architecture/config/routes/app_router.dart';
 import 'package:news_app_clean_architecture/config/theme/app_theme.dart';
 import 'package:news_app_clean_architecture/config/theme/theme_mode_mapper.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
 
 /// Root widget: provides the app-wide cubits, applies the user's theme and
@@ -12,11 +13,13 @@ import 'package:news_app_clean_architecture/features/settings/presentation/bloc/
 class DailyNewsApp extends StatefulWidget {
   final SessionCubit sessionCubit;
   final SettingsCubit settingsCubit;
+  final SavedArticlesCubit savedArticlesCubit;
 
   const DailyNewsApp({
     super.key,
     required this.sessionCubit,
     required this.settingsCubit,
+    required this.savedArticlesCubit,
   });
 
   @override
@@ -38,6 +41,7 @@ class _DailyNewsAppState extends State<DailyNewsApp> {
       providers: [
         BlocProvider.value(value: widget.sessionCubit),
         BlocProvider.value(value: widget.settingsCubit),
+        BlocProvider.value(value: widget.savedArticlesCubit),
       ],
       child: BlocBuilder<SettingsCubit, SettingsState>(
         builder: (context, state) {
