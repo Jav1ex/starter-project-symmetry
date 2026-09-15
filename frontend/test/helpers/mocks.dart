@@ -8,6 +8,7 @@ import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/update_profile.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/watch_auth_state.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/article_assistant_repository.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/repository/draft_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/news_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/saved_article_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/thumbnail_storage_repository.dart';
@@ -21,6 +22,8 @@ import 'package:news_app_clean_architecture/features/settings/domain/use_cases/w
 class MockNewsRepository extends Mock implements NewsRepository {}
 
 class MockArticleAssistantRepository extends Mock implements ArticleAssistantRepository {}
+
+class MockDraftRepository extends Mock implements DraftRepository {}
 
 class MockUserArticleRepository extends Mock implements UserArticleRepository {}
 

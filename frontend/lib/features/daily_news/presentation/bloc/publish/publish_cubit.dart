@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
@@ -7,27 +9,49 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/saved_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/clear_draft.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/load_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/update_article.dart';
 
 part 'publish_state.dart';
 
 /// The write / edit form. Validation comes from [ArticleDraft] so the form,
 /// the use case and the backend rules agree on what is acceptable.
+///
+/// A new article is also kept as a draft on the device: edits are saved
+/// shortly after the journalist stops typing and once more when the screen
+/// closes, and the next visit restores them. Edits of a published article
+/// never touch the draft.
 class PublishCubit extends Cubit<PublishState> {
   final PublishArticleUseCase _publishArticle;
   final UpdateArticleUseCase _updateArticle;
   final PickThumbnailUseCase _pickThumbnail;
+  final LoadDraftUseCase _loadDraft;
+  final SaveDraftUseCase _saveDraft;
+  final ClearDraftUseCase _clearDraft;
+  final Duration _autosaveDelay;
+  Timer? _autosave;
 
   PublishCubit(
     this._publishArticle,
     this._updateArticle,
     this._pickThumbnail, {
+    required LoadDraftUseCase loadDraft,
+    required SaveDraftUseCase saveDraft,
+    required ClearDraftUseCase clearDraft,
     ArticleEntity? original,
     DateTime? now,
-  }) : super(
+    Duration autosaveDelay = const Duration(milliseconds: 600),
+  })  : _loadDraft = loadDraft,
+        _saveDraft = saveDraft,
+        _clearDraft = clearDraft,
+        _autosaveDelay = autosaveDelay,
+        super(
           original == null
               ? PublishState(publishedAt: now ?? DateTime.now())
               : PublishState(
@@ -40,24 +64,57 @@ class PublishCubit extends Cubit<PublishState> {
                 ),
         );
 
-  void titleChanged(String value) => emit(_keepingErrors(title: value, titleError: null));
+  void titleChanged(String value) => _edit(_keepingErrors(title: value, titleError: null));
 
   void descriptionChanged(String value) =>
-      emit(_keepingErrors(description: value, descriptionError: null));
+      _edit(_keepingErrors(description: value, descriptionError: null));
 
-  void contentChanged(String value) => emit(_keepingErrors(content: value, contentError: null));
+  void contentChanged(String value) => _edit(_keepingErrors(content: value, contentError: null));
 
-  void categoryChanged(NewsCategory value) => emit(_keepingErrors(category: value));
+  void categoryChanged(NewsCategory value) => _edit(_keepingErrors(category: value));
 
   void removePhoto() =>
-      emit(_keepingErrors(clearPickedImage: true, removedExistingImage: true));
+      _edit(_keepingErrors(clearPickedImage: true, removedExistingImage: true));
+
+  /// Brings back the draft left behind on the last visit. An edit never has
+  /// one, and a form the journalist already started typing in is not
+  /// overwritten.
+  Future<void> restoreDraft() async {
+    if (state.isEditing) return;
+    final draft = await _loadDraft(const NoParams());
+    if (isClosed || draft == null || draft.isEmpty || state.hasDraftContent) return;
+    emit(state.copyWith(
+      title: draft.title,
+      description: draft.description,
+      content: draft.content,
+      category: draft.category,
+      pickedImage: draft.image,
+      draftNotice: DraftNotice.restored,
+    ));
+  }
+
+  /// Wipes the form and forgets the stored draft.
+  Future<void> clearDraft() async {
+    _cancelAutosave();
+    emit(PublishState(publishedAt: state.publishedAt, draftNotice: DraftNotice.cleared));
+    await _clearDraft(const NoParams());
+  }
+
+  @override
+  Future<void> close() async {
+    if (_autosave?.isActive ?? false) {
+      _cancelAutosave();
+      await _persistDraft();
+    }
+    return super.close();
+  }
 
   Future<void> pickPhoto() async {
     final result = await _pickThumbnail(const NoParams());
     if (isClosed) return;
     switch (result) {
       case DataSuccess(:final data):
-        if (data != null) emit(_keepingErrors(pickedImage: data, removedExistingImage: false));
+        if (data != null) _edit(_keepingErrors(pickedImage: data, removedExistingImage: false));
       case DataFailed(:final failure):
         emit(_keepingErrors(failure: failure));
     }
@@ -65,6 +122,10 @@ class PublishCubit extends Cubit<PublishState> {
 
   Future<void> submit() async {
     if (state.isSubmitting) return;
+    if (_autosave?.isActive ?? false) {
+      _cancelAutosave();
+      await _persistDraft();
+    }
 
     final errors = state.draft.validate();
     if (errors.isNotEmpty) {
@@ -84,9 +145,29 @@ class PublishCubit extends Cubit<PublishState> {
     switch (result) {
       case DataSuccess(:final data):
         emit(state.copyWith(status: PublishStatus.success, result: data));
+        if (!state.isEditing) await _clearDraft(const NoParams());
       case DataFailed(:final failure):
         emit(state.copyWith(status: PublishStatus.failure, failure: failure));
     }
+  }
+
+  /// Emits a field edit and, for a new article, queues the draft save so a
+  /// burst of keystrokes costs one write.
+  void _edit(PublishState next) {
+    emit(next);
+    if (state.isEditing) return;
+    _autosave?.cancel();
+    _autosave = Timer(_autosaveDelay, _persistDraft);
+  }
+
+  Future<void> _persistDraft() {
+    _autosave = null;
+    return _saveDraft(state.savedDraft);
+  }
+
+  void _cancelAutosave() {
+    _autosave?.cancel();
+    _autosave = null;
   }
 
   /// A new article is dated at the moment it is published; edits keep the

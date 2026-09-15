@@ -33,7 +33,7 @@ class PublishScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (_) => sl<PublishCubit>(param1: article)),
+        BlocProvider(create: (_) => sl<PublishCubit>(param1: article)..restoreDraft()),
         BlocProvider(create: (_) => sl<EditorAssistantCubit>()),
       ],
       child: const PublishView(),
@@ -103,6 +103,15 @@ class _PublishViewState extends State<PublishView> {
     assistant.dismiss();
   }
 
+  /// The cubit rewrote the fields itself (draft restored or cleared): the
+  /// controllers follow. Setting `text` does not fire `onChanged`, so this
+  /// never loops back into the cubit.
+  void _syncControllers(PublishState state) {
+    _title.text = state.title;
+    _description.text = state.description;
+    _content.text = state.content;
+  }
+
   void _onSuccess(BuildContext context, PublishState state) {
     final article = state.result!;
     context.read<MyArticlesCubit>().upsert(article);
@@ -114,11 +123,21 @@ class _PublishViewState extends State<PublishView> {
     final palette = context.palette;
     final cubit = context.read<PublishCubit>();
     return BlocConsumer<PublishCubit, PublishState>(
-      listenWhen: (previous, current) => previous.status != current.status || previous.failure != current.failure,
+      listenWhen: (previous, current) =>
+          previous.status != current.status ||
+          previous.failure != current.failure ||
+          previous.draftNotice != current.draftNotice,
       listener: (context, state) {
         if (state.status == PublishStatus.success) _onSuccess(context, state);
         if (state.failure case final failure?) {
           showAppSnackBar(context, FailureMessageFormatter.of(failure));
+        }
+        if (state.draftNotice case final notice?) {
+          _syncControllers(state);
+          showAppSnackBar(
+            context,
+            notice == DraftNotice.restored ? 'Your draft is back where you left it.' : 'Draft cleared.',
+          );
         }
       },
       builder: (context, state) {
@@ -146,6 +165,14 @@ class _PublishViewState extends State<PublishView> {
                       LabeledIconButton.cancel(
                         onPressed: state.isSubmitting ? null : () => Navigator.of(context).pop(),
                       ),
+                      if (state.hasDraftContent) ...[
+                        const SizedBox(width: AppSpacing.sm),
+                        LabeledIconButton(
+                          icon: Icons.delete_sweep_rounded,
+                          label: 'Clear',
+                          onPressed: state.isSubmitting ? null : cubit.clearDraft,
+                        ),
+                      ],
                       const Spacer(),
                       Text(
                         state.isEditing ? 'Edit article' : 'New article',
