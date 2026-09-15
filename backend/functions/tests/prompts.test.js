@@ -10,9 +10,9 @@ describe('buildPrompt', () => {
     assert.match(user, /three alternative headlines/);
   });
 
-  it('names the target language for translations', () => {
-    const { user } = buildPrompt({ task: 'translate', title: '', content: 'Body', language: 'pt' });
-    assert.match(user, /into Portuguese/);
+  it('omits the title line when the draft has none', () => {
+    const { user } = buildPrompt({ task: 'plain', title: '', content: 'Body' });
+    assert.match(user, /90 years old/);
     assert.doesNotMatch(user, /Title:/);
   });
 });

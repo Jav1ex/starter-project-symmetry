@@ -5,12 +5,7 @@ import { CONTENT_MAX, TITLE_MAX, ValidationError, validateRequest } from '../val
 describe('validateRequest', () => {
   it('trims and returns a clean request', () => {
     const clean = validateRequest({ task: 'brief', title: '  Sea wall ', content: ' Body ' });
-    assert.deepEqual(clean, { task: 'brief', title: 'Sea wall', content: 'Body', language: undefined });
-  });
-
-  it('defaults translate to Spanish and rejects unknown languages', () => {
-    assert.equal(validateRequest({ task: 'translate', content: 'x' }).language, 'es');
-    assert.throws(() => validateRequest({ task: 'translate', content: 'x', language: 'klingon' }), ValidationError);
+    assert.deepEqual(clean, { task: 'brief', title: 'Sea wall', content: 'Body' });
   });
 
   it('rejects unknown tasks, empty content and oversized fields', () => {
