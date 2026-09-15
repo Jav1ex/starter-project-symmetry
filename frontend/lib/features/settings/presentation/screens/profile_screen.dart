@@ -81,7 +81,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             SecondaryButton(
               label: 'Edit profile',
               icon: Icons.edit_outlined,
-              onPressed: () => context.pushEditProfile(user),
+              onPressed: context.pushEditProfile,
             ),
             const SizedBox(height: AppSpacing.xxl),
             Row(

@@ -5,8 +5,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
-import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/edit_profile/edit_profile_cubit.dart';
+import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
@@ -17,12 +17,14 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/media/us
 
 /// Change the display name and the photo shown on articles.
 class EditProfileScreen extends StatelessWidget {
-  final UserEntity user;
-
-  const EditProfileScreen({super.key, required this.user});
+  const EditProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // Read once: the cubit keeps its own copy, so a session refresh after
+    // saving never rebuilds the form mid-flight.
+    final user = context.read<SessionCubit>().state.user;
+    if (user == null) return const SizedBox.shrink();
     return BlocProvider(
       create: (_) => sl<EditProfileCubit>(param1: user),
       child: const EditProfileView(),

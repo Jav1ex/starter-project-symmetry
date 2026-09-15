@@ -70,10 +70,13 @@ class ReaderScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.xs,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         CategoryLabel(category: article.category),
-                        if (isOwn) ...[const SizedBox(width: AppSpacing.sm), const YouBadge()],
+                        if (isOwn) const YouBadge(),
                       ],
                     ),
                     const SizedBox(height: AppSpacing.lg),
