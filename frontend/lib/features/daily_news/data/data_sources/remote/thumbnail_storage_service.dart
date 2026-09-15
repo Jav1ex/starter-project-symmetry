@@ -1,0 +1,25 @@
+import 'dart:io';
+
+import 'package:firebase_storage/firebase_storage.dart';
+
+/// Uploads and deletes files in Cloud Storage. Errors propagate as
+/// [FirebaseException]s.
+class ThumbnailStorageService {
+  final FirebaseStorage _storage;
+
+  ThumbnailStorageService(this._storage);
+
+  /// Uploads the file at [filePath] to [objectPath] and returns the download
+  /// URL. The content type is stored so the Storage rules can check it.
+  Future<String> upload({
+    required String filePath,
+    required String objectPath,
+    required String contentType,
+  }) async {
+    final reference = _storage.ref(objectPath);
+    await reference.putFile(File(filePath), SettableMetadata(contentType: contentType));
+    return reference.getDownloadURL();
+  }
+
+  Future<void> delete(String objectPath) => _storage.ref(objectPath).delete();
+}

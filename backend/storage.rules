@@ -4,6 +4,10 @@ rules_version = '2';
 service firebase.storage {
   match /b/{bucket}/o {
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
     function isSupportedImage() {
       return request.resource.contentType.matches('^image/(jpeg|png|webp)$');
     }
@@ -14,10 +18,11 @@ service firebase.storage {
     }
 
     // One file directly inside media/articles/; sub-folders are not allowed.
+    // Anyone can view a thumbnail; only signed-in journalists can write them.
     match /media/articles/{fileName} {
       allow read: if true;
-      allow create, update: if isSupportedImage() && isWithinSizeLimit();
-      allow delete: if true;
+      allow create, update: if isSignedIn() && isSupportedImage() && isWithinSizeLimit();
+      allow delete: if isSignedIn();
     }
 
     // Everything else in the bucket is denied by default.
