@@ -38,8 +38,7 @@ void main() {
       initialLocation: AppRoutes.home,
       routes: {
         AppRoutes.home: (_) => const ProfileScreen(),
-        AppRoutes.editProfile: (context) =>
-            EditProfileScreen(user: harness.session.cubit.state.user!),
+        AppRoutes.editProfile: (_) => const EditProfileScreen(),
       },
       providers: harness.providers,
     );
