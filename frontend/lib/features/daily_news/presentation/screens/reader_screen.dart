@@ -84,18 +84,12 @@ class ReaderView extends StatelessWidget {
     }
   }
 
-  Future<void> _share(BuildContext context) async {
-    await Clipboard.setData(ClipboardData(text: article.url ?? article.title));
-    if (context.mounted) showAppSnackBar(context, 'Link copied to clipboard');
-  }
-
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
     final userId = context.select((SessionCubit cubit) => cubit.state.user?.id);
     final isOwn = article.isOwnedBy(userId);
     final isSaved = context.select((SavedArticlesCubit cubit) => cubit.isSaved(article.id));
-    final textSize = context.select((SettingsCubit cubit) => cubit.state.settings.textSize);
     final speechRate = context.select((SettingsCubit cubit) => cubit.state.settings.speechRate);
     final isListening = context.select((ListenCubit cubit) => cubit.isReading(article.id) && cubit.state.isSpeaking);
     final lens = context.watch<ReaderLensCubit>().state;
@@ -211,7 +205,6 @@ class ReaderView extends StatelessWidget {
       bottomNavigationBar: ReaderBottomBar(
         isSaved: isSaved,
         isListening: isListening,
-        textSize: textSize,
         onListen: () => context.read<ListenCubit>().toggle(
               id: article.id,
               text: '${article.title}. ${lens.current?.spokenText ?? article.content}',
@@ -221,7 +214,6 @@ class ReaderView extends StatelessWidget {
           HapticFeedback.lightImpact();
           context.read<SavedArticlesCubit>().toggle(article);
         },
-        onShare: () => _share(context),
         onSmallerText: context.read<SettingsCubit>().decreaseTextSize,
         onLargerText: context.read<SettingsCubit>().increaseTextSize,
       ),

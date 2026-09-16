@@ -145,11 +145,12 @@ void main() {
     expect(tester.widget<TextField>(fieldLabelled('Article text')).controller?.text, 'Kept body');
     expect(find.text('Your draft is back where you left it.'), findsOneWidget);
 
-    await tester.tap(find.text('Clear'));
+    await tester.ensureVisible(find.text('Clear draft'));
+    await tester.tap(find.text('Clear draft'));
     await tester.pumpAndSettle();
 
     expect(tester.widget<TextField>(fieldLabelled('Title')).controller?.text, isEmpty);
-    expect(find.text('Clear'), findsNothing);
+    expect(find.text('Clear draft'), findsNothing);
     expect(find.text('Draft cleared.'), findsOneWidget);
     verify(() => harness.clearDraft(any())).called(1);
   });

@@ -12,8 +12,6 @@ import 'package:news_app_clean_architecture/features/auth/data/repository/profil
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/profile_photo_repository.dart';
-import 'package:news_app_clean_architecture/features/auth/domain/use_cases/clear_account_local_data.dart';
-import 'package:news_app_clean_architecture/features/auth/domain/use_cases/delete_account.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/get_current_user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_email.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_google.dart';
@@ -124,19 +122,19 @@ Future<void> _registerDataSources() async {
 /// SQLite for bookmarks, Firestore for articles, Cloud Storage for photos,
 /// Firebase Auth for accounts and the platform key-value store for settings.
 void _registerRepositories() {
+  sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
   sl.registerSingleton<NewsRepository>(NewsRepositoryImpl(sl()));
   sl.registerSingleton<SavedArticleRepository>(
-    SavedArticleRepositoryImpl(sl<AppDatabase>().savedArticleDao),
+    SavedArticleRepositoryImpl(sl<AppDatabase>().savedArticleDao, sl()),
   );
   sl.registerSingleton<UserArticleRepository>(UserArticleRepositoryImpl(sl()));
   sl.registerSingleton<ThumbnailStorageRepository>(ThumbnailStorageRepositoryImpl(sl()));
   sl.registerSingleton<ImagePickerRepository>(ImagePickerRepositoryImpl(sl()));
   sl.registerSingleton<ArticleAssistantRepository>(ArticleAssistantRepositoryImpl(sl()));
   sl.registerSingleton<SpeechRepository>(SpeechRepositoryImpl(sl()));
-  sl.registerSingleton<AuthRepository>(AuthRepositoryImpl(sl()));
   sl.registerSingleton<ProfilePhotoRepository>(ProfilePhotoRepositoryImpl(sl()));
-  sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl()));
-  sl.registerSingleton<DraftRepository>(DraftRepositoryImpl(sl()));
+  sl.registerSingleton<SettingsRepository>(SettingsRepositoryImpl(sl(), sl()));
+  sl.registerSingleton<DraftRepository>(DraftRepositoryImpl(sl(), sl()));
 }
 
 void _registerArticleUseCases() {
@@ -170,9 +168,7 @@ void _registerAuthUseCases() {
   sl.registerSingleton<SignInWithEmailUseCase>(SignInWithEmailUseCase(sl()));
   sl.registerSingleton<SignUpWithEmailUseCase>(SignUpWithEmailUseCase(sl()));
   sl.registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(sl()));
-  sl.registerSingleton<ClearAccountLocalDataUseCase>(ClearAccountLocalDataUseCase(sl(), sl(), sl()));
-  sl.registerSingleton<SignOutUseCase>(SignOutUseCase(sl(), sl()));
-  sl.registerSingleton<DeleteAccountUseCase>(DeleteAccountUseCase(sl(), sl()));
+  sl.registerSingleton<SignOutUseCase>(SignOutUseCase(sl()));
   sl.registerSingleton<UpdateProfileUseCase>(UpdateProfileUseCase(sl(), sl()));
 }
 
@@ -185,7 +181,7 @@ void _registerSettingsUseCases() {
 /// App-wide cubits live as long as the app; form cubits are created per
 /// screen.
 void _registerBlocs() {
-  sl.registerLazySingleton<SessionCubit>(() => SessionCubit(sl(), sl(), sl()));
+  sl.registerLazySingleton<SessionCubit>(() => SessionCubit(sl(), sl()));
   sl.registerLazySingleton<SettingsCubit>(() => SettingsCubit(sl(), sl()));
   sl.registerLazySingleton<SavedArticlesCubit>(() => SavedArticlesCubit(sl(), sl(), sl()));
   sl.registerLazySingleton<FeedCubit>(() => FeedCubit(sl()));

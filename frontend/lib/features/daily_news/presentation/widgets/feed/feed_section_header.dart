@@ -22,7 +22,7 @@ class FeedSectionHeader extends StatelessWidget {
           Expanded(child: Text(title, style: AppTypography.title.copyWith(color: palette.ink))),
           if (updatedAt != null)
             Text(
-              'Updated ${DateFormat.Hm().format(updatedAt!)} · pull to refresh',
+              'Updated ${DateFormat.Hm().format(updatedAt!)}',
               style: AppTypography.captionSmall.copyWith(color: palette.inkSecondary),
             ),
         ],

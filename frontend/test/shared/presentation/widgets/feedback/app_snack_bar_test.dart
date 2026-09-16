@@ -30,7 +30,7 @@ void main() {
 
     expect(find.text('Removed from Saved'), findsOneWidget);
     await tester.tap(find.text('Undo'));
-    await tester.pump();
+    await tester.pumpAndSettle();
     expect(undone, isTrue);
   });
 
@@ -62,5 +62,31 @@ void main() {
 
     expect(find.text('first'), findsNothing);
     expect(find.text('second'), findsOneWidget);
+  });
+
+  testWidgets('a message with an action still leaves on time under accessible navigation', (tester) async {
+    await pumpApp(
+      tester,
+      MediaQuery(
+        data: const MediaQueryData(accessibleNavigation: true),
+        child: Scaffold(
+          body: Builder(
+            builder: (context) => TextButton(
+              onPressed: () => showAppSnackBar(context, 'Removed from Saved', actionLabel: 'Undo'),
+              child: const Text('remove'),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    await tester.tap(find.text('remove'));
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 750));
+    expect(find.text('Removed from Saved'), findsOneWidget);
+
+    await tester.pump(const Duration(seconds: 3));
+    await tester.pumpAndSettle();
+    expect(find.text('Removed from Saved'), findsNothing);
   });
 }

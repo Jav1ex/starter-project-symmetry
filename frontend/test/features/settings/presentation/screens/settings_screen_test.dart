@@ -7,7 +7,6 @@ import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/screens/settings_screen.dart';
-import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/delete_account_dialog.dart';
 
 import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
@@ -99,41 +98,6 @@ void main() {
     await tester.pumpAndSettle();
 
     verify(() => session.signOut(any())).called(1);
-  });
-
-  testWidgets('Delete account asks for confirmation and gates the red button', (tester) async {
-    createHarnesses();
-    await pumpSettings(tester);
-
-    await tester.ensureVisible(find.text('Delete account'));
-    await tester.tap(find.text('Delete account'));
-    await tester.pumpAndSettle();
-    expect(find.byType(DeleteAccountDialog), findsOneWidget);
-
-    final confirm = find.widgetWithText(FilledButton, 'Yes, delete my account');
-    expect(tester.widget<FilledButton>(confirm).enabled, isFalse);
-
-    await tester.tap(find.byType(Checkbox));
-    await tester.pumpAndSettle();
-    expect(tester.widget<FilledButton>(confirm).enabled, isTrue);
-
-    await tester.tap(confirm);
-    await tester.pumpAndSettle();
-    verify(() => session.deleteAccount(any())).called(1);
-  });
-
-  testWidgets('Keep my account dismisses without deleting', (tester) async {
-    createHarnesses();
-    await pumpSettings(tester);
-
-    await tester.ensureVisible(find.text('Delete account'));
-    await tester.tap(find.text('Delete account'));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Keep my account'));
-    await tester.pumpAndSettle();
-
-    expect(find.byType(DeleteAccountDialog), findsNothing);
-    verifyNever(() => session.deleteAccount(any()));
   });
 
   testWidgets('a failed account action is announced in a snackbar', (tester) async {

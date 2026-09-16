@@ -5,8 +5,8 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 
-/// The gradient card at the top of Home that opens Today's Brief. Once the
-/// brief was read today it invites to the summary instead.
+/// The teal card at the top of Home that opens Today's Brief. Once the brief
+/// was read today it invites to the summary instead.
 class BriefCard extends StatelessWidget {
   final bool completedToday;
   final int storyCount;
@@ -26,7 +26,7 @@ class BriefCard extends StatelessWidget {
       margin: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.xl, AppSpacing.xxl, AppSpacing.sm),
       padding: const EdgeInsets.all(AppSpacing.cardPadding),
       decoration: BoxDecoration(
-        gradient: palette.brandGradient,
+        color: palette.primary,
         borderRadius: BorderRadius.circular(AppRadius.card),
       ),
       child: Row(

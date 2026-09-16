@@ -31,8 +31,6 @@ abstract final class FirebaseFailureMapper {
       'weak-password' => const Failure.weakPassword(),
       'network-request-failed' => const Failure.network(),
       'too-many-requests' => const Failure.server('Too many attempts. Try again in a moment.'),
-      'requires-recent-login' =>
-        const Failure.permissionDenied('Sign in again before deleting your account.'),
       _ => const Failure.unknown(),
     };
   }

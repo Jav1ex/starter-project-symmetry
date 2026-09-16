@@ -1,29 +1,34 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/DAO/saved_article_dao.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/app_database.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/migrations.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/saved_article_model.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 
 import '../../../../../helpers/fixtures.dart';
 
 /// Exercises the real Floor database on the host through sqflite_ffi, so the
-/// DAO queries, the type converters and the v1 -> v2 migration are verified
-/// against SQLite rather than against mocks.
+/// DAO queries, the type converters and the migrations are verified against
+/// SQLite rather than against mocks.
 void main() {
   setUpAll(() {
     sqfliteFfiInit();
     databaseFactory = databaseFactoryFfi;
   });
 
+  const me = 'uid-me';
+  const other = 'uid-other';
+
   group('SavedArticleDao', () {
     late AppDatabase database;
+    late SavedArticleDao dao;
 
     setUp(() async {
       database = await $FloorAppDatabase.inMemoryDatabaseBuilder().build();
+      dao = database.savedArticleDao;
     });
 
     tearDown(() => database.close());
@@ -31,48 +36,40 @@ void main() {
     test('round-trips an article through the converters', () async {
       final article = buildUserArticle(publishedAt: DateTime.utc(2026, 9, 15, 10, 30));
 
-      await database.savedArticleDao.insertArticle(SavedArticleModel.fromEntity(article));
-      final stored = await database.savedArticleDao.findById(article.id);
+      await dao.insertArticle(SavedArticleModel.fromEntity(article, ownerId: me));
+      final stored = await dao.findById(me, article.id);
 
       expect(stored?.toEntity(), article);
       expect(stored?.source, ArticleSource.user);
       expect(stored?.publishedAt.isUtc, isTrue);
     });
 
-    test('lists articles newest first', () async {
+    test('lists an owner\'s articles newest first', () async {
       final older = buildArticle(id: 'old', publishedAt: DateTime.utc(2026, 1, 1));
       final newer = buildArticle(id: 'new', publishedAt: DateTime.utc(2026, 6, 1));
-      await database.savedArticleDao.insertArticle(SavedArticleModel.fromEntity(older));
-      await database.savedArticleDao.insertArticle(SavedArticleModel.fromEntity(newer));
+      await dao.insertArticle(SavedArticleModel.fromEntity(older, ownerId: me));
+      await dao.insertArticle(SavedArticleModel.fromEntity(newer, ownerId: me));
 
-      final all = await database.savedArticleDao.getArticles();
-
-      expect(all.map((a) => a.id), ['new', 'old']);
+      expect((await dao.getArticles(me)).map((a) => a.id), ['new', 'old']);
     });
 
-    test('saving the same id twice replaces instead of failing', () async {
-      final first = buildArticle(id: 'same', title: 'First');
-      final second = buildArticle(id: 'same', title: 'Second');
+    test('two accounts keep separate bookmarks of the same article', () async {
+      final article = buildArticle(id: 'shared');
+      await dao.insertArticle(SavedArticleModel.fromEntity(article, ownerId: me));
+      await dao.insertArticle(SavedArticleModel.fromEntity(article, ownerId: other));
 
-      await database.savedArticleDao.insertArticle(SavedArticleModel.fromEntity(first));
-      await database.savedArticleDao.insertArticle(SavedArticleModel.fromEntity(second));
+      await dao.deleteById(other, 'shared');
 
-      final all = await database.savedArticleDao.getArticles();
-      expect(all.single.title, 'Second');
+      expect(await dao.findById(me, 'shared'), isNotNull);
+      expect(await dao.findById(other, 'shared'), isNull);
+      expect(await dao.getArticles(other), isEmpty);
     });
 
-    test('deleteById removes only the matching row', () async {
-      await database.savedArticleDao.insertArticle(
-        SavedArticleModel.fromEntity(buildArticle(id: 'a')),
-      );
-      await database.savedArticleDao.insertArticle(
-        SavedArticleModel.fromEntity(buildArticle(id: 'b')),
-      );
+    test('saving the same article twice replaces instead of failing', () async {
+      await dao.insertArticle(SavedArticleModel.fromEntity(buildArticle(id: 'same', title: 'First'), ownerId: me));
+      await dao.insertArticle(SavedArticleModel.fromEntity(buildArticle(id: 'same', title: 'Second'), ownerId: me));
 
-      await database.savedArticleDao.deleteById('a');
-
-      expect(await database.savedArticleDao.findById('a'), isNull);
-      expect(await database.savedArticleDao.findById('b'), isNotNull);
+      expect((await dao.getArticles(me)).single.title, 'Second');
     });
   });
 
@@ -89,7 +86,7 @@ void main() {
       if (await file.exists()) await file.delete();
     });
 
-    test('from v2 adds the category column, defaulting existing rows to general', () async {
+    test('from v2 the table is rebuilt per owner; bookmarks with no owner are dropped', () async {
       final v2 = await databaseFactory.openDatabase(
         path,
         options: OpenDatabaseOptions(
@@ -103,23 +100,21 @@ void main() {
         ),
       );
       await v2.insert('saved_article', {
-        'id': 'kept',
+        'id': 'orphan',
         'source': 'remote',
-        'title': 'Kept across the upgrade',
+        'title': 'Saved before accounts existed',
         'content': 'body',
         'author': 'Ada',
         'publishedAt': DateTime.utc(2026, 1, 1).millisecondsSinceEpoch,
       });
       await v2.close();
 
-      final migrated = await $FloorAppDatabase
-          .databaseBuilder(path)
-          .addMigrations(migrations)
-          .build();
+      final migrated = await $FloorAppDatabase.databaseBuilder(path).addMigrations(migrations).build();
 
-      final kept = await migrated.savedArticleDao.findById('kept');
-      expect(kept?.title, 'Kept across the upgrade');
-      expect(kept?.category, NewsCategory.general);
+      final rows = await migrated.database.rawQuery('SELECT ownerId, id FROM saved_article');
+      expect(rows, isEmpty);
+      await migrated.savedArticleDao.insertArticle(SavedArticleModel.fromEntity(buildArticle(), ownerId: me));
+      expect(await migrated.savedArticleDao.getArticles(me), hasLength(1));
 
       await migrated.close();
     });
@@ -138,22 +133,12 @@ void main() {
       await legacy.insert('article', {'id': 1, 'author': 'x', 'title': 'legacy'});
       await legacy.close();
 
-      final migrated = await $FloorAppDatabase
-          .databaseBuilder(path)
-          .addMigrations(migrations)
-          .build();
+      final migrated = await $FloorAppDatabase.databaseBuilder(path).addMigrations(migrations).build();
 
-      final tables = await migrated.database.rawQuery(
-        "SELECT name FROM sqlite_master WHERE type = 'table'",
-      );
+      final tables = await migrated.database.rawQuery("SELECT name FROM sqlite_master WHERE type = 'table'");
       final names = tables.map((row) => row['name']).toSet();
       expect(names, contains('saved_article'));
       expect(names, isNot(contains('article')));
-
-      await migrated.savedArticleDao.insertArticle(
-        SavedArticleModel.fromEntity(buildArticle()),
-      );
-      expect(await migrated.savedArticleDao.getArticles(), hasLength(1));
 
       await migrated.close();
     });

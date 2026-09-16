@@ -43,7 +43,7 @@ class TextSizeControl extends StatelessWidget {
           ),
           Row(
             children: [
-              Text('A', style: AppTypography.sansSized(14).copyWith(color: palette.inkSecondary)),
+              Text('A', style: AppTypography.sized(14).copyWith(color: palette.inkSecondary)),
               Expanded(
                 child: Slider(
                   value: selected.index.toDouble(),
@@ -55,7 +55,7 @@ class TextSizeControl extends StatelessWidget {
                   onChanged: (value) => onChanged(steps[value.round()]),
                 ),
               ),
-              Text('A', style: AppTypography.sansSized(24).copyWith(color: palette.inkSecondary)),
+              Text('A', style: AppTypography.sized(24).copyWith(color: palette.inkSecondary)),
             ],
           ),
           const SizedBox(height: AppSpacing.sm),

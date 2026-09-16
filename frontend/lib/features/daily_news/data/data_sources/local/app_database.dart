@@ -15,7 +15,7 @@ import 'package:sqflite/sqflite.dart' as sqflite;
 part 'app_database.g.dart';
 
 @TypeConverters([DateTimeConverter, ArticleSourceConverter, NewsCategoryConverter])
-@Database(version: 3, entities: [SavedArticleModel])
+@Database(version: 4, entities: [SavedArticleModel])
 abstract class AppDatabase extends FloorDatabase {
   static const String fileName = 'app_database.db';
 

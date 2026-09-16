@@ -55,7 +55,7 @@ abstract final class AppTheme {
       brightness: brightness,
       colorScheme: colorScheme,
       scaffoldBackgroundColor: p.background,
-      fontFamily: AppTypography.sans,
+      fontFamily: AppTypography.serif,
       textTheme: textTheme,
       extensions: [p],
       splashFactory: InkSparkle.splashFactory,

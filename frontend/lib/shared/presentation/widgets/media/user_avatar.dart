@@ -50,13 +50,6 @@ class UserAvatar extends StatelessWidget {
       decoration: BoxDecoration(
         color: palette.surface,
         shape: BoxShape.circle,
-        boxShadow: [
-          BoxShadow(
-            color: palette.ink.withValues(alpha: 0.12),
-            blurRadius: 16,
-            offset: const Offset(0, 6),
-          ),
-        ],
       ),
       child: avatar,
     );

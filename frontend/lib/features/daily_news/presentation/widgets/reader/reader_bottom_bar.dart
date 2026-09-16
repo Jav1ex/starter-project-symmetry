@@ -2,17 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
-import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/bounce_on_change.dart';
 
-/// Sticky 72dp bar: Save, Share and the A− / A+ text-size stepper. Every
+/// Sticky 72dp bar: Save, Listen and the A− / A+ text-size stepper. Every
 /// control carries a visible word.
 class ReaderBottomBar extends StatelessWidget {
   final bool isSaved;
   final bool isListening;
-  final TextSizePreference textSize;
   final VoidCallback onSave;
-  final VoidCallback onShare;
   final VoidCallback onListen;
   final VoidCallback onSmallerText;
   final VoidCallback onLargerText;
@@ -21,9 +18,7 @@ class ReaderBottomBar extends StatelessWidget {
     super.key,
     required this.isSaved,
     required this.isListening,
-    required this.textSize,
     required this.onSave,
-    required this.onShare,
     required this.onListen,
     required this.onSmallerText,
     required this.onLargerText,
@@ -53,9 +48,6 @@ class ReaderBottomBar extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: _BarAction(icon: Icons.share_outlined, label: 'Share', color: palette.ink, onPressed: onShare),
-              ),
-              Expanded(
                 child: _BarAction(
                   icon: isListening ? Icons.pause_circle_outline_rounded : Icons.volume_up_outlined,
                   label: isListening ? 'Pause' : 'Listen',
@@ -64,19 +56,12 @@ class ReaderBottomBar extends StatelessWidget {
                 ),
               ),
               Expanded(
-                child: FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _TextSizeButton(label: 'A−', fontSize: 15, tooltip: 'Smaller text', onPressed: onSmallerText),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-                        child: Text(textSize.label, style: AppTypography.navLabel.copyWith(color: palette.inkSecondary)),
-                      ),
-                      _TextSizeButton(label: 'A+', fontSize: 19, tooltip: 'Larger text', onPressed: onLargerText),
-                    ],
-                  ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _TextSizeButton(label: 'A−', tooltip: 'Smaller text', onPressed: onSmallerText),
+                    _TextSizeButton(label: 'A+', tooltip: 'Larger text', onPressed: onLargerText),
+                  ],
                 ),
               ),
             ],
@@ -111,13 +96,13 @@ class _BarAction extends StatelessWidget {
   }
 }
 
+/// Both steps share one size: the words say which way they go.
 class _TextSizeButton extends StatelessWidget {
   final String label;
-  final double fontSize;
   final String tooltip;
   final VoidCallback onPressed;
 
-  const _TextSizeButton({required this.label, required this.fontSize, required this.tooltip, required this.onPressed});
+  const _TextSizeButton({required this.label, required this.tooltip, required this.onPressed});
 
   @override
   Widget build(BuildContext context) {
@@ -126,7 +111,7 @@ class _TextSizeButton extends StatelessWidget {
       tooltip: tooltip,
       padding: EdgeInsets.zero,
       constraints: const BoxConstraints(minWidth: AppSizes.touchTarget, minHeight: AppSizes.touchTarget),
-      icon: Text(label, style: AppTypography.sansSized(fontSize, weight: FontWeight.w700).copyWith(color: context.palette.ink)),
+      icon: Text(label, style: AppTypography.sized(17, weight: FontWeight.w700).copyWith(color: context.palette.ink)),
     );
   }
 }

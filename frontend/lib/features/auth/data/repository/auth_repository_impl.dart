@@ -1,5 +1,4 @@
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
-import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/auth/data/data_sources/remote/firebase_auth_service.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/params/credentials.dart';
@@ -56,14 +55,6 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<DataState<void>> signOut() => _guard(_service.signOut);
-
-  @override
-  Future<DataState<void>> deleteAccount() {
-    if (_service.currentUser == null) {
-      return Future.value(const DataFailed(Failure.unauthenticated()));
-    }
-    return _guard(_service.deleteAccount);
-  }
 
   Future<DataState<T>> _guard<T>(Future<T> Function() operation) async {
     try {

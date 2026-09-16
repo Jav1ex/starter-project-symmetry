@@ -32,6 +32,8 @@ class ThemeModeSelector extends StatelessWidget {
           Text('Theme', style: AppTypography.body.copyWith(color: palette.ink)),
           const SizedBox(height: AppSpacing.md),
           SegmentedButton<AppThemeMode>(
+            showSelectedIcon: false,
+            expandedInsets: EdgeInsets.zero,
             segments: [
               for (final mode in AppThemeMode.values)
                 ButtonSegment(value: mode, label: Text(labelOf(mode))),

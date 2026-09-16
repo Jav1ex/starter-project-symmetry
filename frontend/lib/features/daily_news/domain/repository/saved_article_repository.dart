@@ -10,7 +10,4 @@ abstract interface class SavedArticleRepository {
   Future<DataState<void>> removeArticle(String id);
 
   Future<DataState<bool>> isSaved(String id);
-
-  /// Removes every bookmark on the device.
-  Future<DataState<void>> clear();
 }

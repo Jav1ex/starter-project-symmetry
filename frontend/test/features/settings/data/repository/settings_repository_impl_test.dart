@@ -1,4 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:news_app_clean_architecture/features/auth/data/repository/in_memory_auth_repository.dart';
+import 'package:news_app_clean_architecture/features/auth/domain/params/credentials.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/features/settings/data/data_sources/local/settings_local_data_source.dart';
 import 'package:news_app_clean_architecture/features/settings/data/models/app_settings_model.dart';
@@ -9,13 +11,22 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
+  late InMemoryAuthRepository auth;
   late SettingsRepositoryImpl repository;
+
+  Future<SettingsRepositoryImpl> newRepository() async =>
+      SettingsRepositoryImpl(SettingsLocalDataSource(await SharedPreferences.getInstance()), auth);
 
   setUp(() async {
     SharedPreferences.setMockInitialValues({});
-    repository = SettingsRepositoryImpl(SettingsLocalDataSource(await SharedPreferences.getInstance()));
+    auth = InMemoryAuthRepository(latency: Duration.zero);
+    await auth.signUpWithEmail(const SignUpParams(displayName: 'Ada', email: 'ada@example.com', password: 'secret123'));
+    repository = await newRepository();
   });
-  tearDown(() => repository.dispose());
+  tearDown(() async {
+    await repository.dispose();
+    await auth.dispose();
+  });
 
   test('starts with the defaults and persists a save for the next read', () async {
     expect(await repository.getSettings(), AppSettings.defaults);
@@ -24,7 +35,7 @@ void main() {
     expect((await repository.saveSettings(changed)).isSuccess, isTrue);
 
     expect(await repository.getSettings(), changed);
-    final fresh = SettingsRepositoryImpl(SettingsLocalDataSource(await SharedPreferences.getInstance()));
+    final fresh = await newRepository();
     expect(await fresh.getSettings(), changed);
     await fresh.dispose();
   });
@@ -38,6 +49,30 @@ void main() {
     await sub.cancel();
 
     expect(emitted, [AppSettings.defaults, const AppSettings(textSize: TextSizePreference.large)]);
+  });
+
+  test('each account has its own settings; signing out shows the defaults', () async {
+    await repository.saveSettings(const AppSettings(themeMode: AppThemeMode.dark));
+    final emitted = <AppSettings>[];
+    final sub = repository.watchSettings().listen(emitted.add);
+    await flush();
+
+    await auth.signOut();
+    await flush();
+    expect(await repository.getSettings(), AppSettings.defaults);
+
+    await auth.signInWithGoogle();
+    await flush();
+    expect(await repository.getSettings(), AppSettings.defaults);
+    await repository.saveSettings(const AppSettings(textSize: TextSizePreference.small));
+
+    await auth.signOut();
+    await auth.signInWithEmail(const SignInParams(email: 'ada@example.com', password: 'secret123'));
+    await flush();
+    await sub.cancel();
+
+    expect(await repository.getSettings(), const AppSettings(themeMode: AppThemeMode.dark));
+    expect(emitted.last, const AppSettings(themeMode: AppThemeMode.dark));
   });
 
   test('the model tolerates unknown stored values', () {
