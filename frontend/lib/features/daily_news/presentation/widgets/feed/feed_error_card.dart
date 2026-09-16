@@ -4,8 +4,9 @@ import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/primary_button.dart';
 
-/// Card shown where the Brief card would be when the provider cannot be
-/// reached. Own articles keep rendering underneath.
+/// Block shown where the lead story would be when the provider cannot be
+/// reached: a red rule, the reason in plain words and one button. Own
+/// articles keep rendering underneath.
 class FeedErrorCard extends StatelessWidget {
   final String message;
   final VoidCallback onRetry;
@@ -16,24 +17,21 @@ class FeedErrorCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl, vertical: AppSpacing.xl),
+      margin: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.xl, AppSpacing.screenMargin, AppSpacing.xl),
       padding: const EdgeInsets.all(AppSpacing.cardPadding),
       decoration: BoxDecoration(
         color: palette.surface,
-        borderRadius: BorderRadius.circular(AppRadius.card),
-        border: Border.all(color: palette.dangerBorder, width: 1.5),
+        border: Border(left: BorderSide(color: palette.primary, width: 4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: palette.errorContainer,
-              borderRadius: BorderRadius.circular(AppRadius.field),
-            ),
-            child: Icon(Icons.cloud_off_rounded, color: palette.error),
+          Row(
+            children: [
+              Icon(Icons.cloud_off_rounded, color: palette.primary, size: 20),
+              const SizedBox(width: AppSpacing.sm),
+              Text('OFFLINE', style: AppTypography.overline.copyWith(color: palette.primaryDeep)),
+            ],
           ),
           const SizedBox(height: AppSpacing.md),
           Text("Couldn't load the news", style: AppTypography.cardTitle.copyWith(color: palette.ink)),

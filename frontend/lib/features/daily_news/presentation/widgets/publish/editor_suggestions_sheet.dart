@@ -5,8 +5,9 @@ import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/skeleton/skeleton_box.dart';
 
-/// Bottom sheet with the desk editor's proposals. Every proposal has its
-/// own "Use this"; nothing is applied on the journalist's behalf.
+/// Bottom sheet with the desk editor's proposals, one per ruled row. Every
+/// proposal has its own "Use this"; nothing is applied on the journalist's
+/// behalf.
 class EditorSuggestionsSheet extends StatelessWidget {
   final EditorSuggestions? suggestions;
   final bool isLoading;
@@ -28,22 +29,22 @@ class EditorSuggestionsSheet extends StatelessWidget {
     final palette = context.palette;
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.lg, AppSpacing.xxl, AppSpacing.xxl),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.md, AppSpacing.screenMargin, AppSpacing.xxl),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.auto_awesome_rounded, color: palette.accent),
+                Icon(Icons.auto_awesome_rounded, color: palette.primary, size: 16),
                 const SizedBox(width: AppSpacing.sm),
-                Text('From the editor', style: AppTypography.cardTitle.copyWith(color: palette.ink)),
+                Text('FROM THE EDITOR', style: AppTypography.overline.copyWith(color: palette.primaryDeep)),
               ],
             ),
-            const SizedBox(height: AppSpacing.xs),
+            const SizedBox(height: AppSpacing.sm),
             Text(
               'Suggestions written by AI from your draft. Use what helps, ignore the rest.',
-              style: AppTypography.caption.copyWith(color: palette.inkSecondary),
+              style: AppTypography.bodySmall.copyWith(color: palette.inkSecondary),
             ),
             const SizedBox(height: AppSpacing.lg),
             if (isLoading)
@@ -64,11 +65,11 @@ class EditorSuggestionsSheet extends StatelessWidget {
               _SectionLabel('Headlines'),
               for (final headline in s.headlines)
                 _Proposal(
-                  child: Text(headline, style: AppTypography.title.copyWith(color: palette.ink)),
+                  child: Text(headline, style: AppTypography.cardTitle.copyWith(color: palette.ink)),
                   onUse: () => onUseHeadline(headline),
                 ),
               if (s.hasSummary) ...[
-                const SizedBox(height: AppSpacing.md),
+                const SizedBox(height: AppSpacing.lg),
                 _SectionLabel('Short description'),
                 _Proposal(
                   child: Text(s.summary, style: AppTypography.bodySmall.copyWith(color: palette.inkBody)),
@@ -90,12 +91,13 @@ class _SectionLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
+    final palette = context.palette;
+    return Container(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Text(
-        text.toUpperCase(),
-        style: AppTypography.sectionOverline.copyWith(color: context.palette.inkSecondary),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: palette.ink, width: AppRules.strong)),
       ),
+      child: Text(text.toUpperCase(), style: AppTypography.sectionOverline.copyWith(color: palette.ink)),
     );
   }
 }
@@ -108,8 +110,12 @@ class _Proposal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+    final palette = context.palette;
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: palette.outline, width: AppRules.strong)),
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [

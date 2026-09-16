@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
-import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 
-/// Small lilac pill that marks an article written by the signed-in user.
+/// Small ink block reading "YOU": marks an article written by the signed-in
+/// user wherever articles are listed.
 class YouBadge extends StatelessWidget {
   const YouBadge({super.key});
 
@@ -11,24 +11,11 @@ class YouBadge extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
-      decoration: BoxDecoration(
-        color: palette.accent,
-        borderRadius: BorderRadius.circular(AppRadius.badge),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.edit_rounded, size: 14, color: palette.onAccent),
-          const SizedBox(width: AppSpacing.xs),
-          Text(
-            'You',
-            style: AppTypography.overline.copyWith(
-              color: palette.onAccent,
-              letterSpacing: 0,
-            ),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      color: palette.accent,
+      child: Text(
+        'YOU',
+        style: AppTypography.navLabel.copyWith(color: palette.onAccent, fontSize: 9, letterSpacing: 9 * 0.12),
       ),
     );
   }

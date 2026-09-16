@@ -2,23 +2,36 @@ import 'package:flutter/material.dart';
 
 /// Design tokens that Material's [ColorScheme] does not model directly.
 ///
-/// The palette is editorial rather than "Material": deep teal ink on warm
-/// paper, terracotta for anything urgent or destructive, mustard for the
-/// highlights that must catch the eye. Read it with
-/// `Theme.of(context).extension<AppPalette>()!` or the [AppPaletteX] shortcut.
+/// The palette is a newspaper's: warm grey paper, near-black ink, one red for
+/// everything that acts or must be seen, and 2px rules instead of shadows or
+/// rounded cards. Read it with `Theme.of(context).extension<AppPalette>()!`
+/// or the [AppPaletteX] shortcut.
 @immutable
 class AppPalette extends ThemeExtension<AppPalette> {
+  /// The accent red: primary actions, the active tab, row numbers.
   final Color primary;
+
+  /// Deeper red for kickers, links and small text that must stay legible.
   final Color primaryDeep;
   final Color primaryContainer;
   final Color onPrimaryContainer;
+
+  /// Slightly lighter surface for inputs and previews.
   final Color tint;
+
+  /// Paper.
   final Color background;
+
+  /// Cards and hover: one step darker than the paper.
   final Color surface;
   final Color ink;
   final Color inkBody;
   final Color inkSecondary;
+
+  /// Soft rule between rows of the same list.
   final Color outline;
+
+  /// The 2px rule that structures every screen.
   final Color outlineStrong;
   final Color error;
   final Color errorContainer;
@@ -30,10 +43,16 @@ class AppPalette extends ThemeExtension<AppPalette> {
   final Color skeletonBone;
   final Color skeletonHighlight;
 
-  /// Mustard highlight: the "You" badge, the Brief overline, anything that
-  /// must stand out without being an action.
+  /// Ink block used for badges ("YOU") and strong buttons.
   final Color accent;
   final Color onAccent;
+
+  /// Grey plate standing in for a missing photo, and the hatch drawn on it.
+  final Color plate;
+  final Color hatch;
+
+  /// Frosted-glass fill for bars floating over content.
+  final Color glass;
 
   const AppPalette({
     required this.primary,
@@ -59,76 +78,68 @@ class AppPalette extends ThemeExtension<AppPalette> {
     required this.skeletonHighlight,
     required this.accent,
     required this.onAccent,
+    required this.plate,
+    required this.hatch,
+    required this.glass,
   });
 
   static const AppPalette light = AppPalette(
-    primary: Color(0xFF0F4C5C),
-    primaryDeep: Color(0xFF0A3540),
-    primaryContainer: Color(0xFFCFE3E7),
-    onPrimaryContainer: Color(0xFF0A3540),
-    tint: Color(0xFFEAF2F3),
-    background: Color(0xFFF7F3EC),
-    surface: Color(0xFFFFFDF8),
-    ink: Color(0xFF1E1E1E),
-    inkBody: Color(0xFF4A4A4A),
-    inkSecondary: Color(0xFF6B6B6B),
-    outline: Color(0xFFEAE4D8),
-    outlineStrong: Color(0xFFD6CFC2),
-    error: Color(0xFFB8472F),
-    errorContainer: Color(0xFFF8E3DC),
-    dangerFill: Color(0xFFFBF3F0),
-    dangerBorder: Color(0xFFE8C4B8),
-    success: Color(0xFF2E7D5B),
+    primary: Color(0xFFEC3013),
+    primaryDeep: Color(0xFFAE1800),
+    primaryContainer: Color(0xFFFFE0D9),
+    onPrimaryContainer: Color(0xFF7C1405),
+    tint: Color(0xFFF8F4F4),
+    background: Color(0xFFF3F2F2),
+    surface: Color(0xFFEAE9E9),
+    ink: Color(0xFF201E1D),
+    inkBody: Color(0xFF4D4A49),
+    inkSecondary: Color(0xFF7B7877),
+    outline: Color(0xFFD3D2D1),
+    outlineStrong: Color(0xFFA9A7A7),
+    error: Color(0xFFAE1800),
+    errorContainer: Color(0xFFFFE0D9),
+    dangerFill: Color(0xFFFFF2EF),
+    dangerBorder: Color(0xFFFF9783),
+    success: Color(0xFF1F6B4A),
     successContainer: Color(0xFFDDF0E6),
     onSuccessContainer: Color(0xFF1D5A3F),
-    skeletonBone: Color(0xFFEBE5DA),
-    skeletonHighlight: Color(0xFFF5F0E8),
-    accent: Color(0xFFE3A33B),
-    onAccent: Color(0xFF1E1E1E),
+    skeletonBone: Color(0xFFDFDCDC),
+    skeletonHighlight: Color(0xFFEFEDED),
+    accent: Color(0xFF201E1D),
+    onAccent: Color(0xFFF3F2F2),
+    plate: Color(0xFFC9C5C5),
+    hatch: Color(0x80201E1D),
+    glass: Color(0xB3F3F2F2),
   );
 
   static const AppPalette dark = AppPalette(
-    primary: Color(0xFF5FA8B8),
-    primaryDeep: Color(0xFF0F4C5C),
-    primaryContainer: Color(0xFF1E4A55),
-    onPrimaryContainer: Color(0xFFCFE3E7),
-    tint: Color(0xFF1A2A2E),
-    background: Color(0xFF121416),
-    surface: Color(0xFF1C2023),
-    ink: Color(0xFFECE7DF),
-    inkBody: Color(0xFFD5CFC6),
-    inkSecondary: Color(0xFFA39D93),
-    outline: Color(0xFF2A2F33),
-    outlineStrong: Color(0xFF3A4045),
-    error: Color(0xFFE07A5F),
-    errorContainer: Color(0xFF4A2418),
-    dangerFill: Color(0xFF2A1A16),
-    dangerBorder: Color(0xFF5A342A),
+    primary: Color(0xFFFF563C),
+    primaryDeep: Color(0xFFFF9783),
+    primaryContainer: Color(0xFF7C1405),
+    onPrimaryContainer: Color(0xFFFFC4B8),
+    tint: Color(0xFF1C1B1A),
+    background: Color(0xFF151413),
+    surface: Color(0xFF232120),
+    ink: Color(0xFFF3F2F2),
+    inkBody: Color(0xFFD0CDCD),
+    inkSecondary: Color(0xFF9B9797),
+    outline: Color(0xFF363433),
+    outlineStrong: Color(0xFF5B5958),
+    error: Color(0xFFFF9783),
+    errorContainer: Color(0xFF4D170E),
+    dangerFill: Color(0xFF2A1512),
+    dangerBorder: Color(0xFF7C1405),
     success: Color(0xFF7FCBA5),
     successContainer: Color(0xFF1D5A3F),
     onSuccessContainer: Color(0xFFDDF0E6),
-    skeletonBone: Color(0xFF262B2E),
-    skeletonHighlight: Color(0xFF32383C),
-    accent: Color(0xFFF0B95A),
-    onAccent: Color(0xFF1E1E1E),
+    skeletonBone: Color(0xFF2D2B2B),
+    skeletonHighlight: Color(0xFF3A3736),
+    accent: Color(0xFFF3F2F2),
+    onAccent: Color(0xFF151413),
+    plate: Color(0xFF3A3736),
+    hatch: Color(0x4DF3F2F2),
+    glass: Color(0x99151413),
   );
-
-  /// The brand gradient used by the Brief card, the logo and hero fallbacks.
-  LinearGradient get brandGradient => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [primary, primaryDeep],
-      );
-
-  /// Gradient for thumbnail fallbacks (135°, pale teal to sea teal).
-  static const LinearGradient thumbnailFallbackGradient = LinearGradient(
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-    colors: [Color(0xFFCFE3E7), Color(0xFF7FB6C2)],
-  );
-
-  /// Ink used on top of [thumbnailFallbackGradient].
-  static const Color onThumbnailFallback = Color(0xFF0A3540);
 
   @override
   AppPalette copyWith() => this;
@@ -161,6 +172,9 @@ class AppPalette extends ThemeExtension<AppPalette> {
       skeletonHighlight: mix(skeletonHighlight, other.skeletonHighlight),
       accent: mix(accent, other.accent),
       onAccent: mix(onAccent, other.onAccent),
+      plate: mix(plate, other.plate),
+      hatch: mix(hatch, other.hatch),
+      glass: mix(glass, other.glass),
     );
   }
 }

@@ -65,11 +65,11 @@ void main() {
 
     await tester.enterText(fieldLabelled('Password'), 'abc');
     await tester.pumpAndSettle();
-    expect(find.textContaining(PasswordStrength.weak.title), findsOneWidget);
+    expect(find.textContaining(PasswordStrength.weak.title.toUpperCase()), findsOneWidget);
 
     await tester.enterText(fieldLabelled('Password'), 'Harbour-lamp-42');
     await tester.pumpAndSettle();
-    expect(find.textContaining(PasswordStrength.strong.title), findsOneWidget);
+    expect(find.textContaining(PasswordStrength.strong.title.toUpperCase()), findsOneWidget);
   });
 
   testWidgets('a weak password never blocks the form, a short one does', (tester) async {
@@ -156,6 +156,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Create your account'), findsOneWidget);
+    expect(find.text('CREATE YOUR ACCOUNT'), findsOneWidget);
   });
 }

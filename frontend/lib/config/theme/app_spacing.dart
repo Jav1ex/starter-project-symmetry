@@ -1,4 +1,4 @@
-/// Spacing, radius and size tokens of the Daily News UI system.
+/// Spacing, rule and size tokens of the Headline News UI system.
 abstract final class AppSpacing {
   static const double xs = 4;
   static const double sm = 8;
@@ -10,39 +10,52 @@ abstract final class AppSpacing {
   static const double huge = 48;
 
   /// Horizontal screen margin.
-  static const double screenMargin = 24;
+  static const double screenMargin = 18;
 
   /// Vertical / horizontal padding of a list row.
-  static const double rowVertical = 16;
-  static const double rowHorizontal = 24;
+  static const double rowVertical = 15;
+  static const double rowHorizontal = 18;
 
-  static const double cardPadding = 20;
+  static const double cardPadding = 16;
 }
 
+/// The system has no rounded corners: every value is zero and kept only so
+/// call sites read as intent ("this is a card") rather than as a number.
 abstract final class AppRadius {
-  static const double field = 12;
-  static const double thumb = 12;
-  static const double card = 20;
-  static const double briefCard = 24;
-  static const double dialog = 28;
-  static const double fab = 16;
-  static const double navIndicator = 16;
-  static const double badge = 6;
-  static const double pill = 999;
+  static const double field = 0;
+  static const double thumb = 0;
+  static const double card = 0;
+  static const double briefCard = 0;
+  static const double dialog = 0;
+  static const double fab = 0;
+  static const double navIndicator = 0;
+  static const double badge = 0;
+  static const double pill = 0;
+}
+
+/// Rule weights: the page is structured by lines, not by shadows.
+abstract final class AppRules {
+  static const double strong = 2;
+  static const double soft = 1;
+
+  /// The red bar over the active tab.
+  static const double indicator = 4;
 }
 
 abstract final class AppSizes {
   static const double touchTarget = 48;
-  static const double field = 60;
-  static const double button = 56;
-  static const double tertiaryButton = 52;
+  static const double field = 52;
+  static const double button = 52;
+  static const double tertiaryButton = 48;
   static const double inCardButton = 44;
-  static const double bottomBar = 80;
-  static const double readerBar = 72;
-  static const double settingsRow = 64;
-  static const double thumb = 96;
-  static const double smallThumb = 72;
-  static const double icon = 24;
-  static const double buttonIcon = 22;
-  static const double heroHeight = 300;
+  static const double bottomBar = 74;
+  static const double readerBar = 60;
+  static const double settingsRow = 60;
+  static const double thumb = 82;
+  static const double smallThumb = 64;
+  static const double savedThumb = 96;
+  static const double icon = 22;
+  static const double buttonIcon = 18;
+  static const double heroHeight = 250;
+  static const double feedHeroHeight = 196;
 }

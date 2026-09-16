@@ -159,8 +159,11 @@ class _PublishViewState extends State<PublishView> {
           body: SafeArea(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.xxl, 0),
+                Container(
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.screenMargin, AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    border: Border(bottom: BorderSide(color: palette.outlineStrong, width: AppRules.strong)),
+                  ),
                   child: Row(
                     children: [
                       LabeledIconButton.cancel(
@@ -168,22 +171,22 @@ class _PublishViewState extends State<PublishView> {
                       ),
                       const Spacer(),
                       Text(
-                        state.isEditing ? 'Edit article' : 'New article',
-                        style: AppTypography.title.copyWith(color: palette.ink),
+                        (state.isEditing ? 'Edit article' : 'New article').toUpperCase(),
+                        style: AppTypography.sectionOverline.copyWith(color: palette.ink, fontSize: 12),
                       ),
                     ],
                   ),
                 ),
                 Expanded(
                   child: ListView(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.lg, AppSpacing.xxl, AppSpacing.xxl),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.lg, AppSpacing.screenMargin, AppSpacing.xxl),
                     children: [
                       LabeledTextField(
                         label: 'Title',
                         required: true,
                         controller: _title,
                         maxLength: ArticleLimits.titleMaxLength,
-                        textStyle: AppTypography.title.copyWith(color: palette.ink),
+                        textStyle: AppTypography.cardTitle.copyWith(color: palette.ink, fontSize: 20),
                         textCapitalization: TextCapitalization.sentences,
                         errorText: state.titleError?.message,
                         onChanged: cubit.titleChanged,
@@ -267,9 +270,10 @@ class _Footer extends StatelessWidget {
             : 'Publish Article';
     final hint = state.isSubmitting ? 'Keep the app open until this finishes.' : state.missingHint;
     return Material(
-      color: palette.surface,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.lg, AppSpacing.xxl, AppSpacing.lg),
+      color: palette.background,
+      child: Container(
+        padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.md, AppSpacing.screenMargin, AppSpacing.md),
+        decoration: BoxDecoration(border: Border(top: BorderSide(color: palette.ink, width: AppRules.strong))),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -283,7 +287,7 @@ class _Footer extends StatelessWidget {
               Text(
                 hint,
                 textAlign: TextAlign.center,
-                style: AppTypography.caption.copyWith(color: palette.inkSecondary),
+                style: AppTypography.captionSmall.copyWith(color: palette.inkSecondary),
               ),
             ],
           ],

@@ -16,7 +16,8 @@ import 'package:news_app_clean_architecture/shared/presentation/formatters/failu
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/app_snack_bar.dart';
 
-/// Appearance, feed defaults, about, and the account actions.
+/// Appearance, feed defaults, listening, about, and the account actions,
+/// each section headed in small capitals over a rule.
 class SettingsScreen extends StatelessWidget {
   const SettingsScreen({super.key});
 
@@ -44,34 +45,23 @@ class SettingsScreen extends StatelessWidget {
       child: Scaffold(
         body: SafeArea(
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.lg,
-              AppSpacing.sm,
-              AppSpacing.lg,
-              AppSpacing.xxxl,
-            ),
+            padding: const EdgeInsets.only(bottom: AppSpacing.xxxl),
             children: [
-              Align(
-                alignment: Alignment.centerLeft,
-                child: LabeledIconButton.back(onPressed: () => Navigator.of(context).pop()),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
+                child: Align(
+                  alignment: Alignment.centerLeft,
+                  child: LabeledIconButton.back(onPressed: () => Navigator.of(context).pop()),
+                ),
               ),
               Padding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.sm,
-                  AppSpacing.md,
-                  AppSpacing.sm,
-                  AppSpacing.xxl,
-                ),
-                child: Text('Settings', style: AppTypography.headline.copyWith(color: palette.ink)),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.sm, AppSpacing.screenMargin, AppSpacing.lg),
+                child: Text('SETTINGS', style: AppTypography.tabTitle.copyWith(color: palette.ink)),
               ),
               const _AppearanceSection(),
-              const SizedBox(height: AppSpacing.xxl),
               const _FeedSection(),
-              const SizedBox(height: AppSpacing.xxl),
               const _ReadingSection(),
-              const SizedBox(height: AppSpacing.xxl),
               const _AboutSection(),
-              const SizedBox(height: AppSpacing.xxl),
               const _AccountSection(),
             ],
           ),
@@ -141,14 +131,15 @@ class _ReadingSection extends StatelessWidget {
           title: 'Listen',
           children: [
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.xl),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.md, AppSpacing.screenMargin, AppSpacing.xl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Reading speed', style: AppTypography.body.copyWith(color: palette.ink)),
+                  Text('Reading speed', style: AppTypography.valueLine.copyWith(color: palette.ink, fontSize: 16)),
                   const SizedBox(height: AppSpacing.md),
                   SegmentedButton<SpeechRatePreference>(
                     showSelectedIcon: false,
+                    expandedInsets: EdgeInsets.zero,
                     segments: [
                       for (final rate in SpeechRatePreference.values)
                         ButtonSegment(value: rate, label: Text(rate.label)),
@@ -194,7 +185,6 @@ class _AccountSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final palette = context.palette;
     return BlocBuilder<SessionCubit, SessionState>(
       builder: (context, state) {
         final email = state.user?.email;
@@ -202,13 +192,9 @@ class _AccountSection extends StatelessWidget {
           title: email == null ? 'Account' : 'Account · $email',
           children: [
             Padding(
-              padding: const EdgeInsets.all(AppSpacing.xl),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.md, AppSpacing.screenMargin, AppSpacing.xl),
               child: OutlinedButton.icon(
                 onPressed: _isBusy(state) ? null : context.read<SessionCubit>().signOut,
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: palette.ink,
-                  side: BorderSide(color: palette.outlineStrong, width: 1.5),
-                ),
                 icon: const Icon(Icons.logout_rounded, size: AppSizes.buttonIcon),
                 label: const Text('Sign out'),
               ),

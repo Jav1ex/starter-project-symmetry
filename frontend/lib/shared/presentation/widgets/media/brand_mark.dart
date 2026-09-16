@@ -3,7 +3,7 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 
 /// The Headline News mark. Uses the brand asset and, if it is missing,
-/// falls back to a serif "H" on the brand gradient so nothing ever breaks.
+/// falls back to an "H" on an ink block so nothing ever breaks.
 class BrandMark extends StatelessWidget {
   final double size;
 
@@ -34,14 +34,11 @@ class _FallbackMark extends StatelessWidget {
     return Container(
       width: size,
       height: size,
-      decoration: BoxDecoration(
-        gradient: context.palette.brandGradient,
-        borderRadius: BorderRadius.circular(size * 0.3),
-      ),
+      color: context.palette.accent,
       alignment: Alignment.center,
       child: Text(
         'H',
-        style: AppTypography.serifGlyph(size * 0.61, weight: FontWeight.w600).copyWith(color: Colors.white),
+        style: AppTypography.glyph(size * 0.61, weight: FontWeight.w900).copyWith(color: context.palette.onAccent),
       ),
     );
   }

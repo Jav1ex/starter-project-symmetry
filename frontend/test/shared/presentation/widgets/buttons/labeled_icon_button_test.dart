@@ -18,7 +18,7 @@ void main() {
       ),
     );
 
-    for (final word in ['Back', 'Close', 'Cancel', 'Settings']) {
+    for (final word in ['BACK', 'CLOSE', 'CANCEL', 'SETTINGS']) {
       expect(find.text(word), findsOneWidget);
     }
   });

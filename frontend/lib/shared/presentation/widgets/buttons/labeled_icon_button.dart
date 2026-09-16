@@ -3,18 +3,19 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 
-/// Icon plus a visible word, 48dp tall: "← Back", "× Close", "⚙ Settings".
-///
-/// The design never uses a bare icon for navigation so the label is required.
+/// Icon plus a visible word in small capitals, 48dp tall: "← BACK",
+/// "× CLOSE". The design never uses a bare icon for navigation, so the label
+/// is required. With a [backgroundColor] it becomes a framed block (the
+/// glass button over a photo).
 class LabeledIconButton extends StatelessWidget {
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
 
-  /// Overrides the primary foreground, e.g. white on dark scrims.
+  /// Overrides the ink foreground, e.g. paper on dark plates.
   final Color? color;
 
-  /// Draws a translucent pill behind the button (Reader hero, Brief).
+  /// Fill behind the button; also draws the 2px frame around it.
   final Color? backgroundColor;
 
   const LabeledIconButton({
@@ -40,20 +41,23 @@ class LabeledIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final foreground = color ?? context.palette.primary;
+    final palette = context.palette;
+    final foreground = color ?? palette.ink;
+    final framed = backgroundColor != null;
     return TextButton.icon(
       onPressed: onPressed,
       style: TextButton.styleFrom(
         foregroundColor: foreground,
         backgroundColor: backgroundColor,
         minimumSize: const Size(AppSizes.touchTarget, AppSizes.touchTarget),
-        padding: EdgeInsets.symmetric(
-          horizontal: backgroundColor == null ? AppSpacing.sm : AppSpacing.lg,
+        padding: EdgeInsets.symmetric(horizontal: framed ? AppSpacing.md : AppSpacing.sm),
+        shape: RoundedRectangleBorder(
+          side: framed ? BorderSide(color: foreground, width: AppRules.strong) : BorderSide.none,
         ),
-        textStyle: AppTypography.button,
+        textStyle: AppTypography.buttonSecondary,
       ),
-      icon: Icon(icon, size: AppSizes.icon),
-      label: Text(label),
+      icon: Icon(icon, size: AppSizes.buttonIcon),
+      label: Text(label.toUpperCase()),
     );
   }
 }

@@ -20,7 +20,7 @@ void main() {
     expect(find.text('Health'), findsOneWidget);
     expect(find.byIcon(Icons.chevron_right_rounded), findsOneWidget);
     expect(find.byIcon(Icons.public), findsOneWidget);
-    expect(tester.getSize(find.byType(SettingsRow)).height, greaterThanOrEqualTo(64));
+    expect(tester.getSize(find.byType(SettingsRow)).height, greaterThanOrEqualTo(60));
 
     await tester.tap(find.text('Category'));
     expect(tapped, isTrue);

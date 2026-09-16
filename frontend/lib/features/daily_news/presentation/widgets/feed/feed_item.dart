@@ -9,13 +9,17 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/labels/c
 import 'package:news_app_clean_architecture/shared/presentation/widgets/labels/you_badge.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/media/article_thumbnail.dart';
 
-/// One row of the feed. Renders every variant from the design: the thumb
-/// slot appears only when there is an image, the teaser only when there is a
-/// summary, so no row ever shows an empty box.
+/// One row of a list of stories: an optional red row number, the kicker, the
+/// headline, the teaser when there is one, and the dateline in small
+/// capitals. The thumb slot appears only when there is an image (or always,
+/// on the left, in lists that want a stable scan column).
 class FeedItem extends StatelessWidget {
   final ArticleEntity article;
   final bool isOwn;
   final VoidCallback onTap;
+
+  /// Position in the list, printed as "02" in red before the kicker.
+  final int? number;
 
   /// Saved list puts the thumb on the left as a stable scan column and
   /// always shows a tile (fallback when there is no image).
@@ -30,6 +34,7 @@ class FeedItem extends StatelessWidget {
     required this.article,
     required this.onTap,
     this.isOwn = false,
+    this.number,
     this.thumbnailLeft = false,
     this.metaOverride,
     this.highlight = '',
@@ -39,7 +44,9 @@ class FeedItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final showThumb = thumbnailLeft || article.hasImage;
-    final thumb = showThumb ? ArticleThumbnail(article: article) : null;
+    final thumb = showThumb
+        ? ArticleThumbnail(article: article, size: thumbnailLeft ? AppSizes.savedThumb : AppSizes.thumb)
+        : null;
 
     final text = Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -49,24 +56,26 @@ class FeedItem extends StatelessWidget {
           runSpacing: AppSpacing.xs,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: [
-            CategoryLabel(category: article.category),
+            if (number != null)
+              Text('$number'.padLeft(2, '0'), style: AppTypography.numeral(11).copyWith(color: palette.primary)),
+            CategoryLabel(category: article.category, color: palette.inkSecondary),
             if (isOwn) const YouBadge(),
           ],
         ),
-        const SizedBox(height: AppSpacing.xs),
-        HighlightedText(text: article.title, query: highlight, style: AppTypography.title.copyWith(color: palette.ink)),
+        const SizedBox(height: 7),
+        HighlightedText(text: article.title, query: highlight, style: AppTypography.cardTitle.copyWith(color: palette.ink)),
         if (article.description case final teaser?) ...[
           const SizedBox(height: AppSpacing.xs),
           HighlightedText(
             text: teaser,
             query: highlight,
             maxLines: 2,
-            style: AppTypography.bodySmall.copyWith(color: palette.inkSecondary),
+            style: AppTypography.bodySmall.copyWith(color: palette.inkBody),
           ),
         ],
         const SizedBox(height: AppSpacing.sm),
         Text(
-          metaOverride ?? '${article.author} · ${RelativeTimeFormatter.ago(article.publishedAt)}',
+          (metaOverride ?? '${article.author} · ${RelativeTimeFormatter.ago(article.publishedAt)}').toUpperCase(),
           style: AppTypography.caption.copyWith(color: palette.inkSecondary),
         ),
       ],
@@ -74,6 +83,7 @@ class FeedItem extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
+      hoverColor: palette.surface,
       child: Padding(
         padding: const EdgeInsets.symmetric(
           horizontal: AppSpacing.rowHorizontal,
@@ -82,9 +92,9 @@ class FeedItem extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (thumb != null && thumbnailLeft) ...[thumb, const SizedBox(width: AppSpacing.lg)],
+            if (thumb != null && thumbnailLeft) ...[thumb, const SizedBox(width: 14)],
             Expanded(child: text),
-            if (thumb != null && !thumbnailLeft) ...[const SizedBox(width: AppSpacing.lg), thumb],
+            if (thumb != null && !thumbnailLeft) ...[const SizedBox(width: 14), thumb],
           ],
         ),
       ),

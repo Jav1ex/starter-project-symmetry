@@ -3,13 +3,14 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 
-/// Empty state: a tint squircle holding one italic serif glyph or one icon,
-/// a plain-words headline, one sentence and one call to action.
+/// Empty state, set like a short column of newsprint: a rule, one big red
+/// glyph or icon, a plain-words headline, one sentence and one call to action,
+/// all left-aligned.
 class EmptyState extends StatelessWidget {
   final String title;
   final String message;
 
-  /// A single italic serif character (e.g. "n", "?", "¶").
+  /// A single character shown large ("n", "?", "¶").
   final String? glyph;
 
   /// Used instead of [glyph].
@@ -32,42 +33,33 @@ class EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    const size = 120.0;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxxl, vertical: AppSpacing.huge),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.huge, AppSpacing.screenMargin, AppSpacing.huge),
       child: Column(
         mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: size,
-            height: size,
-            decoration: BoxDecoration(
-              color: palette.tint,
-              borderRadius: BorderRadius.circular(size * 0.31),
+          Divider(color: palette.outline, thickness: AppRules.strong, height: AppRules.strong),
+          const SizedBox(height: AppSpacing.xl),
+          if (icon != null)
+            Icon(icon, size: 40, color: palette.primary)
+          else
+            Text(
+              glyph!,
+              style: AppTypography.glyph(56, weight: FontWeight.w900).copyWith(color: palette.primary),
             ),
-            alignment: Alignment.center,
-            child: icon != null
-                ? Icon(icon, size: 72, color: palette.primary)
-                : Text(
-                    glyph!,
-                    style: AppTypography.serifGlyph(64, weight: FontWeight.w400, italic: true)
-                        .copyWith(color: palette.primary),
-                  ),
-          ),
-          const SizedBox(height: AppSpacing.xxl),
-          Text(
-            title,
-            textAlign: TextAlign.center,
-            style: AppTypography.cardTitle.copyWith(color: palette.ink),
+          const SizedBox(height: AppSpacing.lg),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 260),
+            child: Text(title, style: AppTypography.title.copyWith(color: palette.ink)),
           ),
           const SizedBox(height: AppSpacing.md),
-          messageWidget ??
-              Text(
-                message,
-                textAlign: TextAlign.center,
-                style: AppTypography.bodySmall.copyWith(color: palette.inkBody),
-              ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 280),
+            child: messageWidget ??
+                Text(message, style: AppTypography.bodySmall.copyWith(color: palette.inkSecondary)),
+          ),
           if (action != null) ...[
             const SizedBox(height: AppSpacing.xxl),
             action!,

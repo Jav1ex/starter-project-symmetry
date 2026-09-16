@@ -41,21 +41,21 @@ void main() {
   testWidgets('the shell switches tabs and Saved lists the bookmarks', (tester) async {
     await pumpShell(tester);
 
-    await tester.tap(find.text('Saved'));
+    await tester.tap(find.text('SAVED'));
     await tester.pumpAndSettle();
     expect(find.byType(SavedScreen), findsOneWidget);
     expect(find.text('Kept story'), findsOneWidget);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('01'), findsOneWidget);
 
-    await tester.tap(find.text('Profile'));
+    await tester.tap(find.text('PROFILE'));
     await tester.pumpAndSettle();
     expect(find.byType(ProfileScreen), findsOneWidget);
-    expect(find.text('Ada Lovelace'), findsOneWidget);
+    expect(find.text('ADA LOVELACE'), findsOneWidget);
   });
 
   testWidgets('swiping a row removes it, Undo brings it back', (tester) async {
     final harness = await pumpShell(tester);
-    await tester.tap(find.text('Saved'));
+    await tester.tap(find.text('SAVED'));
     await tester.pumpAndSettle();
 
     await tester.drag(find.byType(FeedItem), const Offset(-600, 0));
@@ -72,7 +72,7 @@ void main() {
 
   testWidgets('tapping a saved row opens the reader', (tester) async {
     await pumpShell(tester);
-    await tester.tap(find.text('Saved'));
+    await tester.tap(find.text('SAVED'));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Kept story'));

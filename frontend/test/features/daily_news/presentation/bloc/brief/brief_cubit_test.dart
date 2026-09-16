@@ -89,4 +89,13 @@ void main() {
     expect(cubit.state.step, BriefStep.picking);
     expect(cubit.state.isCompletedOn(now), isTrue);
   });
+
+  test('reset forgets the brief and its completion', () async {
+    cubit.finish(DateTime(2026, 9, 16));
+    expect(cubit.state.isCompletedOn(DateTime(2026, 9, 16)), isTrue);
+
+    cubit.reset();
+
+    expect(cubit.state, const BriefState());
+  });
 }

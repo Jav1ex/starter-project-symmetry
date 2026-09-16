@@ -5,10 +5,11 @@ import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/media/article_thumbnail.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/media/hatched_plate.dart';
 
-/// 300dp header: the article image with a top scrim, or the typographic
-/// hero (soft gradient with the huge category initial) when there is none.
-/// Shares its Hero tag with the feed thumbnail.
+/// 250dp plate at the top of the article: the photo edge to edge, or the
+/// hatched plate with the category initial when there is none, closed by
+/// the 2px ink rule. Shares its Hero tag with the feed thumbnail.
 class ReaderHero extends StatelessWidget {
   final ArticleEntity article;
 
@@ -17,63 +18,40 @@ class ReaderHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    return Hero(
-      tag: ArticleThumbnail.heroTag(article),
-      child: SizedBox(
-        height: AppSizes.heroHeight,
-        width: double.infinity,
-        child: article.hasImage
-            ? Stack(
-                fit: StackFit.expand,
-                children: [
-                  CachedNetworkImage(
-                    imageUrl: article.imageUrl!,
-                    fit: BoxFit.cover,
-                    placeholder: (_, _) => ColoredBox(color: palette.skeletonBone),
-                    errorWidget: (_, _, _) => _TypographicHero(article: article),
-                  ),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: const [0, 0.4],
-                        colors: [palette.ink.withValues(alpha: 0.35), Colors.transparent],
-                      ),
-                    ),
-                  ),
-                ],
-              )
-            : _TypographicHero(article: article),
+    return Container(
+      decoration: BoxDecoration(border: Border(bottom: BorderSide(color: palette.ink, width: AppRules.strong))),
+      child: Hero(
+        tag: ArticleThumbnail.heroTag(article),
+        child: SizedBox(
+          height: AppSizes.heroHeight,
+          width: double.infinity,
+          child: article.hasImage
+              ? CachedNetworkImage(
+                  imageUrl: article.imageUrl!,
+                  fit: BoxFit.cover,
+                  placeholder: (_, _) => ColoredBox(color: palette.skeletonBone),
+                  errorWidget: (_, _, _) => _Plate(article: article),
+                )
+              : _Plate(article: article),
+        ),
       ),
     );
   }
 }
 
-class _TypographicHero extends StatelessWidget {
+class _Plate extends StatelessWidget {
   final ArticleEntity article;
 
-  const _TypographicHero({required this.article});
+  const _Plate({required this.article});
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    return ClipRect(
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [palette.primaryContainer, palette.tint, palette.background],
-          ),
-        ),
-        child: Align(
-          alignment: const Alignment(1.1, 1.2),
-          child: Text(
-            article.category.label[0].toUpperCase(),
-            style: AppTypography.serifGlyph(300).copyWith(color: palette.primary.withValues(alpha: 0.14)),
-          ),
-        ),
+    return HatchedPlate(
+      pitch: 9,
+      child: Text(
+        article.category.label[0].toUpperCase(),
+        style: AppTypography.glyph(120, weight: FontWeight.w900).copyWith(color: palette.ink.withValues(alpha: 0.35)),
       ),
     );
   }

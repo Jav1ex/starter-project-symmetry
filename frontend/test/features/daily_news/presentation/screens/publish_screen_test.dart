@@ -66,7 +66,7 @@ void main() {
     final params = verify(() => harness.publishArticle(captureAny())).captured.single as PublishArticleParams;
     expect(params.draft.title, 'Sea wall');
     expect(find.byType(PublishSuccessView), findsOneWidget);
-    expect(find.text('Your article is live'), findsOneWidget);
+    expect(find.text('YOUR ARTICLE IS LIVE'), findsOneWidget);
     expect(harness.myArticlesCubit.state.articles, contains(published));
 
     await tester.tap(find.text('Back to Home'));
@@ -94,11 +94,11 @@ void main() {
     when(() => harness.updateArticle(any()))
         .thenAnswer((_) async => DataSuccess(buildUserArticle(authorId: user.id)));
 
-    expect(find.text('Edit article'), findsOneWidget);
+    expect(find.text('EDIT ARTICLE'), findsOneWidget);
     expect(tester.widget<TextField>(fieldLabelled('Title')).controller?.text, 'Title');
 
-    await tester.ensureVisible(find.text('Remove'));
-    await tester.tap(find.text('Remove'));
+    await tester.ensureVisible(find.text('REMOVE'));
+    await tester.tap(find.text('REMOVE'));
     await tester.pumpAndSettle();
     await tester.ensureVisible(find.text('Add a photo'));
     await tester.tap(find.text('Add a photo'));
@@ -111,7 +111,9 @@ void main() {
 
     final params = verify(() => harness.updateArticle(captureAny())).captured.single as UpdateArticleParams;
     expect(params.newThumbnail, buildImage());
-    expect(find.text('Your changes are live'), findsOneWidget);
+    expect(find.text('YOUR CHANGES ARE LIVE'), findsOneWidget);
+    // Let the confirmation's entrance timers finish before the tree is torn down.
+    await tester.pump(const Duration(milliseconds: 400));
   });
 
   testWidgets('Ask the editor works with only the body and "Use this" fills the empty title', (tester) async {

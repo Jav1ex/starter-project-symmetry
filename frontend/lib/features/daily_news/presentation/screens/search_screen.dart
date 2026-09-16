@@ -13,8 +13,8 @@ import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/empty_state.dart';
 
-/// Search tab: one field, recent queries and topic chips while idle,
-/// results in the feed row format once there is a query.
+/// Search tab: one framed field, recent queries and the section grid while
+/// idle, results in the feed row format once there is a query.
 class SearchScreen extends StatelessWidget {
   const SearchScreen({super.key});
 
@@ -50,19 +50,21 @@ class _SearchViewState extends State<SearchView> {
     final palette = context.palette;
     final cubit = context.read<SearchCubit>();
     final userId = context.select((SessionCubit c) => c.state.user?.id);
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     return Scaffold(
       body: SafeArea(
+        bottom: false,
         child: BlocBuilder<SearchCubit, SearchState>(
           builder: (context, state) {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.lg, AppSpacing.xxl, AppSpacing.md),
-                  child: Text('Search', style: AppTypography.headline.copyWith(color: palette.ink)),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.lg, AppSpacing.screenMargin, AppSpacing.lg),
+                  child: Text('SEARCH', style: AppTypography.tabTitle.copyWith(color: palette.ink)),
                 ),
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xxl),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, 0, AppSpacing.screenMargin, AppSpacing.lg),
                   child: TextField(
                     controller: _controller,
                     onChanged: cubit.queryChanged,
@@ -70,11 +72,10 @@ class _SearchViewState extends State<SearchView> {
                     textInputAction: TextInputAction.search,
                     style: AppTypography.valueLine.copyWith(color: palette.ink),
                     decoration: InputDecoration(
-                      hintText: 'Search all news',
-                      prefixIcon: Icon(Icons.search_rounded, color: palette.inkSecondary),
-                      border: _pill(palette.outlineStrong, 1.5),
-                      enabledBorder: _pill(palette.outlineStrong, 1.5),
-                      focusedBorder: _pill(palette.primary, 2),
+                      hintText: 'Topic, author, outlet',
+                      prefixIcon: Icon(Icons.search_rounded, color: palette.ink, size: 20),
+                      enabledBorder: _frame(palette.ink),
+                      focusedBorder: _frame(palette.primary),
                       suffixIcon: state.query.isEmpty
                           ? null
                           : TextButton.icon(
@@ -82,14 +83,13 @@ class _SearchViewState extends State<SearchView> {
                                 _controller.clear();
                                 cubit.clear();
                               },
-                              icon: const Icon(Icons.close_rounded, size: 18),
+                              icon: const Icon(Icons.close_rounded, size: 16),
                               label: const Text('Clear'),
                             ),
                     ),
                   ),
                 ),
-                const SizedBox(height: AppSpacing.sm),
-                Expanded(child: _body(context, state, userId)),
+                Expanded(child: _body(context, state, userId, bottomInset)),
               ],
             );
           },
@@ -98,13 +98,14 @@ class _SearchViewState extends State<SearchView> {
     );
   }
 
-  OutlineInputBorder _pill(Color color, double width) => OutlineInputBorder(
-        borderRadius: BorderRadius.circular(AppRadius.pill),
-        borderSide: BorderSide(color: color, width: width),
+  OutlineInputBorder _frame(Color color) => OutlineInputBorder(
+        borderRadius: BorderRadius.zero,
+        borderSide: BorderSide(color: color, width: AppRules.strong),
       );
 
-  Widget _body(BuildContext context, SearchState state, String? userId) {
+  Widget _body(BuildContext context, SearchState state, String? userId, double bottomInset) {
     final palette = context.palette;
+    final rule = BorderSide(color: palette.outlineStrong, width: AppRules.strong);
     return switch (state.status) {
       SearchStatus.idle => SearchIdleView(
           recent: state.recent,
@@ -112,40 +113,39 @@ class _SearchViewState extends State<SearchView> {
           onClearRecent: context.read<SearchCubit>().clearRecent,
           onTopicTap: (topic) => _run(topic.label),
         ),
-      SearchStatus.loading => const FeedSkeleton(rows: 3),
-      SearchStatus.failure => Center(
-          child: EmptyState(
-            glyph: '!',
-            title: "Couldn't search right now",
-            message: FailureMessageFormatter.of(state.failure!),
-          ),
+      SearchStatus.loading => const SingleChildScrollView(child: FeedSkeleton(rows: 3)),
+      SearchStatus.failure => EmptyState(
+          glyph: '!',
+          title: "Couldn't search right now",
+          message: FailureMessageFormatter.of(state.failure!),
         ),
-      SearchStatus.results when state.results.isEmpty => Center(
-          child: EmptyState(
-            glyph: '?',
-            title: 'No stories about "${state.query.trim()}"',
-            message: 'Check the spelling, or try a shorter word.',
-          ),
+      SearchStatus.results when state.results.isEmpty => EmptyState(
+          glyph: '?',
+          title: 'No stories about "${state.query.trim()}"',
+          message: 'Check the spelling, or try a shorter word.',
         ),
       SearchStatus.results => ListView(
+          padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.xxl),
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.sm, AppSpacing.xxl, AppSpacing.xs),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenMargin, vertical: 12),
+              decoration: BoxDecoration(border: Border(top: rule, bottom: rule)),
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
-                      '${state.results.length} ${state.results.length == 1 ? 'result' : 'results'}',
-                      style: AppTypography.label.copyWith(color: palette.ink),
+                      '${state.results.length} ${state.results.length == 1 ? 'result' : 'results'}'.toUpperCase(),
+                      style: AppTypography.sectionOverline.copyWith(color: palette.ink),
                     ),
                   ),
-                  Text('Newest first', style: AppTypography.captionSmall.copyWith(color: palette.inkSecondary)),
+                  Text('NEWEST FIRST', style: AppTypography.captionSmall.copyWith(color: palette.inkSecondary)),
                 ],
               ),
             ),
-            for (final article in state.results) ...[
+            for (final (index, article) in state.results.indexed) ...[
               FeedItem(
                 article: article,
+                number: index + 1,
                 isOwn: article.isOwnedBy(userId),
                 highlight: state.query,
                 onTap: () => context.pushReader(article),

@@ -19,8 +19,8 @@ void main() {
       ),
     );
 
-    expect(find.text('Good morning, Miriam'), findsOneWidget);
-    expect(find.text('Tuesday, 15 September'), findsOneWidget);
+    expect(find.text('GOOD MORNING, MIRIAM'), findsOneWidget);
+    expect(find.text('TUESDAY, 15 SEPTEMBER'), findsOneWidget);
 
     await tester.tap(find.byType(UserAvatar));
     expect(tapped, isTrue);
@@ -32,6 +32,6 @@ void main() {
       HomeHeader(user: user, now: DateTime(2026, 9, 15, 21), onAvatarTap: () {}),
     );
 
-    expect(find.text('Good evening, Miriam'), findsOneWidget);
+    expect(find.text('GOOD EVENING, MIRIAM'), findsOneWidget);
   });
 }

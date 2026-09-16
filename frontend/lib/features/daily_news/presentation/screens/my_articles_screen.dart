@@ -55,8 +55,8 @@ class _MyArticlesScreenState extends State<MyArticlesScreen> {
     return Scaffold(
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => context.pushPublish(),
-        icon: const Icon(Icons.edit_rounded),
-        label: const Text('Write'),
+        icon: const Icon(Icons.edit_rounded, size: 18),
+        label: const Text('WRITE'),
       ),
       body: SafeArea(
         child: BlocBuilder<MyArticlesCubit, MyArticlesState>(
@@ -65,20 +65,19 @@ class _MyArticlesScreenState extends State<MyArticlesScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.sm, AppSpacing.lg, 0),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, 0),
                   child: LabeledIconButton.back(onPressed: () => Navigator.of(context).pop()),
                 ),
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.xxl, AppSpacing.md, AppSpacing.xxl, AppSpacing.sm),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.sm, AppSpacing.screenMargin, AppSpacing.lg),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Text('My articles', style: AppTypography.headline.copyWith(color: palette.ink)),
-                      const SizedBox(width: AppSpacing.md),
+                      Expanded(child: Text('MY ARTICLES', style: AppTypography.tabTitle.copyWith(color: palette.ink))),
                       if (state.status == MyArticlesStatus.loaded)
                         Text(
-                          '${state.articles.length} published',
-                          style: AppTypography.caption.copyWith(color: palette.inkSecondary),
+                          '${state.articles.length}'.padLeft(2, '0'),
+                          style: AppTypography.numeral(34, weight: FontWeight.w900).copyWith(color: palette.primary, height: 0.9),
                         ),
                     ],
                   ),
@@ -93,10 +92,11 @@ class _MyArticlesScreenState extends State<MyArticlesScreen> {
   }
 
   Widget _body(BuildContext context, MyArticlesState state, String authorName) {
+    final palette = context.palette;
     return switch (state.status) {
       MyArticlesStatus.initial || MyArticlesStatus.loading => const SkeletonArea(
           child: Padding(
-            padding: EdgeInsets.all(AppSpacing.xxl),
+            padding: EdgeInsets.all(AppSpacing.screenMargin),
             child: Column(
               children: [
                 SkeletonBox(height: 96),
@@ -106,7 +106,7 @@ class _MyArticlesScreenState extends State<MyArticlesScreen> {
             ),
           ),
         ),
-      MyArticlesStatus.failure => Center(
+      MyArticlesStatus.failure => SingleChildScrollView(
           child: EmptyState(
             glyph: '!',
             title: "Couldn't load your articles",
@@ -118,7 +118,7 @@ class _MyArticlesScreenState extends State<MyArticlesScreen> {
             ),
           ),
         ),
-      MyArticlesStatus.loaded when state.articles.isEmpty => Center(
+      MyArticlesStatus.loaded when state.articles.isEmpty => SingleChildScrollView(
           child: EmptyState(
             glyph: '¶',
             title: 'Your byline starts here',
@@ -130,20 +130,26 @@ class _MyArticlesScreenState extends State<MyArticlesScreen> {
             ),
           ),
         ),
-      MyArticlesStatus.loaded => ListView.separated(
-          padding: const EdgeInsets.only(bottom: 96),
-          itemCount: state.articles.length,
-          separatorBuilder: (_, _) => const Divider(),
-          itemBuilder: (context, index) {
-            final article = state.articles[index];
-            return MyArticleRow(
-              article: article,
-              now: DateTime.now(),
-              onTap: () => context.pushReader(article),
-              onEdit: () => context.pushPublish(article: article),
-              onDelete: () => _delete(article),
-            );
-          },
+      MyArticlesStatus.loaded => Container(
+          decoration: BoxDecoration(
+            border: Border(top: BorderSide(color: palette.outlineStrong, width: AppRules.strong)),
+          ),
+          child: ListView.separated(
+            padding: const EdgeInsets.only(bottom: 96),
+            itemCount: state.articles.length,
+            separatorBuilder: (_, _) => const Divider(),
+            itemBuilder: (context, index) {
+              final article = state.articles[index];
+              return MyArticleRow(
+                article: article,
+                number: index + 1,
+                now: DateTime.now(),
+                onTap: () => context.pushReader(article),
+                onEdit: () => context.pushPublish(article: article),
+                onDelete: () => _delete(article),
+              );
+            },
+          ),
         ),
     };
   }

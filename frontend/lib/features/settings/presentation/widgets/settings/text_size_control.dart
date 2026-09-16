@@ -4,8 +4,8 @@ import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 
-/// "Text size" row: a four-step slider between a small and a big "A", the
-/// step's name, and a preview paragraph that re-renders at that size.
+/// "Text size" block: the step's name in figures, a four-step slider between
+/// a small and a big "A", and a framed preview paragraph at that size.
 class TextSizeControl extends StatelessWidget {
   final TextSizePreference selected;
   final ValueChanged<TextSizePreference> onChanged;
@@ -26,24 +26,24 @@ class TextSizeControl extends StatelessWidget {
     final steps = TextSizePreference.values;
 
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.md, AppSpacing.screenMargin, AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            crossAxisAlignment: CrossAxisAlignment.baseline,
+            textBaseline: TextBaseline.alphabetic,
             children: [
               Expanded(
-                child: Text('Text size', style: AppTypography.body.copyWith(color: palette.ink)),
+                child: Text('Text size', style: AppTypography.valueLine.copyWith(color: palette.ink, fontSize: 16)),
               ),
-              Text(
-                selected.label,
-                style: AppTypography.bodySmall.copyWith(color: palette.inkSecondary),
-              ),
+              Text(selected.label, style: AppTypography.captionSmall.copyWith(color: palette.inkSecondary, fontSize: 12)),
             ],
           ),
+          const SizedBox(height: AppSpacing.xs),
           Row(
             children: [
-              Text('A', style: AppTypography.sized(14).copyWith(color: palette.inkSecondary)),
+              Text('A', style: AppTypography.sized(13, weight: FontWeight.w800).copyWith(color: palette.ink)),
               Expanded(
                 child: Slider(
                   value: selected.index.toDouble(),
@@ -55,24 +55,22 @@ class TextSizeControl extends StatelessWidget {
                   onChanged: (value) => onChanged(steps[value.round()]),
                 ),
               ),
-              Text('A', style: AppTypography.sized(24).copyWith(color: palette.inkSecondary)),
+              Text('A', style: AppTypography.sized(24, weight: FontWeight.w800).copyWith(color: palette.ink)),
             ],
           ),
-          const SizedBox(height: AppSpacing.sm),
-          Text(
-            'PREVIEW',
-            style: AppTypography.sectionOverline.copyWith(color: palette.inkSecondary),
-          ),
-          const SizedBox(height: AppSpacing.sm),
+          const SizedBox(height: AppSpacing.md),
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(AppSpacing.lg),
-            decoration: BoxDecoration(
-              color: palette.background,
-              borderRadius: BorderRadius.circular(AppRadius.field),
-              border: Border.all(color: palette.outline),
+            padding: const EdgeInsets.all(14),
+            decoration: BoxDecoration(border: Border.all(color: palette.outlineStrong, width: AppRules.strong)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('PREVIEW', style: AppTypography.overline.copyWith(color: palette.inkSecondary)),
+                const SizedBox(height: AppSpacing.sm),
+                Text(previewText, style: AppTypography.body.copyWith(color: palette.inkBody, fontSize: 15, height: 1.5)),
+              ],
             ),
-            child: Text(previewText, style: AppTypography.body.copyWith(color: palette.inkBody)),
           ),
         ],
       ),

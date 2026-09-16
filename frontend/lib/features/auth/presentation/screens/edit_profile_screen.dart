@@ -77,14 +77,16 @@ class _EditProfileViewState extends State<EditProfileView> {
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.md, AppSpacing.sm, AppSpacing.xxl),
-                  child: Text('Edit profile', style: AppTypography.headline.copyWith(color: palette.ink)),
+                  child: Text('EDIT PROFILE', style: AppTypography.tabTitle.copyWith(color: palette.ink)),
                 ),
                 Center(
                   child: Column(
                     children: [
                       state.photo != null
-                          ? ClipOval(
-                              child: Image.file(File(state.photo!.path), width: 112, height: 112, fit: BoxFit.cover),
+                          ? Container(
+                              decoration: BoxDecoration(border: Border.all(color: palette.ink, width: AppRules.strong)),
+                              padding: const EdgeInsets.all(2),
+                              child: Image.file(File(state.photo!.path), width: 104, height: 104, fit: BoxFit.cover),
                             )
                           : UserAvatar(
                               name: state.original.preferredName,
