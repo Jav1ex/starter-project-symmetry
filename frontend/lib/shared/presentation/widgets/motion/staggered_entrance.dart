@@ -18,16 +18,21 @@ class StaggeredEntrance extends StatefulWidget {
 }
 
 class _StaggeredEntranceState extends State<StaggeredEntrance> with SingleTickerProviderStateMixin {
-  late final AnimationController _controller = AnimationController(vsync: this, duration: AppMotion.medium);
-  late final Animation<double> _progress = CurvedAnimation(parent: _controller, curve: AppMotion.enter);
+  // The beat is part of the animation itself (an interval at the start), so
+  // no timer is left behind when a row is disposed before its turn.
+  late final int _steps = widget.index.clamp(0, StaggeredEntrance.maxDelayedIndex);
+  late final Duration _delay = AppMotion.feedStaggerStep * _steps;
+  late final AnimationController _controller =
+      AnimationController(vsync: this, duration: AppMotion.medium + _delay);
+  late final Animation<double> _progress = CurvedAnimation(
+    parent: _controller,
+    curve: Interval(_delay.inMilliseconds / (AppMotion.medium + _delay).inMilliseconds, 1, curve: AppMotion.enter),
+  );
 
   @override
   void initState() {
     super.initState();
-    final steps = widget.index.clamp(0, StaggeredEntrance.maxDelayedIndex);
-    Future.delayed(AppMotion.feedStaggerStep * steps, () {
-      if (mounted) _controller.forward();
-    });
+    _controller.forward();
   }
 
   @override

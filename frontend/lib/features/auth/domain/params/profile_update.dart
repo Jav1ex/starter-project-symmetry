@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/params/credentials.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
 
 /// What the Edit profile form can change. A `null` field means "leave it".
 class ProfileUpdate extends Equatable {

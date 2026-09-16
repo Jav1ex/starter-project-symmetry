@@ -34,18 +34,10 @@ class SavedArticleRepositoryImpl implements SavedArticleRepository {
     return _asOwner((owner) => _dao.deleteById(owner, id));
   }
 
-  @override
-  Future<DataState<bool>> isSaved(String id) {
-    return _asOwner((owner) async => await _dao.findById(owner, id) != null);
-  }
 
   Future<DataState<T>> _asOwner<T>(Future<T> Function(String ownerId) operation) async {
     final user = _auth.currentUser;
     if (user == null) return const DataFailed(Failure.unauthenticated());
-    try {
-      return DataSuccess(await operation(user.id));
-    } on Exception {
-      return const DataFailed(Failure.unknown(_storageErrorMessage));
-    }
+    return runGuarded(() => operation(user.id), onError: (_) => const Failure.unknown(_storageErrorMessage));
   }
 }

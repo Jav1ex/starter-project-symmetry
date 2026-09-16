@@ -1,7 +1,6 @@
-import 'package:dio/dio.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/mappers/dio_failure_mapper.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/dio_failure_mapper.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/article_model.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
@@ -29,14 +28,10 @@ class NewsRepositoryImpl implements NewsRepository {
   Future<DataState<List<ArticleEntity>>> _guard(
     Future<List<ArticleModel>> Function() request, {
     NewsCategory category = NewsCategory.general,
-  }) async {
-    try {
-      final models = await request();
-      return DataSuccess(
-        models.map((model) => model.toEntity(category: category)).toList(),
-      );
-    } on DioException catch (e) {
-      return DataFailed(DioFailureMapper.map(e));
-    }
+  }) {
+    return runGuarded(
+      () async => (await request()).map((model) => model.toEntity(category: category)).toList(),
+      onError: DioFailureMapper.map,
+    );
   }
 }

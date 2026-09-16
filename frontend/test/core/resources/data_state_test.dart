@@ -14,11 +14,6 @@ void main() {
       expect(success.failureOrNull, isNull);
     });
 
-    test('when() calls the success branch', () {
-      final result = success.when(success: (d) => 'ok $d', failure: (f) => 'ko');
-      expect(result, 'ok 42');
-    });
-
     test('map() transforms the payload', () {
       expect(success.map((d) => d.toString()), const DataSuccess<String>('42'));
     });
@@ -32,11 +27,6 @@ void main() {
       expect(failed.failureOrNull, const Failure.network());
     });
 
-    test('when() calls the failure branch', () {
-      final result = failed.when(success: (d) => 'ok', failure: (f) => f.type.name);
-      expect(result, 'network');
-    });
-
     test('map() keeps the failure untouched', () {
       final mapped = failed.map((d) => d.toString());
       expect(mapped, const DataFailed<String>(Failure.network()));
@@ -48,6 +38,20 @@ void main() {
       const failure = Failure.validation('Title is required.');
       expect(failure.type, FailureType.validation);
       expect(failure.message, 'Title is required.');
+    });
+  });
+
+  group('runGuarded', () {
+    test('wraps the value of an operation that completes', () async {
+      expect(await runGuarded(() async => 7, onError: (_) => const Failure.unknown()), const DataSuccess(7));
+    });
+
+    test('turns a thrown error into the failure the mapper chooses', () async {
+      final result = await runGuarded<int>(
+        () async => throw StateError('boom'),
+        onError: (error) => Failure.server('$error'),
+      );
+      expect(result, const DataFailed<int>(Failure.server('Bad state: boom')));
     });
   });
 }

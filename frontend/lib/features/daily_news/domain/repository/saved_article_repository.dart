@@ -9,5 +9,4 @@ abstract interface class SavedArticleRepository {
 
   Future<DataState<void>> removeArticle(String id);
 
-  Future<DataState<bool>> isSaved(String id);
 }

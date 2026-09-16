@@ -15,12 +15,12 @@ void main() {
   });
 
   late MockUpdateProfileUseCase updateProfile;
-  late MockPickThumbnailUseCase pickPhoto;
+  late MockPickImageUseCase pickPhoto;
   late EditProfileCubit cubit;
 
   setUp(() {
     updateProfile = MockUpdateProfileUseCase();
-    pickPhoto = MockPickThumbnailUseCase();
+    pickPhoto = MockPickImageUseCase();
     when(() => updateProfile(any())).thenAnswer((_) async => DataSuccess(user));
     when(() => pickPhoto(any())).thenAnswer((_) async => DataSuccess(buildImage()));
     cubit = EditProfileCubit(updateProfile, pickPhoto, user: user);

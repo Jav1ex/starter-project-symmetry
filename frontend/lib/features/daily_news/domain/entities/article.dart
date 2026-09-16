@@ -71,9 +71,6 @@ class ArticleEntity extends Equatable {
     return userId != null && authorId != null && authorId == userId;
   }
 
-  /// Whether the publication date is still in the future at [now].
-  bool isScheduledAt(DateTime now) => publishedAt.isAfter(now);
-
   /// Estimated minutes to read the body, never less than one.
   int get readingTimeMinutes {
     final words = content.trim().split(RegExp(r'\s+')).where((w) => w.isNotEmpty);

@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/device/device_image_picker.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/models/local_image_model.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/repository/image_picker_repository_impl.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/data/data_sources/device/device_image_picker.dart';
+import 'package:news_app_clean_architecture/shared/media/data/models/local_image_model.dart';
+import 'package:news_app_clean_architecture/shared/media/data/repository/image_picker_repository_impl.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
 
 class MockDeviceImagePicker extends Mock implements DeviceImagePicker {}
 

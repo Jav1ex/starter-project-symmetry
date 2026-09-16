@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
@@ -13,19 +11,12 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/repositor
 class DraftRepositoryImpl implements DraftRepository {
   final DraftLocalDataSource _local;
   final AuthRepository _auth;
-  final bool Function(String path) _fileExists;
 
-  /// [fileExists] is only overridden by tests; on a device it asks the file
-  /// system, because the picker's copy of a photo can be cleaned up between
-  /// two visits to the Write screen.
-  DraftRepositoryImpl(this._local, this._auth, {bool Function(String path)? fileExists})
-      : _fileExists = fileExists ?? _existsOnDisk;
+  const DraftRepositoryImpl(this._local, this._auth);
 
   static const String guestScope = 'guest';
 
   String get _scope => _auth.currentUser?.id ?? guestScope;
-
-  static bool _existsOnDisk(String path) => File(path).existsSync();
 
   @override
   Future<SavedDraft?> loadDraft() async {
@@ -33,7 +24,7 @@ class DraftRepositoryImpl implements DraftRepository {
     if (stored == null) return null;
 
     final image = stored.image;
-    final draft = image != null && !_fileExists(image.path) ? stored.copyWith(clearImage: true) : stored.toEntity();
+    final draft = image != null && !_local.imageExists(image.path) ? stored.copyWith(clearImage: true) : stored.toEntity();
     if (draft.isEmpty) {
       await _local.delete(_scope);
       return null;
@@ -42,22 +33,14 @@ class DraftRepositoryImpl implements DraftRepository {
   }
 
   @override
-  Future<DataState<void>> saveDraft(SavedDraft draft) async {
-    try {
-      await _local.write(_scope, SavedDraftModel.fromEntity(draft));
-      return const DataSuccess(null);
-    } catch (_) {
-      return const DataFailed(Failure.unknown("Your draft couldn't be saved."));
-    }
-  }
+  Future<DataState<void>> saveDraft(SavedDraft draft) => runGuarded(
+        () => _local.write(_scope, SavedDraftModel.fromEntity(draft)),
+        onError: (_) => const Failure.unknown("Your draft couldn't be saved."),
+      );
 
   @override
-  Future<DataState<void>> clearDraft() async {
-    try {
-      await _local.delete(_scope);
-      return const DataSuccess(null);
-    } catch (_) {
-      return const DataFailed(Failure.unknown("Your draft couldn't be cleared."));
-    }
-  }
+  Future<DataState<void>> clearDraft() => runGuarded(
+        () => _local.delete(_scope),
+        onError: (_) => const Failure.unknown("Your draft couldn't be cleared."),
+      );
 }

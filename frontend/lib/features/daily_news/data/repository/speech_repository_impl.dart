@@ -39,12 +39,6 @@ class SpeechRepositoryImpl implements SpeechRepository {
   @override
   Future<DataState<void>> stop() => _guard(_service.stop);
 
-  Future<DataState<void>> _guard(Future<void> Function() operation) async {
-    try {
-      await operation();
-      return const DataSuccess(null);
-    } catch (_) {
-      return const DataFailed(Failure.unknown(_errorMessage));
-    }
-  }
+  Future<DataState<void>> _guard(Future<void> Function() operation) =>
+      runGuarded(operation, onError: (_) => const Failure.unknown(_errorMessage));
 }

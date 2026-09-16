@@ -3,9 +3,9 @@ import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/update_article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/thumbnail_reference.dart';
 
 import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/mocks.dart';

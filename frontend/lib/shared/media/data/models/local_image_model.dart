@@ -1,4 +1,4 @@
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
 
 /// A picked file as the platform describes it. The MIME type is taken from
 /// the platform when given, otherwise from the file extension.

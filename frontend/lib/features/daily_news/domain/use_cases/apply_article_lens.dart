@@ -15,7 +15,7 @@ class ApplyArticleLensParams extends Equatable {
   List<Object?> get props => [lens, article];
 }
 
-/// Reads an article through a lens: brief, plain words or Spanish.
+/// Reads an article through a lens: three bullets, or plain words.
 class ApplyArticleLensUseCase implements UseCase<DataState<ArticleLensResult>, ApplyArticleLensParams> {
   final ArticleAssistantRepository _assistant;
 

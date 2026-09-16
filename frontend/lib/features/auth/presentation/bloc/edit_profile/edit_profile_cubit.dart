@@ -7,15 +7,15 @@ import 'package:news_app_clean_architecture/features/auth/domain/entities/user.d
 import 'package:news_app_clean_architecture/features/auth/domain/params/credentials.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/params/profile_update.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/update_profile.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/use_cases/pick_image.dart';
 
 part 'edit_profile_state.dart';
 
 /// The Edit profile form: display name and photo.
 class EditProfileCubit extends Cubit<EditProfileState> {
   final UpdateProfileUseCase _updateProfile;
-  final PickThumbnailUseCase _pickPhoto;
+  final PickImageUseCase _pickPhoto;
 
   EditProfileCubit(this._updateProfile, this._pickPhoto, {required UserEntity user})
       : super(EditProfileState(original: user, displayName: user.displayName ?? ''));

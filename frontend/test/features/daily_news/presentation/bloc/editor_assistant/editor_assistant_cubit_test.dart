@@ -46,4 +46,10 @@ void main() {
     expect(cubit.state.status, EditorAssistantStatus.failure);
     expect(cubit.state.failure, const Failure.network());
   });
+
+  test('dismiss after the cubit is closed is a no-op', () async {
+    await cubit.close();
+
+    expect(cubit.dismiss, returnsNormally);
+  });
 }

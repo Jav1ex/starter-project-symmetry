@@ -40,16 +40,15 @@ class SettingsRepositoryImpl implements SettingsRepository {
   Future<AppSettings> getSettings() => Future.value(_read(_scope));
 
   @override
-  Future<DataState<void>> saveSettings(AppSettings settings) async {
-    try {
-      await _local.write(_scope, AppSettingsModel.fromEntity(settings));
-      _changes.add(settings);
-      return const DataSuccess(null);
-    } catch (_) {
-      return const DataFailed(Failure.unknown("Your settings couldn't be saved."));
-    }
-  }
+  Future<DataState<void>> saveSettings(AppSettings settings) => runGuarded(
+        () async {
+          await _local.write(_scope, AppSettingsModel.fromEntity(settings));
+          _changes.add(settings);
+        },
+        onError: (_) => const Failure.unknown("Your settings couldn't be saved."),
+      );
 
+  /// The app keeps one instance for its whole life; tests close it.
   Future<void> dispose() async {
     await _session.cancel();
     await _changes.close();

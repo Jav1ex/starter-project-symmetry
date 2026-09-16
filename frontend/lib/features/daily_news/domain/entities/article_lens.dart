@@ -15,7 +15,7 @@ enum ArticleLens {
 }
 
 /// The outcome of applying a lens: bullets for [ArticleLens.brief], a
-/// rewritten text for the others.
+/// rewritten text for [ArticleLens.plain].
 class ArticleLensResult extends Equatable {
   final ArticleLens lens;
   final List<String> bullets;

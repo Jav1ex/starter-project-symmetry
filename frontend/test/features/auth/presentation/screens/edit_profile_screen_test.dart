@@ -27,7 +27,7 @@ void main() {
     final updateProfile = MockUpdateProfileUseCase();
     when(() => updateProfile(any())).thenAnswer((_) async => DataSuccess(user.copyWith(displayName: 'Grace')));
     sl.registerFactoryParam<EditProfileCubit, UserEntity, void>(
-      (u, _) => EditProfileCubit(updateProfile, harness.pickThumbnail, user: u),
+      (u, _) => EditProfileCubit(updateProfile, harness.pickImage, user: u),
     );
     addTearDown(() => sl.unregister<EditProfileCubit>());
     useScreen(tester, const Size(600, 1400));
@@ -55,7 +55,7 @@ void main() {
 
     await tester.tap(find.text('Add a photo'));
     await tester.pumpAndSettle();
-    verify(() => harness.pickThumbnail(any())).called(1);
+    verify(() => harness.pickImage(any())).called(1);
 
     await tester.tap(save);
     await tester.pumpAndSettle();
@@ -72,7 +72,7 @@ void main() {
     final updateProfile = MockUpdateProfileUseCase();
     when(() => updateProfile(any())).thenAnswer((_) async => const DataFailed(Failure.network()));
     sl.registerFactoryParam<EditProfileCubit, UserEntity, void>(
-      (u, _) => EditProfileCubit(updateProfile, harness.pickThumbnail, user: u),
+      (u, _) => EditProfileCubit(updateProfile, harness.pickImage, user: u),
     );
     addTearDown(() => sl.unregister<EditProfileCubit>());
     useScreen(tester, const Size(600, 1400));

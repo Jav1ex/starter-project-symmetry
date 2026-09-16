@@ -3,7 +3,7 @@ import 'package:news_app_clean_architecture/features/auth/data/data_sources/remo
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/params/credentials.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
-import 'package:news_app_clean_architecture/shared/data/mappers/firebase_failure_mapper.dart';
+import 'package:news_app_clean_architecture/shared/firebase/data/data_sources/firebase_failure_mapper.dart';
 
 class AuthRepositoryImpl implements AuthRepository {
   final FirebaseAuthService _service;
@@ -56,11 +56,6 @@ class AuthRepositoryImpl implements AuthRepository {
   @override
   Future<DataState<void>> signOut() => _guard(_service.signOut);
 
-  Future<DataState<T>> _guard<T>(Future<T> Function() operation) async {
-    try {
-      return DataSuccess(await operation());
-    } catch (error) {
-      return DataFailed(FirebaseFailureMapper.map(error));
-    }
-  }
+  Future<DataState<T>> _guard<T>(Future<T> Function() operation) =>
+      runGuarded(operation, onError: FirebaseFailureMapper.map);
 }

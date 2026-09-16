@@ -51,11 +51,5 @@ void main() {
       });
     });
 
-    test('isScheduledAt is true only for a future publication date', () {
-      final now = DateTime.utc(2026, 9, 15, 12);
-      expect(buildArticle(publishedAt: now.add(const Duration(hours: 1))).isScheduledAt(now), isTrue);
-      expect(buildArticle(publishedAt: now).isScheduledAt(now), isFalse);
-      expect(buildArticle(publishedAt: now.subtract(const Duration(days: 1))).isScheduledAt(now), isFalse);
-    });
   });
 }

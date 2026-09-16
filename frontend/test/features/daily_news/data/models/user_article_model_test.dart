@@ -1,8 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/user_article_model.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/thumbnail_reference.dart';
 
 import '../../../../helpers/fixtures.dart';
 

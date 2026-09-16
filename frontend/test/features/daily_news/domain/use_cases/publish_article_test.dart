@@ -4,7 +4,7 @@ import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_draft.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
 
