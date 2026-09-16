@@ -17,7 +17,7 @@ function anonymousRef(path) {
 }
 
 /** Uploads bypassing rules so read/delete/replace tests start from an existing object. */
-async function seedImage(path = 'media/articles/seed.jpg') {
+async function seedImage(path = `media/articles/${AUTHOR_UID}-seed.jpg`) {
   await testEnv.withSecurityRulesDisabled(async (context) => {
     await uploadBytes(ref(context.storage(), path), fakeImageBytes(), {
       contentType: 'image/jpeg',
@@ -35,8 +35,8 @@ async function waitForStorageRules(timeoutMs = 10_000) {
   let lastError;
   while (Date.now() < deadline) {
     try {
-      await seedImage('media/articles/warmup.jpg');
-      await getBytes(objectRef('media/articles/warmup.jpg'));
+      await seedImage(`media/articles/${AUTHOR_UID}-warmup.jpg`);
+      await getBytes(objectRef(`media/articles/${AUTHOR_UID}-warmup.jpg`));
       return;
     } catch (error) {
       lastError = error;
@@ -63,23 +63,23 @@ describe('media/articles: upload accepted images', () => {
   for (const contentType of ['image/jpeg', 'image/png', 'image/webp']) {
     it(`accepts a ${contentType} file`, async () => {
       await assertSucceeds(
-        uploadBytes(objectRef('media/articles/photo'), fakeImageBytes(), { contentType }),
+        uploadBytes(objectRef(`media/articles/${AUTHOR_UID}-photo`), fakeImageBytes(), { contentType }),
       );
     });
   }
 
   it('accepts a file of exactly 5 MiB', async () => {
     await assertSucceeds(
-      uploadBytes(objectRef('media/articles/large.jpg'), fakeImageBytes(FIVE_MIB), {
+      uploadBytes(objectRef(`media/articles/${AUTHOR_UID}-large.jpg`), fakeImageBytes(FIVE_MIB), {
         contentType: 'image/jpeg',
       }),
     );
   });
 
   it('accepts replacing an existing thumbnail with another valid image', async () => {
-    await seedImage('media/articles/seed.jpg');
+    await seedImage(`media/articles/${AUTHOR_UID}-seed.jpg`);
     await assertSucceeds(
-      uploadBytes(objectRef('media/articles/seed.jpg'), fakeImageBytes(), {
+      uploadBytes(objectRef(`media/articles/${AUTHOR_UID}-seed.jpg`), fakeImageBytes(), {
         contentType: 'image/png',
       }),
     );
@@ -89,7 +89,7 @@ describe('media/articles: upload accepted images', () => {
 describe('media/articles: upload rejected files', () => {
   it('rejects a non-image content type', async () => {
     await assertFails(
-      uploadBytes(objectRef('media/articles/report.pdf'), fakeImageBytes(), {
+      uploadBytes(objectRef(`media/articles/${AUTHOR_UID}-report.pdf`), fakeImageBytes(), {
         contentType: 'application/pdf',
       }),
     );
@@ -97,7 +97,7 @@ describe('media/articles: upload rejected files', () => {
 
   it('rejects an image type outside the allow-list (gif)', async () => {
     await assertFails(
-      uploadBytes(objectRef('media/articles/anim.gif'), fakeImageBytes(), {
+      uploadBytes(objectRef(`media/articles/${AUTHOR_UID}-anim.gif`), fakeImageBytes(), {
         contentType: 'image/gif',
       }),
     );
@@ -105,7 +105,7 @@ describe('media/articles: upload rejected files', () => {
 
   it('rejects a file larger than 5 MiB', async () => {
     await assertFails(
-      uploadBytes(objectRef('media/articles/huge.jpg'), fakeImageBytes(FIVE_MIB + 1), {
+      uploadBytes(objectRef(`media/articles/${AUTHOR_UID}-huge.jpg`), fakeImageBytes(FIVE_MIB + 1), {
         contentType: 'image/jpeg',
       }),
     );
@@ -113,7 +113,7 @@ describe('media/articles: upload rejected files', () => {
 
   it('rejects an upload into a sub-folder of media/articles/', async () => {
     await assertFails(
-      uploadBytes(objectRef('media/articles/2026/photo.jpg'), fakeImageBytes(), {
+      uploadBytes(objectRef(`media/articles/2026/${AUTHOR_UID}-photo.jpg`), fakeImageBytes(), {
         contentType: 'image/jpeg',
       }),
     );
@@ -129,7 +129,7 @@ describe('media/articles: upload rejected files', () => {
 
   it('rejects an upload without a signed-in user', async () => {
     await assertFails(
-      uploadBytes(anonymousRef('media/articles/photo.jpg'), fakeImageBytes(), {
+      uploadBytes(anonymousRef(`media/articles/${AUTHOR_UID}-photo.jpg`), fakeImageBytes(), {
         contentType: 'image/jpeg',
       }),
     );
@@ -145,18 +145,39 @@ describe('media/articles: upload rejected files', () => {
 describe('media/articles: read and delete', () => {
   it('allows anyone, signed in or not, to download a thumbnail', async () => {
     await seedImage();
-    await assertSucceeds(getBytes(anonymousRef('media/articles/seed.jpg')));
-    await assertSucceeds(getBytes(objectRef('media/articles/seed.jpg')));
+    await assertSucceeds(getBytes(anonymousRef(`media/articles/${AUTHOR_UID}-seed.jpg`)));
+    await assertSucceeds(getBytes(objectRef(`media/articles/${AUTHOR_UID}-seed.jpg`)));
   });
 
-  it('allows a signed-in journalist to delete a thumbnail', async () => {
+  it('allows the owner to delete a thumbnail', async () => {
     await seedImage();
-    await assertSucceeds(deleteObject(objectRef('media/articles/seed.jpg')));
+    await assertSucceeds(deleteObject(objectRef(`media/articles/${AUTHOR_UID}-seed.jpg`)));
   });
 
   it('rejects a delete without a signed-in user', async () => {
     await seedImage();
-    await assertFails(deleteObject(anonymousRef('media/articles/seed.jpg')));
+    await assertFails(deleteObject(anonymousRef(`media/articles/${AUTHOR_UID}-seed.jpg`)));
+  });
+
+  it('rejects a thumbnail whose name does not start with the caller uid', async () => {
+    await assertFails(
+      uploadBytes(objectRef('media/articles/photo.jpg'), fakeImageBytes(), { contentType: 'image/jpeg' }),
+    );
+    await assertFails(
+      uploadBytes(objectRef(`media/articles/${OTHER_UID}-photo.jpg`), fakeImageBytes(), {
+        contentType: 'image/jpeg',
+      }),
+    );
+  });
+
+  it('lets nobody but the owner replace or delete a thumbnail', async () => {
+    const own = `media/articles/${AUTHOR_UID}-seed.jpg`;
+    const other = ref(testEnv.authenticatedContext(OTHER_UID).storage(), own);
+    await seedImage(own);
+    await assertFails(uploadBytes(other, fakeImageBytes(), { contentType: 'image/png' }));
+    await assertFails(deleteObject(other));
+    await assertSucceeds(getBytes(other));
+    await assertSucceeds(deleteObject(objectRef(own)));
   });
 
   it('denies reading objects outside media/articles/', async () => {

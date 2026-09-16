@@ -29,8 +29,9 @@ export function createTestEnvironment() {
   });
 }
 
-export function thumbnailUrlFor(fileName) {
-  const encodedPath = encodeURIComponent(`media/articles/${fileName}`);
+/** Download URL of a thumbnail the journalist owns (file names carry the uid). */
+export function thumbnailUrlFor(fileName, owner = AUTHOR_UID) {
+  const encodedPath = encodeURIComponent(`media/articles/${owner}-${fileName}`);
   return `https://firebasestorage.googleapis.com/v0/b/${BUCKET}/o/${encodedPath}?alt=media&token=test-token`;
 }
 
@@ -44,7 +45,7 @@ export function validArticle(overrides = {}) {
     authorId: AUTHOR_UID,
     category: 'general',
     thumbnailURL: thumbnailUrlFor('bike-lanes.jpg'),
-    thumbnailPath: 'media/articles/bike-lanes.jpg',
+    thumbnailPath: `media/articles/${AUTHOR_UID}-bike-lanes.jpg`,
     publishedAt: Timestamp.fromDate(new Date('2026-09-15T10:00:00Z')),
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),

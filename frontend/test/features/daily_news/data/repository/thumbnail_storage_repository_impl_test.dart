@@ -8,19 +8,24 @@ import 'package:news_app_clean_architecture/features/daily_news/data/data_source
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/thumbnail_storage_repository_impl.dart';
 
 import '../../../../helpers/fixtures.dart';
+import '../../../../helpers/mocks.dart';
 
 class MockThumbnailStorageService extends Mock implements ThumbnailStorageService {}
 
 void main() {
   late MockThumbnailStorageService service;
+  late MockAuthRepository auth;
   late ThumbnailStorageRepositoryImpl repository;
 
   setUp(() {
     service = MockThumbnailStorageService();
-    repository = ThumbnailStorageRepositoryImpl(service, random: Random(1));
+    auth = MockAuthRepository();
+    when(() => auth.currentUser).thenReturn(user);
+    repository = ThumbnailStorageRepositoryImpl(service, auth, random: Random(1));
   });
 
-  test('upload stores the file under media/articles with the right extension and type', () async {
+  test('upload stores the file under media/articles, named after the owner, with the right extension and type',
+      () async {
     when(() => service.upload(
           filePath: any(named: 'filePath'),
           objectPath: any(named: 'objectPath'),
@@ -34,9 +39,22 @@ void main() {
           objectPath: captureAny(named: 'objectPath'),
           contentType: 'image/png',
         )).captured.single as String;
-    expect(captured, matches(RegExp(r'^media/articles/\d+-[0-9a-f]{6}\.png$')));
+    expect(captured, matches(RegExp('^media/articles/${user.id}-\\d+-[0-9a-f]{6}\\.png\$')));
     expect(result.dataOrNull?.path, captured);
     expect(result.dataOrNull?.url, 'https://download/url?alt=media');
+  });
+
+  test('without a session nothing is uploaded', () async {
+    when(() => auth.currentUser).thenReturn(null);
+
+    final result = await repository.upload(buildImage());
+
+    expect(result.failureOrNull?.type, FailureType.unauthenticated);
+    verifyNever(() => service.upload(
+          filePath: any(named: 'filePath'),
+          objectPath: any(named: 'objectPath'),
+          contentType: any(named: 'contentType'),
+        ));
   });
 
   test('an invalid image is rejected before any upload', () async {
