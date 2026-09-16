@@ -98,11 +98,11 @@ flutter_native_splash:
   android_12:
     color: "#F3F2F2"
     color_dark: "#151413"
-    image: assets/launcher/headline_news_adaptive.png
+    image: assets/launcher/headline_news_splash.png
 
 flutter_launcher_icons:
   android: true
   ios: false
   image_path: assets/launcher/headline_news_legacy.png
-  adaptive_icon_background: "#F3F2F2"
+  adaptive_icon_background: "#201E1D"
   adaptive_icon_foreground: assets/launcher/headline_news_adaptive.png
