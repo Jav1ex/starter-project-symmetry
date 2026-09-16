@@ -50,12 +50,14 @@ service cloud.firestore {
     // https://firebasestorage.googleapis.com/v0/b/<bucket>/o/media%2Farticles%2Fphoto.jpg?alt=media&token=...
     function isArticleThumbnailUrl(value) {
       return value is string
-        && value.matches('^https://firebasestorage\\.googleapis\\.com/v0/b/[^/]+/o/media%2Farticles%2F[^/?]+\\?alt=media.*$');
+        && value.matches('^https://firebasestorage\\.googleapis\\.com/v0/b/[^/]+/o/media%2Farticles%2F'
+            + request.auth.uid + '-[^/?]+\\?alt=media.*$');
     }
 
-    // The plain Storage object path, one file directly inside media/articles/.
+    // The plain Storage object path: one file directly inside media/articles/,
+    // named after the caller so it matches what the Storage rules let them write.
     function isArticleThumbnailPath(value) {
-      return value is string && value.matches('^media/articles/[^/]+$');
+      return value is string && value.matches('^media/articles/' + request.auth.uid + '-[^/]+$');
     }
 
     // Either no thumbnail at all (both null) or a consistent URL + path pair.

@@ -17,12 +17,17 @@ service firebase.storage {
       return request.resource.size <= 5 * 1024 * 1024;
     }
 
-    // One file directly inside media/articles/; sub-folders are not allowed.
-    // Anyone can view a thumbnail; only signed-in journalists can write them.
+    // Thumbnails are named `{uid}-{anything}` so the file carries its owner:
+    // only that account can create, replace or delete it. One file directly
+    // inside media/articles/; sub-folders are not allowed. Anyone can view.
+    function isOwnThumbnail(fileName) {
+      return isSignedIn() && fileName.matches('^' + request.auth.uid + '-[^/]+$');
+    }
+
     match /media/articles/{fileName} {
       allow read: if true;
-      allow create, update: if isSignedIn() && isSupportedImage() && isWithinSizeLimit();
-      allow delete: if isSignedIn();
+      allow create, update: if isOwnThumbnail(fileName) && isSupportedImage() && isWithinSizeLimit();
+      allow delete: if isOwnThumbnail(fileName);
     }
 
     // Profile photos: one file per account, named after the uid, written

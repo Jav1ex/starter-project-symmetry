@@ -130,7 +130,7 @@ void _registerRepositories() {
     SavedArticleRepositoryImpl(sl<AppDatabase>().savedArticleDao, sl()),
   );
   sl.registerSingleton<UserArticleRepository>(UserArticleRepositoryImpl(sl()));
-  sl.registerSingleton<ThumbnailStorageRepository>(ThumbnailStorageRepositoryImpl(sl()));
+  sl.registerSingleton<ThumbnailStorageRepository>(ThumbnailStorageRepositoryImpl(sl(), sl()));
   sl.registerSingleton<ImagePickerRepository>(ImagePickerRepositoryImpl(sl()));
   sl.registerSingleton<ArticleAssistantRepository>(ArticleAssistantRepositoryImpl(sl()));
   sl.registerSingleton<SpeechRepository>(SpeechRepositoryImpl(sl()));

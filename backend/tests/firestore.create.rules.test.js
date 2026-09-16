@@ -186,6 +186,21 @@ describe('articles: create rejects invalid thumbnails', () => {
     );
   });
 
+  it('rejects a thumbnail that belongs to somebody else', async () => {
+    await assertFails(
+      setDoc(
+        articleRef(),
+        validArticle({
+          thumbnailURL: thumbnailUrlFor('photo.jpg', OTHER_UID),
+          thumbnailPath: `media/articles/${OTHER_UID}-photo.jpg`,
+        }),
+      ),
+    );
+    await assertFails(
+      setDoc(articleRef(), validArticle({ thumbnailPath: 'media/articles/photo.jpg' })),
+    );
+  });
+
   it('rejects a thumbnailPath with a nested sub-folder', async () => {
     await assertFails(
       setDoc(articleRef(), validArticle({ thumbnailPath: 'media/articles/2026/photo.jpg' })),

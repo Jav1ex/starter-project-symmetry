@@ -3,15 +3,6 @@
 // publishable article.
 
 export const TASKS = ['suggest', 'brief', 'plain'];
-export const CATEGORIES = [
-  'general',
-  'business',
-  'technology',
-  'science',
-  'health',
-  'sports',
-  'entertainment',
-];
 export const TITLE_MAX = 150;
 export const CONTENT_MAX = 20000;
 

@@ -6,7 +6,13 @@ import { ValidationError, validateRequest } from './validate.js';
 
 /** Fast and inexpensive: a phone should not wait on a long generation. */
 export const MODEL = 'claude-haiku-4-5-20251001';
-export const MAX_TOKENS = 4096;
+
+/**
+ * The plain rewrite keeps every fact of an article of up to CONTENT_MAX
+ * characters (about 5 000 tokens), so the answer needs about as much room
+ * as the input plus the JSON wrapper.
+ */
+export const MAX_TOKENS = 8192;
 
 export class AssistantError extends Error {
   /** @param {'unauthenticated'|'invalid-argument'|'resource-exhausted'|'unavailable'|'internal'} code */
