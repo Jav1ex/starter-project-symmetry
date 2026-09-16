@@ -51,7 +51,7 @@ class _ShrinkingWriteFabState extends State<ShrinkingWriteFab> {
 
   @override
   Widget build(BuildContext context) {
-    final duration = AppMotion.durationFor(context, AppMotion.medium);
+    final duration = AppMotion.durationFor(context, AppMotion.short);
     return AnimatedSlide(
       offset: _hidden ? const Offset(0, 2.2) : Offset.zero,
       duration: duration,

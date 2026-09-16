@@ -77,6 +77,10 @@ class BriefCubit extends Cubit<BriefState> {
   /// still knows the brief was read.
   void restart() => emit(BriefState(completedAt: state.completedAt));
 
+  /// Back to a fresh start, today's completion included: the next account
+  /// gets its own brief.
+  void reset() => emit(const BriefState());
+
   static List<ArticleEntity> _interleave(List<List<ArticleEntity>> lists) {
     final seen = <String>{};
     final out = <ArticleEntity>[];

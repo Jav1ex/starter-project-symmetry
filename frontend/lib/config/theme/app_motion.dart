@@ -16,7 +16,7 @@ abstract final class AppMotion {
   static const Duration feedStaggerTotal = Duration(milliseconds: 540);
   static const Duration shimmerPeriod = Duration(milliseconds: 1400);
   static const Duration skeletonDelay = Duration(milliseconds: 150);
-  static const Duration fabReextendIdle = Duration(milliseconds: 600);
+  static const Duration fabReextendIdle = Duration(milliseconds: 250);
   static const Duration bookmarkScale = Duration(milliseconds: 320);
 
   static const Curve standard = Curves.easeInOutCubicEmphasized;

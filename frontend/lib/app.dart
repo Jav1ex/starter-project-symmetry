@@ -67,6 +67,7 @@ class _DailyNewsAppState extends State<DailyNewsApp> {
         listener: (context, _) {
           context.read<SavedArticlesCubit>().reset();
           context.read<MyArticlesCubit>().reset();
+          context.read<BriefCubit>().reset();
         },
         child: BlocBuilder<SettingsCubit, SettingsState>(
           builder: (context, state) {

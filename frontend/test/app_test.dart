@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/app.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/welcome_screen.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/home_screen.dart';
@@ -82,6 +83,7 @@ void main() {
     await tester.pumpAndSettle();
     await shell.savedCubit.save(buildArticle());
     shell.myArticlesCubit.upsert(buildUserArticle(authorId: user.id));
+    shell.briefCubit.finish(DateTime.now());
     expect(shell.savedCubit.state.articles, isNotEmpty);
     expect(shell.myArticlesCubit.state.articles, isNotEmpty);
 
@@ -91,5 +93,6 @@ void main() {
 
     expect(shell.savedCubit.state, const SavedArticlesState());
     expect(shell.myArticlesCubit.state, const MyArticlesState());
+    expect(shell.briefCubit.state, const BriefState());
   });
 }

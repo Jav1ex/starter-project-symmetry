@@ -7,9 +7,10 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/shared/presentation/formatters/relative_time_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/media/hatched_plate.dart';
 
-/// One story of the brief: the photo (or hatched plate) edge to edge under
-/// a 2px paper frame, with the kicker, headline, teaser and the Read / Save
-/// blocks over a dark scrim at the foot.
+/// One story of the brief, laid out like a front page: the photo (or the
+/// hatched plate) as a plate on top, cropped only as much as the width
+/// demands, and under a rule the kicker, headline, teaser and the Read /
+/// Save blocks on ink. Framed in paper.
 class BriefStoryCard extends StatelessWidget {
   final ArticleEntity article;
   final bool isSaved;
@@ -37,10 +38,10 @@ class BriefStoryCard extends StatelessWidget {
     this.onListen,
   });
 
-  static const double photoDrift = 40;
-  static const double textDrift = -12;
+  static const double photoDrift = 24;
+  static const double textDrift = -8;
   static const Color _paper = Color(0xFFF3F2F2);
-  static const Color _scrim = Color(0xFF0B0A0A);
+  static const Color _ink = Color(0xFF151413);
 
   double _delta() {
     final controller = parallax;
@@ -63,45 +64,35 @@ class BriefStoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final frame = BorderSide(color: _paper.withValues(alpha: 0.9), width: AppRules.strong);
     return Container(
-      decoration: BoxDecoration(border: Border.fromBorderSide(frame)),
+      decoration: BoxDecoration(color: _ink, border: Border.all(color: _paper.withValues(alpha: 0.9), width: AppRules.strong)),
       clipBehavior: Clip.hardEdge,
-      child: Stack(
-        fit: StackFit.expand,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          _drifting(
-            context,
-            Transform.scale(
-              scale: 1.15,
-              child: article.hasImage
-                  ? CachedNetworkImage(
-                      imageUrl: article.imageUrl!,
-                      fit: BoxFit.cover,
-                      errorWidget: (_, _, _) => _Plate(article: article),
-                    )
-                  : _Plate(article: article),
-            ),
-            photoDrift,
-          ),
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                stops: const [0, 0.4, 1],
-                colors: [
-                  _scrim.withValues(alpha: 0.05),
-                  _scrim.withValues(alpha: 0.25),
-                  _scrim.withValues(alpha: 0.94),
-                ],
+          Expanded(
+            child: ClipRect(
+              child: _drifting(
+                context,
+                // A touch larger than the plate so the drift never shows an edge.
+                Transform.scale(
+                  scale: 1.05,
+                  child: article.hasImage
+                      ? CachedNetworkImage(
+                          imageUrl: article.imageUrl!,
+                          fit: BoxFit.cover,
+                          alignment: Alignment.center,
+                          errorWidget: (_, _, _) => _Plate(article: article),
+                        )
+                      : _Plate(article: article),
+                ),
+                photoDrift,
               ),
             ),
           ),
-          Positioned(
-            left: AppSpacing.screenMargin,
-            right: AppSpacing.screenMargin,
-            bottom: AppSpacing.screenMargin,
+          Container(
+            decoration: BoxDecoration(border: Border(top: BorderSide(color: _paper, width: AppRules.strong))),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.lg, AppSpacing.screenMargin, AppSpacing.screenMargin),
             child: _drifting(
               context,
               Column(
@@ -122,17 +113,17 @@ class BriefStoryCard extends StatelessWidget {
                   const SizedBox(height: AppSpacing.md),
                   Text(
                     article.title,
-                    maxLines: 4,
+                    maxLines: 3,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.briefCardHeadline.copyWith(color: _paper),
+                    style: AppTypography.briefCardHeadline.copyWith(color: _paper, fontSize: 24, height: 1.1),
                   ),
                   if (article.description case final teaser?) ...[
                     const SizedBox(height: AppSpacing.sm),
                     Text(
                       teaser,
-                      maxLines: 3,
+                      maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.bodySmall.copyWith(color: _paper.withValues(alpha: 0.85)),
+                      style: AppTypography.bodySmall.copyWith(color: _paper.withValues(alpha: 0.75)),
                     ),
                   ],
                   const SizedBox(height: AppSpacing.lg),
@@ -198,7 +189,7 @@ class _Plate extends StatelessWidget {
       pitch: 10,
       child: Text(
         article.category.label[0].toUpperCase(),
-        style: AppTypography.glyph(220, weight: FontWeight.w900).copyWith(color: const Color(0xFF201E1D).withValues(alpha: 0.25)),
+        style: AppTypography.glyph(160, weight: FontWeight.w900).copyWith(color: const Color(0xFF201E1D).withValues(alpha: 0.3)),
       ),
     );
   }
