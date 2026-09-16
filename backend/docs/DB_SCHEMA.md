@@ -140,9 +140,13 @@ never reaches the app.
 | `brief`     | `{ bullets: [up to 3] }`                                            |
 | `plain`     | `{ text: string }`                                                  |
 
-Callers must be signed in (`unauthenticated` otherwise). Bad input answers `invalid-argument`,
-model rate limits `resource-exhausted`, outages `unavailable`, and an unusable model answer
-`internal`. Run `npm test` inside `functions/` for the unit tests (validation, prompts and the
+Callers must be signed in (`unauthenticated` otherwise) and each account gets 40 calls per UTC
+day, counted in a transaction on `assistantUsage/{uid}` (a collection no client rule exposes);
+the 41st answers `resource-exhausted`, as do model rate limits. Bad input answers
+`invalid-argument`, outages `unavailable`, and an unusable model answer `internal`. The model may
+write up to 8 192 tokens, enough for the `plain` rewrite of a maximum-length article. App Check is
+not enforced yet: it needs the Android app registered with Play Integrity, which the review build
+does not have. Run `npm test` inside `functions/` for the unit tests (validation, prompts and the
 handler with a fake model client; no network).
 
 ## Upload flow

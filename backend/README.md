@@ -20,6 +20,26 @@ npm test
 `npm test` starts the Firestore and Storage emulators, runs every `tests/**/*.test.js` file and shuts the
 emulators down. Use `npm run test:watch` while editing rules.
 
+## Cloud Functions
+[`functions/`](./functions) holds one callable function, `assistArticle`, the editorial assistant
+behind *Ask the editor* and the reader lenses. It is the only code that talks to the language
+model; the key lives in the Firebase secret `ANTHROPIC_API_KEY` and every account gets a daily
+allowance of calls. The request and answer formats are in
+[docs/DB_SCHEMA.md](./docs/DB_SCHEMA.md#cloud-functions).
+
+```
+cd functions
+npm install
+npm test                                              # unit tests, no network
+firebase functions:secrets:set ANTHROPIC_API_KEY      # once per project
+firebase deploy --only functions
+```
+
+## Continuous integration
+Every pull request runs [`.github/workflows/ci.yml`](../.github/workflows/ci.yml): the Flutter
+analyzer and test suite with coverage, the function unit tests, and the rules tests against the
+emulators.
+
 ## Getting Started
 Before starting to work on the backend, you must have a Firebase project with the [Firebase Firestore](https://firebase.google.com/docs/firestore), [Firebase Cloud Storage](https://firebase.google.com/docs/storage) and [Firebase Local Emulator Suite](https://firebase.google.com/docs/emulator-suite) technologies enabled.
 To do this, create a project but enable only Firebase Cloud Storage, Firebase Firestore, and Firebase Local Emulator Suite technologies.
