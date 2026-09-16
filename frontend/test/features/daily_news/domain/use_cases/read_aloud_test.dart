@@ -1,7 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_speech_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/read_aloud.dart';
+
+import '../../../../helpers/in_memory_speech_repository.dart';
 
 void main() {
   late InMemorySpeechRepository speech;

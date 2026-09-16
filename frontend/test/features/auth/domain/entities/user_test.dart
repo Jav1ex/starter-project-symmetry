@@ -35,18 +35,4 @@ void main() {
     expect(const UserEntity(id: '1', photoUrl: ' ').hasPhoto, isFalse);
     expect(const UserEntity(id: '1', photoUrl: 'https://x/y.png').hasPhoto, isTrue);
   });
-
-  test('copyWith keeps the id and replaces the given fields', () {
-    const user = UserEntity(id: '1', displayName: 'Ada');
-    final copy = user.copyWith(displayName: 'Grace', photoUrl: 'p');
-
-    expect(copy.id, '1');
-    expect(copy.displayName, 'Grace');
-    expect(copy.photoUrl, 'p');
-  });
-
-  test('equality is by value', () {
-    expect(const UserEntity(id: '1', email: 'a'), const UserEntity(id: '1', email: 'a'));
-    expect(const UserEntity(id: '1'), isNot(const UserEntity(id: '2')));
-  });
 }

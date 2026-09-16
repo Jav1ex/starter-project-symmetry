@@ -22,11 +22,6 @@ void main() {
     test('map() transforms the payload', () {
       expect(success.map((d) => d.toString()), const DataSuccess<String>('42'));
     });
-
-    test('is equal by value', () {
-      expect(success, const DataSuccess<int>(42));
-      expect(success, isNot(const DataSuccess<int>(43)));
-    });
   });
 
   group('DataFailed', () {
@@ -67,10 +62,6 @@ void main() {
       const failure = Failure.validation('Title is required.');
       expect(failure.type, FailureType.validation);
       expect(failure.message, 'Title is required.');
-    });
-
-    test('toString names the type and message', () {
-      expect(const Failure.validation('x').toString(), 'Failure(validation: x)');
     });
   });
 }

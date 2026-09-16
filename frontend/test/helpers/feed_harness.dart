@@ -6,7 +6,6 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_speech_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/apply_article_lens.dart';
@@ -40,6 +39,7 @@ import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:provider/single_child_widget.dart';
 
 import 'fixtures.dart';
+import 'in_memory_speech_repository.dart';
 import 'pump_app.dart';
 
 class MockGetFeedUseCase extends Mock implements GetFeedUseCase {}
