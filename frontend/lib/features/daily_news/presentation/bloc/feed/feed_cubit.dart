@@ -33,12 +33,15 @@ class FeedCubit extends Cubit<FeedState> {
   }
 
   /// Pull-to-refresh: keeps the current articles on screen while reloading.
+  /// Counted like [load], so a refresh that lands after a newer load is
+  /// dropped instead of painting the old category over the new one.
   Future<void> refresh() async {
     final query = state.query;
     if (query == null) return;
+    final request = ++_requestCount;
 
     final result = await _getFeed(query);
-    if (isClosed) return;
+    if (isClosed || request != _requestCount) return;
 
     emit(switch (result) {
       DataSuccess(:final data) => FeedLoaded(query, data, loadedAt: DateTime.now()),

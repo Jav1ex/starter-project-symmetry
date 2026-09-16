@@ -8,7 +8,7 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/article_assistant_repository.dart';
-import 'package:news_app_clean_architecture/shared/data/mappers/firebase_failure_mapper.dart';
+import 'package:news_app_clean_architecture/shared/firebase/data/data_sources/firebase_failure_mapper.dart';
 
 class ArticleAssistantRepositoryImpl implements ArticleAssistantRepository {
   final AssistantFunctionsService _service;
@@ -48,15 +48,12 @@ class ArticleAssistantRepositoryImpl implements ArticleAssistantRepository {
     });
   }
 
-  Future<DataState<T>> _guard<T>(Future<T> Function() operation) async {
-    try {
-      return DataSuccess(await operation());
-    } on _EmptyAnswer {
-      return const DataFailed(Failure.server('The editor gave an empty answer. Try again.'));
-    } catch (error) {
-      return DataFailed(FirebaseFailureMapper.map(error));
-    }
-  }
+  Future<DataState<T>> _guard<T>(Future<T> Function() operation) => runGuarded(
+        operation,
+        onError: (error) => error is _EmptyAnswer
+            ? const Failure.server('The editor gave an empty answer. Try again.')
+            : FirebaseFailureMapper.map(error),
+      );
 }
 
 class _EmptyAnswer implements Exception {

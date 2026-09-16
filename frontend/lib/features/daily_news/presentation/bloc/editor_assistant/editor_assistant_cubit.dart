@@ -29,5 +29,9 @@ class EditorAssistantCubit extends Cubit<EditorAssistantState> {
     });
   }
 
-  void dismiss() => emit(const EditorAssistantState());
+  /// Called when the sheet closes, which can be after the screen is gone.
+  void dismiss() {
+    if (isClosed) return;
+    emit(const EditorAssistantState());
+  }
 }

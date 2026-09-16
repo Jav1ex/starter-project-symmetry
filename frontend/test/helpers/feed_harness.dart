@@ -44,7 +44,7 @@ class ShellHarness {
   final MockDeleteArticleUseCase deleteArticle = MockDeleteArticleUseCase();
   final MockPublishArticleUseCase publishArticle = MockPublishArticleUseCase();
   final MockUpdateArticleUseCase updateArticle = MockUpdateArticleUseCase();
-  final MockPickThumbnailUseCase pickThumbnail = MockPickThumbnailUseCase();
+  final MockPickImageUseCase pickImage = MockPickImageUseCase();
   final MockLoadDraftUseCase loadDraft = MockLoadDraftUseCase();
   final MockSaveDraftUseCase saveDraft = MockSaveDraftUseCase();
   final MockClearDraftUseCase clearDraft = MockClearDraftUseCase();
@@ -70,7 +70,7 @@ class ShellHarness {
     when(() => remove(any())).thenAnswer((_) async => const DataSuccess(null));
     when(() => getMyArticles(any())).thenAnswer((_) async => DataSuccess(myArticles));
     when(() => deleteArticle(any())).thenAnswer((_) async => const DataSuccess(null));
-    when(() => pickThumbnail(any())).thenAnswer((_) async => DataSuccess(buildImage()));
+    when(() => pickImage(any())).thenAnswer((_) async => DataSuccess(buildImage()));
     when(() => loadDraft(any())).thenAnswer((_) async => null);
     when(() => saveDraft(any())).thenAnswer((_) async => const DataSuccess(null));
     when(() => clearDraft(any())).thenAnswer((_) async => const DataSuccess(null));
@@ -112,7 +112,7 @@ class ShellHarness {
       (original, _) => PublishCubit(
         publishArticle,
         updateArticle,
-        pickThumbnail,
+        pickImage,
         loadDraft: loadDraft,
         saveDraft: saveDraft,
         clearDraft: clearDraft,

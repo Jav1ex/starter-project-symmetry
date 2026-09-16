@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
 
-/// Constraints for article thumbnails. They mirror `backend/storage.rules`.
-abstract final class ThumbnailLimits {
+/// Constraints for every image the app uploads (article thumbnails and
+/// profile photos). They mirror `backend/storage.rules`.
+abstract final class ImageLimits {
   static const int maxSizeInBytes = 5 * 1024 * 1024;
   static const Set<String> allowedMimeTypes = {
     'image/jpeg',
@@ -34,10 +35,10 @@ class LocalImage extends Equatable {
 
   List<ImageValidationError> validate() {
     final errors = <ImageValidationError>[];
-    if (!ThumbnailLimits.allowedMimeTypes.contains(mimeType.toLowerCase())) {
+    if (!ImageLimits.allowedMimeTypes.contains(mimeType.toLowerCase())) {
       errors.add(ImageValidationError.unsupportedType);
     }
-    if (sizeInBytes > ThumbnailLimits.maxSizeInBytes) {
+    if (sizeInBytes > ImageLimits.maxSizeInBytes) {
       errors.add(ImageValidationError.tooLarge);
     }
     return errors;
@@ -45,20 +46,13 @@ class LocalImage extends Equatable {
 
   bool get isValid => validate().isEmpty;
 
+  /// File extension a stored copy should carry, derived from the MIME type.
+  String get fileExtension => switch (mimeType.toLowerCase()) {
+        'image/png' => 'png',
+        'image/webp' => 'webp',
+        _ => 'jpg',
+      };
+
   @override
   List<Object?> get props => [path, mimeType, sizeInBytes];
-}
-
-/// Where an uploaded thumbnail lives.
-class ThumbnailReference extends Equatable {
-  /// Public download URL, used to render the image.
-  final String url;
-
-  /// Object path inside the storage bucket, used to delete or replace it.
-  final String path;
-
-  const ThumbnailReference({required this.url, required this.path});
-
-  @override
-  List<Object?> get props => [url, path];
 }

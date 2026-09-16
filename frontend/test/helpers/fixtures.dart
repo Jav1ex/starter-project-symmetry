@@ -1,8 +1,9 @@
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_draft.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/thumbnail_reference.dart';
 
 /// Test data builders. Every field has a sensible default so a test only
 /// spells out what matters to it.

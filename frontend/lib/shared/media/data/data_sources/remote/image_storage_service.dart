@@ -5,12 +5,12 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 
-/// Uploads and deletes files in Cloud Storage. Errors propagate as
-/// [FirebaseException]s.
-class ThumbnailStorageService {
+/// Uploads and deletes images in Cloud Storage (article thumbnails and
+/// profile photos). Errors propagate as [FirebaseException]s.
+class ImageStorageService {
   final FirebaseStorage _storage;
 
-  ThumbnailStorageService(this._storage);
+  ImageStorageService(this._storage);
 
   /// Uploads the file at [filePath] to [objectPath] and returns the download
   /// URL. The content type is stored so the Storage rules can check it.

@@ -70,11 +70,8 @@ abstract final class AppTypography {
 
   /// Large single glyphs: the mark's fallback letter, empty-state glyph,
   /// avatar initials, plate fallbacks. Sized by the widget, never ad hoc.
-  static TextStyle glyph(double size, {FontWeight weight = FontWeight.w800, bool italic = false}) {
-    return _style(size, size, weight: weight, letterSpacing: _em(size, -0.03)).copyWith(
-      fontStyle: italic ? FontStyle.italic : FontStyle.normal,
-    );
-  }
+  static TextStyle glyph(double size, {FontWeight weight = FontWeight.w800}) =>
+      _style(size, size, weight: weight, letterSpacing: _em(size, -0.03));
 
   /// Text at an explicit size for controls that are not part of the scale
   /// (the A- / A+ stepper, slider ends).

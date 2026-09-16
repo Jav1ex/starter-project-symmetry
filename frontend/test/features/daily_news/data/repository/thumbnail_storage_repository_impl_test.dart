@@ -4,21 +4,21 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/thumbnail_storage_service.dart';
+import 'package:news_app_clean_architecture/shared/media/data/data_sources/remote/image_storage_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/thumbnail_storage_repository_impl.dart';
 
 import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/mocks.dart';
 
-class MockThumbnailStorageService extends Mock implements ThumbnailStorageService {}
+class MockImageStorageService extends Mock implements ImageStorageService {}
 
 void main() {
-  late MockThumbnailStorageService service;
+  late MockImageStorageService service;
   late MockAuthRepository auth;
   late ThumbnailStorageRepositoryImpl repository;
 
   setUp(() {
-    service = MockThumbnailStorageService();
+    service = MockImageStorageService();
     auth = MockAuthRepository();
     when(() => auth.currentUser).thenReturn(user);
     repository = ThumbnailStorageRepositoryImpl(service, auth, random: Random(1));

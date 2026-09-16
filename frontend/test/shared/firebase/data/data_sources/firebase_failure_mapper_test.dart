@@ -4,7 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
-import 'package:news_app_clean_architecture/shared/data/mappers/firebase_failure_mapper.dart';
+import 'package:news_app_clean_architecture/shared/firebase/data/data_sources/firebase_failure_mapper.dart';
 
 void main() {
   FailureType typeOf(Object error) => FirebaseFailureMapper.map(error).type;

@@ -17,12 +17,11 @@ class AssistantFunctionsService {
   static AssistantFunctionsService forRegion() =>
       AssistantFunctionsService(FirebaseFunctions.instanceFor(region: region));
 
-  /// [task] is one of `suggest`, `brief`, `plain`, `translate`.
+  /// [task] is one of `suggest`, `brief`, `plain`.
   Future<Map<String, dynamic>> call({
     required String task,
     required String title,
     required String content,
-    String? language,
   }) async {
     final callable = _functions.httpsCallable(
       functionName,
@@ -32,7 +31,6 @@ class AssistantFunctionsService {
       'task': task,
       'title': title,
       'content': content,
-      'language': ?language,
     });
     return Map<String, dynamic>.from(result.data);
   }

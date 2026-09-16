@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -19,11 +19,11 @@ void main() {
     });
 
     test('accepts exactly the maximum size', () {
-      expect(buildImage(sizeInBytes: ThumbnailLimits.maxSizeInBytes).isValid, isTrue);
+      expect(buildImage(sizeInBytes: ImageLimits.maxSizeInBytes).isValid, isTrue);
     });
 
     test('rejects an image over the maximum size', () {
-      expect(buildImage(sizeInBytes: ThumbnailLimits.maxSizeInBytes + 1).validate(),
+      expect(buildImage(sizeInBytes: ImageLimits.maxSizeInBytes + 1).validate(),
           [ImageValidationError.tooLarge]);
     });
 

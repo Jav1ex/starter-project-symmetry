@@ -98,7 +98,7 @@ void main() {
     await tester.ensureVisible(find.text('Add a photo'));
     await tester.tap(find.text('Add a photo'));
     await tester.pumpAndSettle();
-    verify(() => harness.pickThumbnail(any())).called(1);
+    verify(() => harness.pickImage(any())).called(1);
 
     await tester.ensureVisible(find.text('Save changes'));
     await tester.tap(find.text('Save changes'));

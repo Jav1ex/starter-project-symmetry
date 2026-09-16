@@ -87,4 +87,24 @@ void main() {
 
     verify(() => getFeed(query)).called(2);
   });
+
+  test('a refresh that resolves after a newer load is dropped', () async {
+    final slow = Completer<DataState<FeedEntity>>();
+    when(() => getFeed(query)).thenAnswer((_) => slow.future);
+    await cubit.load(query).timeout(Duration.zero, onTimeout: () {});
+    slow.complete(DataSuccess(feed));
+    await pumpEventQueue();
+
+    final stale = Completer<DataState<FeedEntity>>();
+    when(() => getFeed(query)).thenAnswer((_) => stale.future);
+    final refreshing = cubit.refresh();
+    const sports = NewsQuery(category: NewsCategory.sports);
+    final fresh = FeedEntity(articles: [buildArticle(id: 'sports')]);
+    when(() => getFeed(sports)).thenAnswer((_) async => DataSuccess(fresh));
+    await cubit.load(sports);
+    stale.complete(const DataFailed(Failure.server()));
+    await refreshing;
+
+    expect(cubit.state, isA<FeedLoaded>().having((s) => s.feed, 'feed', fresh).having((s) => s.query, 'query', sports));
+  });
 }

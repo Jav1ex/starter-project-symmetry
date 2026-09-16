@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app_clean_architecture/config/routes/app_router.dart';
-import 'package:news_app_clean_architecture/config/theme/app_motion.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
@@ -160,79 +160,104 @@ class _FeedBody extends StatelessWidget {
   Widget build(BuildContext context) {
     final userId = context.select((SessionCubit cubit) => cubit.state.user?.id);
     return BlocBuilder<FeedCubit, FeedState>(
-      builder: (context, state) {
-        return SliverToBoxAdapter(
-          child: AnimatedSwitcher(
-            duration: AppMotion.durationFor(context, AppMotion.short),
-            child: KeyedSubtree(
-              key: ValueKey(state.runtimeType),
-              child: _body(context, state, userId),
+      builder: (context, state) => switch (state) {
+        FeedInitial() || FeedLoading() => const SliverToBoxAdapter(child: FeedSkeleton()),
+        FeedFailure(:final failure) => SliverToBoxAdapter(
+            child: FeedErrorCard(
+              message: FailureMessageFormatter.of(failure),
+              onRetry: () => context.read<FeedCubit>().load(state.query!),
             ),
           ),
-        );
+        FeedLoaded() when state.isEmpty => SliverToBoxAdapter(
+            child: EmptyState(
+              glyph: 'n',
+              title: 'Nothing new in ${state.query!.category.label} yet',
+              message: 'Try another category, or write the first story yourself.',
+              action: SecondaryButton(
+                label: 'Change category',
+                onPressed: context.pushDefaultCategoryPicker,
+              ),
+            ),
+          ),
+        FeedLoaded(:final feed, :final loadedAt) => _LoadedFeed(
+            feed: feed,
+            loadedAt: loadedAt,
+            userId: userId,
+            onRetry: () => context.read<FeedCubit>().load(state.query!),
+          ),
       },
     );
   }
+}
 
-  Widget _body(BuildContext context, FeedState state, String? userId) {
-    return switch (state) {
-      FeedInitial() || FeedLoading() => const FeedSkeleton(),
-      FeedFailure(:final failure) => FeedErrorCard(
-        message: FailureMessageFormatter.of(failure),
-        onRetry: () => context.read<FeedCubit>().load(state.query!),
-      ),
-      FeedLoaded() when state.isEmpty => EmptyState(
-        glyph: 'n',
-        title: 'Nothing new in ${state.query!.category.label} yet',
-        message: 'Try another category, or write the first story yourself.',
-        action: SecondaryButton(
-          label: 'Change category',
-          onPressed: context.pushDefaultCategoryPicker,
-        ),
-      ),
-      FeedLoaded(:final feed, :final loadedAt) => Column(
-        children: [
-          if (feed.remoteFailure case final failure?)
-            FeedErrorCard(
-              message:
-                  '${FailureMessageFormatter.of(failure)} '
-                  'Your own articles are still here below.',
-              onRetry: () => context.read<FeedCubit>().load(state.query!),
-            ),
-          if (feed.articles.isNotEmpty && feed.remoteFailure == null)
-            StaggeredEntrance(
-              key: ValueKey('feed-lead-${feed.articles.first.id}'),
-              index: 0,
-              child: FeedHero(
-                article: feed.articles.first,
-                isOwn: feed.articles.first.isOwnedBy(userId),
-                onTap: () => context.pushReader(feed.articles.first),
-              ),
-            ),
-          FeedSectionHeader(
-            title: feed.remoteFailure == null ? 'Latest' : 'Your articles',
-            count: feed.articles.length,
-            updatedAt: loadedAt,
-          ),
-          for (final (index, article) in feed.articles.indexed)
-            if (index > 0 || feed.remoteFailure != null)
-              StaggeredEntrance(
-                key: ValueKey('feed-${article.id}'),
-                index: index,
-                child: Column(
-                  children: [
-                    FeedItem(
-                      article: article,
-                      number: index + 1,
-                      isOwn: article.isOwnedBy(userId),
-                      onTap: () => context.pushReader(article),
-                    ),
-                    const Divider(),
-                  ],
+/// The lead story and the section header as one block, then the numbered
+/// rows built only as they scroll into view: a feed can hold a hundred
+/// articles and every row carries an image and an entrance animation.
+class _LoadedFeed extends StatelessWidget {
+  final FeedEntity feed;
+  final DateTime loadedAt;
+  final String? userId;
+  final VoidCallback onRetry;
+
+  const _LoadedFeed({required this.feed, required this.loadedAt, required this.userId, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final hasLead = feed.articles.isNotEmpty && feed.remoteFailure == null;
+    final rows = [
+      for (final (index, article) in feed.articles.indexed)
+        if (index > 0 || !hasLead) (index, article),
+    ];
+    return SliverMainAxisGroup(
+      slivers: [
+        SliverToBoxAdapter(
+          child: Column(
+            children: [
+              if (feed.remoteFailure case final failure?)
+                FeedErrorCard(
+                  message: '${FailureMessageFormatter.of(failure)} Your own articles are still here below.',
+                  onRetry: onRetry,
                 ),
+              if (hasLead)
+                StaggeredEntrance(
+                  key: ValueKey('feed-lead-${feed.articles.first.id}'),
+                  index: 0,
+                  child: FeedHero(
+                    article: feed.articles.first,
+                    isOwn: feed.articles.first.isOwnedBy(userId),
+                    onTap: () => context.pushReader(feed.articles.first),
+                  ),
+                ),
+              FeedSectionHeader(
+                title: feed.remoteFailure == null ? 'Latest' : 'Your articles',
+                count: feed.articles.length,
+                updatedAt: loadedAt,
               ),
-        ],
-      ),
-    };
+            ],
+          ),
+        ),
+        SliverList.builder(
+          itemCount: rows.length,
+          itemBuilder: (context, position) {
+            final (index, article) = rows[position];
+            return StaggeredEntrance(
+              key: ValueKey('feed-${article.id}'),
+              index: index,
+              child: Column(
+                children: [
+                  FeedItem(
+                    article: article,
+                    number: index + 1,
+                    isOwn: article.isOwnedBy(userId),
+                    onTap: () => context.pushReader(article),
+                  ),
+                  const Divider(),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
   }
 }

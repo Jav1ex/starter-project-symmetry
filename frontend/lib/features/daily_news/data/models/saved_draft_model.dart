@@ -1,4 +1,4 @@
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/saved_draft.dart';
 

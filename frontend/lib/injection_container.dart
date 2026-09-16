@@ -14,7 +14,6 @@ import 'package:news_app_clean_architecture/features/auth/data/repository/profil
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/profile_photo_repository.dart';
-import 'package:news_app_clean_architecture/features/auth/domain/use_cases/get_current_user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_email.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_google.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_out.dart';
@@ -28,11 +27,11 @@ import 'package:news_app_clean_architecture/features/auth/presentation/bloc/sign
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/local/app_database.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/article_firestore_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/assistant_functions_service.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/device/device_image_picker.dart';
+import 'package:news_app_clean_architecture/shared/media/data/data_sources/device/device_image_picker.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/device/device_speech_service.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/news_api_service.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/thumbnail_storage_service.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/repository/image_picker_repository_impl.dart';
+import 'package:news_app_clean_architecture/shared/media/data/data_sources/remote/image_storage_service.dart';
+import 'package:news_app_clean_architecture/shared/media/data/repository/image_picker_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/article_assistant_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/news_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/saved_article_repository_impl.dart';
@@ -41,7 +40,7 @@ import 'package:news_app_clean_architecture/features/daily_news/data/repository/
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/user_article_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/news_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/repository/image_picker_repository.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/repository/image_picker_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/article_assistant_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/saved_article_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/speech_repository.dart';
@@ -54,7 +53,6 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_my_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_saved_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_top_headlines.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/is_article_saved.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/load_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_draft.dart';
@@ -63,7 +61,7 @@ import 'package:news_app_clean_architecture/features/daily_news/data/data_source
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/draft_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/draft_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/read_aloud.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/use_cases/pick_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/remove_saved_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/search_articles.dart';
@@ -81,7 +79,6 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/features/settings/data/data_sources/local/settings_local_data_source.dart';
 import 'package:news_app_clean_architecture/features/settings/data/repository/settings_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/repository/settings_repository.dart';
-import 'package:news_app_clean_architecture/features/settings/domain/use_cases/get_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/save_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/use_cases/watch_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
@@ -105,7 +102,7 @@ Future<void> _registerDataSources() async {
   sl.registerSingleton<NewsApiService>(NewsApiService(sl()));
   sl.registerSingleton<DeviceImagePicker>(DeviceImagePicker(ImagePicker()));
   sl.registerSingleton<ArticleFirestoreService>(ArticleFirestoreService(FirebaseFirestore.instance));
-  sl.registerSingleton<ThumbnailStorageService>(ThumbnailStorageService(FirebaseStorage.instance));
+  sl.registerSingleton<ImageStorageService>(ImageStorageService(FirebaseStorage.instance));
   sl.registerSingleton<AssistantFunctionsService>(AssistantFunctionsService.forRegion());
   sl.registerSingleton<DeviceSpeechService>(DeviceSpeechService(FlutterTts()));
   await GoogleSignIn.instance.initialize();
@@ -150,8 +147,7 @@ void _registerArticleUseCases() {
   sl.registerSingleton<GetSavedArticlesUseCase>(GetSavedArticlesUseCase(sl()));
   sl.registerSingleton<SaveArticleUseCase>(SaveArticleUseCase(sl()));
   sl.registerSingleton<RemoveSavedArticleUseCase>(RemoveSavedArticleUseCase(sl()));
-  sl.registerSingleton<IsArticleSavedUseCase>(IsArticleSavedUseCase(sl()));
-  sl.registerSingleton<PickThumbnailUseCase>(PickThumbnailUseCase(sl()));
+  sl.registerSingleton<PickImageUseCase>(PickImageUseCase(sl()));
   sl.registerSingleton<LoadDraftUseCase>(LoadDraftUseCase(sl()));
   sl.registerSingleton<SaveDraftUseCase>(SaveDraftUseCase(sl()));
   sl.registerSingleton<ClearDraftUseCase>(ClearDraftUseCase(sl()));
@@ -166,7 +162,6 @@ void _registerArticleUseCases() {
 
 void _registerAuthUseCases() {
   sl.registerSingleton<WatchAuthStateUseCase>(WatchAuthStateUseCase(sl()));
-  sl.registerSingleton<GetCurrentUserUseCase>(GetCurrentUserUseCase(sl()));
   sl.registerSingleton<SignInWithEmailUseCase>(SignInWithEmailUseCase(sl()));
   sl.registerSingleton<SignUpWithEmailUseCase>(SignUpWithEmailUseCase(sl()));
   sl.registerSingleton<SignInWithGoogleUseCase>(SignInWithGoogleUseCase(sl()));
@@ -175,7 +170,6 @@ void _registerAuthUseCases() {
 }
 
 void _registerSettingsUseCases() {
-  sl.registerSingleton<GetSettingsUseCase>(GetSettingsUseCase(sl()));
   sl.registerSingleton<WatchSettingsUseCase>(WatchSettingsUseCase(sl()));
   sl.registerSingleton<SaveSettingsUseCase>(SaveSettingsUseCase(sl()));
 }

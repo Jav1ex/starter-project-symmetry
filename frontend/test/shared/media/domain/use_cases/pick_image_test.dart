@@ -3,8 +3,8 @@ import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/core/usecase/usecase.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/repository/image_picker_repository.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/repository/image_picker_repository.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/use_cases/pick_image.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -12,11 +12,11 @@ class MockImagePickerRepository extends Mock implements ImagePickerRepository {}
 
 void main() {
   late MockImagePickerRepository repository;
-  late PickThumbnailUseCase useCase;
+  late PickImageUseCase useCase;
 
   setUp(() {
     repository = MockImagePickerRepository();
-    useCase = PickThumbnailUseCase(repository);
+    useCase = PickImageUseCase(repository);
   });
 
   test('returns a valid picked image', () async {

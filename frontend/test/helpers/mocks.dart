@@ -20,7 +20,7 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_saved_articles.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_top_headlines.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/load_draft.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/use_cases/pick_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/remove_saved_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
@@ -85,7 +85,7 @@ class MockPublishArticleUseCase extends Mock implements PublishArticleUseCase {}
 
 class MockUpdateArticleUseCase extends Mock implements UpdateArticleUseCase {}
 
-class MockPickThumbnailUseCase extends Mock implements PickThumbnailUseCase {}
+class MockPickImageUseCase extends Mock implements PickImageUseCase {}
 
 class MockGetTopHeadlinesUseCase extends Mock implements GetTopHeadlinesUseCase {}
 

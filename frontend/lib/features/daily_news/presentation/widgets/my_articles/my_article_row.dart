@@ -29,7 +29,6 @@ class MyArticleRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    final scheduled = article.isScheduledAt(now);
     return InkWell(
       onTap: onTap,
       hoverColor: palette.surface,
@@ -51,7 +50,7 @@ class MyArticleRow extends StatelessWidget {
                         children: [
                           if (number != null)
                             Text('$number'.padLeft(2, '0'), style: AppTypography.numeral(11).copyWith(color: palette.primary)),
-                          _StatusBadge(scheduled: scheduled, date: article.publishedAt),
+                          const _StatusBadge(),
                         ],
                       ),
                       const SizedBox(height: 7),
@@ -84,23 +83,17 @@ class MyArticleRow extends StatelessWidget {
 }
 
 class _StatusBadge extends StatelessWidget {
-  final bool scheduled;
-  final DateTime date;
-
-  const _StatusBadge({required this.scheduled, required this.date});
+  const _StatusBadge();
 
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      color: scheduled ? palette.primaryContainer : palette.successContainer,
+      color: palette.successContainer,
       child: Text(
-        (scheduled ? 'Scheduled · ${DateFormat('d MMM').format(date)}' : 'Published').toUpperCase(),
-        style: AppTypography.overline.copyWith(
-          fontSize: 9.5,
-          color: scheduled ? palette.onPrimaryContainer : palette.onSuccessContainer,
-        ),
+        'PUBLISHED',
+        style: AppTypography.overline.copyWith(fontSize: 9.5, color: palette.onSuccessContainer),
       ),
     );
   }

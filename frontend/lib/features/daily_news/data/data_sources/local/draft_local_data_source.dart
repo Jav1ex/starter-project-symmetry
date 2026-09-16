@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:news_app_clean_architecture/features/daily_news/data/models/saved_draft_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,8 +8,18 @@ import 'package:shared_preferences/shared_preferences.dart';
 /// store; the scope (the account id) is part of the key.
 class DraftLocalDataSource {
   final SharedPreferences _preferences;
+  final bool Function(String path) _fileExists;
 
-  DraftLocalDataSource(this._preferences);
+  /// [fileExists] is only overridden by tests; on a device it asks the file
+  /// system, because the picker's copy of a photo can be cleaned up between
+  /// two visits to the Write screen.
+  DraftLocalDataSource(this._preferences, {bool Function(String path)? fileExists})
+      : _fileExists = fileExists ?? _existsOnDisk;
+
+  static bool _existsOnDisk(String path) => File(path).existsSync();
+
+  /// Whether the photo a draft points at is still on the device.
+  bool imageExists(String path) => _fileExists(path);
 
   static const String key = 'draft.article';
 

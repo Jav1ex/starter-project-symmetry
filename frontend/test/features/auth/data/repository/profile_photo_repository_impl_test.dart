@@ -3,18 +3,18 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/auth/data/repository/profile_photo_repository_impl.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/thumbnail_storage_service.dart';
+import 'package:news_app_clean_architecture/shared/media/data/data_sources/remote/image_storage_service.dart';
 
 import '../../../../helpers/fixtures.dart';
 
-class MockThumbnailStorageService extends Mock implements ThumbnailStorageService {}
+class MockImageStorageService extends Mock implements ImageStorageService {}
 
 void main() {
-  late MockThumbnailStorageService service;
+  late MockImageStorageService service;
   late ProfilePhotoRepositoryImpl repository;
 
   setUp(() {
-    service = MockThumbnailStorageService();
+    service = MockImageStorageService();
     repository = ProfilePhotoRepositoryImpl(service);
   });
 

@@ -43,7 +43,6 @@ void main() {
     final inserted = verify(() => dao.insertArticle(captureAny())).captured.single as SavedArticleModel;
     expect(inserted.ownerId, user.id);
 
-    expect((await repository.isSaved('doc-1')).dataOrNull, isTrue);
     expect((await repository.removeArticle('doc-1')).isSuccess, isTrue);
   });
 

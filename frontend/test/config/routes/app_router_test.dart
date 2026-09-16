@@ -41,7 +41,7 @@ void main() {
       () => SignUpCubit(MockSignUpWithEmailUseCase(), MockSignInWithGoogleUseCase()),
     );
     sl.registerFactoryParam<EditProfileCubit, UserEntity, void>(
-      (u, _) => EditProfileCubit(MockUpdateProfileUseCase(), harness.pickThumbnail, user: u),
+      (u, _) => EditProfileCubit(MockUpdateProfileUseCase(), harness.pickImage, user: u),
     );
     addTearDown(() {
       sl.unregister<SignInCubit>();

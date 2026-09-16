@@ -1,6 +1,6 @@
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 
-/// The `brief` / `plain` / `translate` answer of the assistant function.
+/// The `brief` / `plain` answer of the assistant function.
 class ArticleLensResultModel extends ArticleLensResult {
   const ArticleLensResultModel({required super.lens, super.bullets, super.text});
 

@@ -93,8 +93,6 @@ class PublishState extends Equatable {
     return null;
   }
 
-  bool isScheduledAt(DateTime now) => publishedAt.isAfter(now);
-
   ArticleDraft get draft => ArticleDraft(
         title: title,
         content: content,

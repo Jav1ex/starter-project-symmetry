@@ -7,13 +7,13 @@ import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/core/usecase/usecase.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_draft.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/saved_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/clear_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/load_draft.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
+import 'package:news_app_clean_architecture/shared/media/domain/use_cases/pick_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/update_article.dart';
@@ -30,7 +30,7 @@ part 'publish_state.dart';
 class PublishCubit extends Cubit<PublishState> {
   final PublishArticleUseCase _publishArticle;
   final UpdateArticleUseCase _updateArticle;
-  final PickThumbnailUseCase _pickThumbnail;
+  final PickImageUseCase _pickImage;
   final LoadDraftUseCase _loadDraft;
   final SaveDraftUseCase _saveDraft;
   final ClearDraftUseCase _clearDraft;
@@ -40,7 +40,7 @@ class PublishCubit extends Cubit<PublishState> {
   PublishCubit(
     this._publishArticle,
     this._updateArticle,
-    this._pickThumbnail, {
+    this._pickImage, {
     required LoadDraftUseCase loadDraft,
     required SaveDraftUseCase saveDraft,
     required ClearDraftUseCase clearDraft,
@@ -110,7 +110,7 @@ class PublishCubit extends Cubit<PublishState> {
   }
 
   Future<void> pickPhoto() async {
-    final result = await _pickThumbnail(const NoParams());
+    final result = await _pickImage(const NoParams());
     if (isClosed) return;
     switch (result) {
       case DataSuccess(:final data):

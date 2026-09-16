@@ -12,9 +12,8 @@ void main() {
   late InMemoryAuthRepository auth;
 
   Future<DraftRepositoryImpl> newRepository({bool photoExists = true}) async => DraftRepositoryImpl(
-        DraftLocalDataSource(await SharedPreferences.getInstance()),
+        DraftLocalDataSource(await SharedPreferences.getInstance(), fileExists: (_) => photoExists),
         auth,
-        fileExists: (_) => photoExists,
       );
 
   setUp(() async {

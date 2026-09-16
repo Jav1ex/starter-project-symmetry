@@ -5,9 +5,9 @@ import 'package:news_app_clean_architecture/features/daily_news/data/models/user
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/feed.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/user_article_repository.dart';
-import 'package:news_app_clean_architecture/shared/data/mappers/firebase_failure_mapper.dart';
+import 'package:news_app_clean_architecture/shared/firebase/data/data_sources/firebase_failure_mapper.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/thumbnail_reference.dart';
 
 class UserArticleRepositoryImpl implements UserArticleRepository {
   final ArticleFirestoreService _service;
@@ -104,15 +104,11 @@ class UserArticleRepositoryImpl implements UserArticleRepository {
         article.content.toLowerCase().contains(needle);
   }
 
-  Future<DataState<T>> _guard<T>(Future<T> Function() operation) async {
-    try {
-      return DataSuccess(await operation());
-    } on _NotFound {
-      return const DataFailed(Failure.notFound('Article not found.'));
-    } catch (error) {
-      return DataFailed(FirebaseFailureMapper.map(error));
-    }
-  }
+  Future<DataState<T>> _guard<T>(Future<T> Function() operation) => runGuarded(
+        operation,
+        onError: (error) =>
+            error is _NotFound ? const Failure.notFound('Article not found.') : FirebaseFailureMapper.map(error),
+      );
 }
 
 class _NotFound implements Exception {

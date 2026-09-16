@@ -17,14 +17,10 @@ import '../../../../helpers/pump_app.dart';
 
 void main() {
   final live = buildUserArticle(id: 'live', authorId: user.id).copyWith(title: 'Live story');
-  final scheduled = buildUserArticle(
-    id: 'sched',
-    authorId: user.id,
-    publishedAt: DateTime.now().add(const Duration(days: 2)),
-  ).copyWith(title: 'Future story');
+  final older = buildUserArticle(id: 'older', authorId: user.id).copyWith(title: 'Older story');
 
   Future<ShellHarness> pumpMyArticles(WidgetTester tester, {required String initial}) async {
-    final harness = ShellHarness(myArticles: [live, scheduled]);
+    final harness = ShellHarness(myArticles: [live, older]);
     useScreen(tester, const Size(600, 1600));
     await tester.pump();
     await pumpRoutedApp(
@@ -42,13 +38,12 @@ void main() {
     return harness;
   }
 
-  testWidgets('lists published and scheduled articles with their badges', (tester) async {
+  testWidgets('lists the articles with their badges', (tester) async {
     await pumpMyArticles(tester, initial: AppRoutes.myArticles);
 
     expect(find.text('02'), findsWidgets);
     expect(find.byType(MyArticleRow), findsNWidgets(2));
-    expect(find.text('PUBLISHED'), findsOneWidget);
-    expect(find.textContaining('SCHEDULED ·'), findsOneWidget);
+    expect(find.text('PUBLISHED'), findsNWidgets(2));
 
     await tester.tap(find.text('Edit').first);
     await tester.pumpAndSettle();

@@ -86,11 +86,13 @@ void main() {
       expect(result.failureOrNull?.type, FailureType.cancelled);
     });
 
-    test('does not swallow non-Dio exceptions', () {
+    test('an error that is not from the transport is still a failure, never a throw', () async {
       when(() => api.getTopHeadlines(category: any(named: 'category')))
           .thenThrow(StateError('bug'));
 
-      expect(repository.getTopHeadlines(const NewsQuery()), throwsStateError);
+      final result = await repository.getTopHeadlines(const NewsQuery());
+
+      expect(result.failureOrNull?.type, FailureType.unknown);
     });
   });
 

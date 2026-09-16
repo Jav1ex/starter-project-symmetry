@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/mappers/dio_failure_mapper.dart';
+import 'package:news_app_clean_architecture/features/daily_news/data/data_sources/remote/dio_failure_mapper.dart';
 
 void main() {
   final options = RequestOptions(path: '/');

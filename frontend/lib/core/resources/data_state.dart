@@ -24,17 +24,6 @@ sealed class DataState<T> extends Equatable {
         DataFailed(:final failure) => failure,
       };
 
-  /// Folds both outcomes into a single value.
-  R when<R>({
-    required R Function(T data) success,
-    required R Function(Failure failure) failure,
-  }) {
-    return switch (this) {
-      DataSuccess(:final data) => success(data),
-      DataFailed(failure: final f) => failure(f),
-    };
-  }
-
   /// Transforms the payload while preserving a failure untouched.
   DataState<R> map<R>(R Function(T data) transform) {
     return switch (this) {
@@ -60,4 +49,18 @@ final class DataFailed<T> extends DataState<T> {
 
   @override
   List<Object?> get props => [failure];
+}
+
+/// Runs [operation] and wraps its outcome: the value as a [DataSuccess], any
+/// thrown error as a [DataFailed] through [onError]. The one place where the
+/// data layer turns exceptions into failures.
+Future<DataState<T>> runGuarded<T>(
+  Future<T> Function() operation, {
+  required Failure Function(Object error) onError,
+}) async {
+  try {
+    return DataSuccess(await operation());
+  } catch (error) {
+    return DataFailed(onError(error));
+  }
 }

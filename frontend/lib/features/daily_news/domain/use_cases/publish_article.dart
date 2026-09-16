@@ -3,10 +3,10 @@ import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/core/usecase/usecase.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/local_image.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/thumbnail_storage_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/user_article_repository.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/thumbnail_reference.dart';
 
 /// Publishes a new article on behalf of the signed-in journalist.
 ///

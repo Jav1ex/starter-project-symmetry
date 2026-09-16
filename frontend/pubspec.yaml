@@ -88,8 +88,6 @@ flutter:
     - family: DM Sans
       fonts:
         - asset: assets/fonts/dmsans/DMSans-Variable.ttf
-        - asset: assets/fonts/dmsans/DMSans-Italic-Variable.ttf
-          style: italic
 
 flutter_native_splash:
   color: "#F3F2F2"

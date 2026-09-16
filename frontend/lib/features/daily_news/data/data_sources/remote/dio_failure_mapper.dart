@@ -3,9 +3,12 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 
-/// Translates transport errors from Dio into domain [Failure]s.
+/// Translates transport errors from Dio into domain [Failure]s. Lives with
+/// the data source because it is the only other place that knows Dio.
 abstract final class DioFailureMapper {
-  static Failure map(DioException exception) {
+  static Failure map(Object error) {
+    if (error is! DioException) return const Failure.unknown();
+    final exception = error;
     switch (exception.type) {
       case DioExceptionType.connectionTimeout:
       case DioExceptionType.sendTimeout:

@@ -20,7 +20,7 @@ void main() {
 
   late MockPublishArticleUseCase publish;
   late MockUpdateArticleUseCase update;
-  late MockPickThumbnailUseCase pick;
+  late MockPickImageUseCase pick;
   late MockLoadDraftUseCase loadDraft;
   late MockSaveDraftUseCase saveDraft;
   late MockClearDraftUseCase clearDraft;
@@ -32,7 +32,7 @@ void main() {
   setUp(() {
     publish = MockPublishArticleUseCase();
     update = MockUpdateArticleUseCase();
-    pick = MockPickThumbnailUseCase();
+    pick = MockPickImageUseCase();
     loadDraft = MockLoadDraftUseCase();
     saveDraft = MockSaveDraftUseCase();
     clearDraft = MockClearDraftUseCase();
