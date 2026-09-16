@@ -3,7 +3,7 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 
-/// Serif title and one-line subtitle that open every account form.
+/// Title in capitals and one-line subtitle that open every account form.
 class AuthFormHeader extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -16,7 +16,7 @@ class AuthFormHeader extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: AppTypography.display.copyWith(color: palette.ink)),
+        Text(title.toUpperCase(), style: AppTypography.tabTitle.copyWith(color: palette.ink)),
         const SizedBox(height: AppSpacing.sm),
         Text(subtitle, style: AppTypography.bodySmall.copyWith(color: palette.inkBody)),
       ],

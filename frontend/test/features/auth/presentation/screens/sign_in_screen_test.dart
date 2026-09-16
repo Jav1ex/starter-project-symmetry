@@ -139,7 +139,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    await tester.tap(find.text('Back'));
+    await tester.tap(find.text('BACK'));
     await tester.pumpAndSettle();
     expect(locationOf(router), AppRoutes.welcome);
 
@@ -162,6 +162,6 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('Welcome back'), findsOneWidget);
+    expect(find.text('WELCOME BACK'), findsOneWidget);
   });
 }

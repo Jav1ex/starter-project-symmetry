@@ -13,18 +13,18 @@ void main() {
     return (container.decoration as BoxDecoration).color!;
   }
 
-  testWidgets('without a photo it shows initials on the lilac container for the current user',
+  testWidgets('without a photo it shows initials on the ink block for the current user',
       (tester) async {
     await pumpApp(tester, const UserAvatar(name: 'Miriam Hale', isCurrentUser: true));
 
     expect(find.text('MH'), findsOneWidget);
-    expect(backgroundOfInitials(tester), AppPalette.light.primaryContainer);
+    expect(backgroundOfInitials(tester), AppPalette.light.accent);
   });
 
-  testWidgets('other authors get the outline tint', (tester) async {
+  testWidgets('other authors get the surface tone', (tester) async {
     await pumpApp(tester, const UserAvatar(name: 'Miriam Hale'));
 
-    expect(backgroundOfInitials(tester), AppPalette.light.tint);
+    expect(backgroundOfInitials(tester), AppPalette.light.surface);
   });
 
   testWidgets('a blank photo url counts as no photo', (tester) async {

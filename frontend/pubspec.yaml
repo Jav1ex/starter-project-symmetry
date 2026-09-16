@@ -86,24 +86,24 @@ flutter:
     - assets/images/brand/
 
   fonts:
-    - family: Newsreader
+    - family: DM Sans
       fonts:
-        - asset: assets/fonts/newsreader/Newsreader-Variable.ttf
-        - asset: assets/fonts/newsreader/Newsreader-Italic-Variable.ttf
+        - asset: assets/fonts/dmsans/DMSans-Variable.ttf
+        - asset: assets/fonts/dmsans/DMSans-Italic-Variable.ttf
           style: italic
 
 flutter_native_splash:
-  color: "#F7F3EC"
-  color_dark: "#121416"
+  color: "#F3F2F2"
+  color_dark: "#151413"
   image: assets/images/brand/headline_news.png
   android_12:
-    color: "#F7F3EC"
-    color_dark: "#121416"
+    color: "#F3F2F2"
+    color_dark: "#151413"
     image: assets/launcher/headline_news_adaptive.png
 
 flutter_launcher_icons:
   android: true
   ios: false
   image_path: assets/launcher/headline_news_legacy.png
-  adaptive_icon_background: "#F7F3EC"
+  adaptive_icon_background: "#F3F2F2"
   adaptive_icon_foreground: assets/launcher/headline_news_adaptive.png

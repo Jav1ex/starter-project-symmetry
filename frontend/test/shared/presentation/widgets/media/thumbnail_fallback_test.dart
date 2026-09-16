@@ -8,7 +8,7 @@ void main() {
   testWidgets('shows the category initial at 46% of the tile', (tester) async {
     await pumpApp(
       tester,
-      const Center(child: ThumbnailFallback(categoryLabel: 'technology', size: 100, borderRadius: 12)),
+      const Center(child: ThumbnailFallback(categoryLabel: 'technology', size: 100)),
     );
 
     final text = tester.widget<Text>(find.text('T'));
@@ -19,7 +19,7 @@ void main() {
   testWidgets('an empty label falls back to N', (tester) async {
     await pumpApp(
       tester,
-      const ThumbnailFallback(categoryLabel: '', size: 96, borderRadius: 12),
+      const ThumbnailFallback(categoryLabel: '', size: 96),
     );
 
     expect(find.text('N'), findsOneWidget);

@@ -46,7 +46,7 @@ void main() {
 
     await tester.tap(find.text('Edit profile'));
     await tester.pumpAndSettle();
-    expect(find.text('Edit profile'), findsOneWidget);
+    expect(find.text('EDIT PROFILE'), findsOneWidget);
     final save = find.widgetWithText(FilledButton, 'Save changes');
     expect(tester.widget<FilledButton>(save).enabled, isFalse);
 

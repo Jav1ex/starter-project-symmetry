@@ -3,7 +3,7 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 
-/// Hairline with the word "or" in the middle.
+/// Two rules with the word "or" in small capitals between them.
 class OrDivider extends StatelessWidget {
   const OrDivider({super.key});
 
@@ -15,7 +15,7 @@ class OrDivider extends StatelessWidget {
         Expanded(child: Divider(color: palette.outlineStrong)),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-          child: Text('or', style: AppTypography.caption.copyWith(color: palette.inkSecondary)),
+          child: Text('OR', style: AppTypography.overline.copyWith(color: palette.inkSecondary)),
         ),
         Expanded(child: Divider(color: palette.outlineStrong)),
       ],

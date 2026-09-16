@@ -7,11 +7,11 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/labels/c
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  testWidgets('upper-cases the category in the primary colour', (tester) async {
+  testWidgets('upper-cases the category in deep red', (tester) async {
     await pumpApp(tester, const CategoryLabel(category: NewsCategory.technology));
 
     final text = tester.widget<Text>(find.text('TECHNOLOGY'));
-    expect(text.style?.color, AppPalette.light.primary);
+    expect(text.style?.color, AppPalette.light.primaryDeep);
   });
 
   testWidgets('accepts a colour override for dark surfaces', (tester) async {

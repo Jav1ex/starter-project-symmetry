@@ -63,10 +63,40 @@ class _ReaderScreenState extends State<ReaderScreen> {
   }
 }
 
-class ReaderView extends StatelessWidget {
+class ReaderView extends StatefulWidget {
   final ArticleEntity article;
 
   const ReaderView({super.key, required this.article});
+
+  @override
+  State<ReaderView> createState() => _ReaderViewState();
+}
+
+class _ReaderViewState extends State<ReaderView> {
+  final ScrollController _scroll = ScrollController();
+
+  /// How far down the article the reader is, 0..1, for the red bar on top.
+  final ValueNotifier<double> _progress = ValueNotifier(0);
+
+  ArticleEntity get article => widget.article;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll.addListener(_onScroll);
+  }
+
+  void _onScroll() {
+    final max = _scroll.position.maxScrollExtent;
+    _progress.value = max <= 0 ? 0 : (_scroll.offset / max).clamp(0, 1);
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    _progress.dispose();
+    super.dispose();
+  }
 
   Future<void> _delete(BuildContext context) async {
     final myArticles = context.read<MyArticlesCubit>();
@@ -94,15 +124,18 @@ class ReaderView extends StatelessWidget {
     final isListening = context.select((ListenCubit cubit) => cubit.isReading(article.id) && cubit.state.isSpeaking);
     final lens = context.watch<ReaderLensCubit>().state;
 
+    final rule = BorderSide(color: palette.outlineStrong, width: AppRules.strong);
     return Scaffold(
+      extendBody: true,
       body: Stack(
         children: [
           ListView(
+            controller: _scroll,
             padding: EdgeInsets.zero,
             children: [
               ReaderHero(article: article),
               Padding(
-                padding: const EdgeInsets.all(AppSpacing.xxl),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.lg, AppSpacing.screenMargin, 0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -115,55 +148,85 @@ class ReaderView extends StatelessWidget {
                         if (isOwn) const YouBadge(),
                       ],
                     ),
-                    const SizedBox(height: AppSpacing.lg),
+                    const SizedBox(height: AppSpacing.md),
                     Text(article.title, style: AppTypography.readerTitle.copyWith(color: palette.ink)),
                     const SizedBox(height: AppSpacing.lg),
-                    Row(
-                      children: [
-                        UserAvatar(name: article.author, size: 40, isCurrentUser: isOwn),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                isOwn ? '${article.author} (you)' : article.author,
-                                style: AppTypography.label.copyWith(color: palette.ink),
-                              ),
-                              Text(
-                                '${RelativeTimeFormatter.published(article.publishedAt)} · '
-                                '${article.readingTimeMinutes} min read',
-                                style: AppTypography.caption.copyWith(color: palette.inkSecondary),
-                              ),
-                            ],
+                    Container(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                      decoration: BoxDecoration(border: Border(bottom: rule)),
+                      child: Row(
+                        children: [
+                          UserAvatar(name: article.author, size: 36, isCurrentUser: true),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isOwn ? '${article.author} (you)' : article.author,
+                                  style: AppTypography.label.copyWith(
+                                    color: palette.ink,
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 13.5,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  '${RelativeTimeFormatter.published(article.publishedAt)} · '
+                                          '${article.readingTimeMinutes} min read'
+                                      .toUpperCase(),
+                                  style: AppTypography.caption.copyWith(color: palette.inkSecondary),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                    const SizedBox(height: AppSpacing.lg),
-                    ReaderLensBar(
-                      active: lens.active,
-                      loading: lens.loading,
-                      onToggle: context.read<ReaderLensCubit>().toggle,
-                    ),
+                  ],
+                ),
+              ),
+              ReaderLensBar(
+                active: lens.active,
+                loading: lens.loading,
+                onToggle: context.read<ReaderLensCubit>().toggle,
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.xl, AppSpacing.screenMargin, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     if (lens.failure case final failure?) ...[
-                      const SizedBox(height: AppSpacing.sm),
                       Text(
                         FailureMessageFormatter.of(failure),
                         style: AppTypography.caption.copyWith(color: palette.error),
                       ),
+                      const SizedBox(height: AppSpacing.md),
                     ],
-                    const SizedBox(height: AppSpacing.xxl),
                     ReaderLensBody(
                       original: article.content,
                       result: lens.current,
                       isLoading: lens.isLoading,
                     ),
-                    const SizedBox(height: AppSizes.readerBar + AppSpacing.xxl),
+                    SizedBox(height: AppSizes.readerBar + MediaQuery.paddingOf(context).bottom + AppSpacing.huge),
                   ],
                 ),
               ),
             ],
+          ),
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ValueListenableBuilder<double>(
+              valueListenable: _progress,
+              builder: (context, value, _) => LinearProgressIndicator(
+                value: value,
+                minHeight: AppRules.indicator,
+                backgroundColor: palette.outline,
+                color: palette.primary,
+              ),
+            ),
           ),
           if (isOwn)
             Positioned(
@@ -185,8 +248,7 @@ class ReaderView extends StatelessWidget {
                 builder: (context, controller, _) => LabeledIconButton(
                   icon: Icons.more_horiz_rounded,
                   label: 'More',
-                  color: article.hasImage ? Colors.white : palette.primary,
-                  backgroundColor: article.hasImage ? palette.ink.withValues(alpha: 0.35) : palette.surface,
+                  backgroundColor: palette.glass,
                   onPressed: () => controller.isOpen ? controller.close() : controller.open(),
                 ),
               ),
@@ -196,8 +258,7 @@ class ReaderView extends StatelessWidget {
             left: AppSpacing.lg,
             child: LabeledIconButton.back(
               onPressed: () => Navigator.of(context).pop(),
-              color: article.hasImage ? Colors.white : palette.primary,
-              backgroundColor: article.hasImage ? palette.ink.withValues(alpha: 0.35) : palette.surface,
+              backgroundColor: palette.glass,
             ),
           ),
         ],

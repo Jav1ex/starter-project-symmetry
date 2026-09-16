@@ -34,16 +34,16 @@ void main() {
     expect(find.text('Body text of the story.'), findsOneWidget);
     expect(find.byType(YouBadge), findsOneWidget);
     expect(find.textContaining('(you)'), findsOneWidget);
-    expect(find.text('Save'), findsOneWidget);
+    expect(find.text('SAVE'), findsOneWidget);
 
-    await tester.tap(find.text('Save'));
+    await tester.tap(find.text('SAVE'));
     await tester.pumpAndSettle();
-    expect(find.text('Saved'), findsOneWidget);
+    expect(find.text('SAVED'), findsOneWidget);
     verify(() => harness.save(article)).called(1);
 
-    await tester.tap(find.text('Saved'));
+    await tester.tap(find.text('SAVED'));
     await tester.pumpAndSettle();
-    expect(find.text('Save'), findsOneWidget);
+    expect(find.text('SAVE'), findsOneWidget);
     verify(() => harness.remove(article.id)).called(1);
 
     await tester.tap(find.text('A+'));
@@ -73,12 +73,12 @@ void main() {
     await tester.tap(find.text('Brief it'));
     await tester.pumpAndSettle();
     expect(find.text('First fact'), findsOneWidget);
-    expect(find.textContaining('Written by AI'), findsOneWidget);
+    expect(find.textContaining('WRITTEN BY AI'), findsOneWidget);
     expect(find.text('Long original body text.'), findsNothing);
 
-    await tester.tap(find.text('Listen'));
+    await tester.tap(find.text('LISTEN'));
     await tester.pumpAndSettle();
-    expect(find.text('Pause'), findsOneWidget);
+    expect(find.text('PAUSE'), findsOneWidget);
     expect(harness.speech.spoken.single, 'Tram strike. First fact. Second fact. Third fact');
 
     await tester.tap(find.text('Brief it'));

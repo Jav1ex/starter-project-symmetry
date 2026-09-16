@@ -35,19 +35,19 @@ void main() {
 
   testWidgets('idle shows topics; typing searches, highlights and lists results', (tester) async {
     final harness = await pumpSearch(tester);
-    expect(find.text('Browse a topic'), findsOneWidget);
+    expect(find.text('SECTIONS'), findsOneWidget);
 
     await tester.enterText(find.byType(TextField), 'tram');
     await tester.pumpAndSettle();
 
     verify(() => harness.searchArticles('tram')).called(1);
-    expect(find.text('1 result'), findsOneWidget);
+    expect(find.text('1 RESULT'), findsOneWidget);
     final highlighted = tester.widget<HighlightedText>(find.byType(HighlightedText).first);
     expect(highlighted.query, 'tram');
 
     await tester.tap(find.text('Clear'));
     await tester.pumpAndSettle();
-    expect(find.text('Recent'), findsOneWidget);
+    expect(find.text('RECENT'), findsOneWidget);
     expect(find.text('tram'), findsOneWidget);
 
   });

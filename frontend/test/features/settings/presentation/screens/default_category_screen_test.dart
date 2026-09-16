@@ -33,7 +33,7 @@ void main() {
     await tester.tap(find.text('open'));
     await tester.pumpAndSettle();
 
-    expect(find.text('Default category'), findsOneWidget);
+    expect(find.text('DEFAULT CATEGORY'), findsOneWidget);
     for (final category in NewsCategory.values) {
       expect(find.text(category.label), findsOneWidget);
     }

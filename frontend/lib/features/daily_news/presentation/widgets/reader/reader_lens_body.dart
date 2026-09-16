@@ -6,9 +6,9 @@ import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/skeleton/skeleton_box.dart';
 
-/// The article body as the active lens shows it: the original text, a
-/// loading skeleton, three bullets, or a rewritten text, crossfading
-/// between them.
+/// The article body as the active lens shows it: the original text opened
+/// by a red initial, a loading skeleton, three bullets between rules, or a
+/// rewritten text, crossfading between them.
 class ReaderLensBody extends StatelessWidget {
   final String original;
   final ArticleLensResult? result;
@@ -25,7 +25,7 @@ class ReaderLensBody extends StatelessWidget {
         child: isLoading
             ? const _Skeleton()
             : result == null
-                ? _Body(original)
+                ? _Body(original, initial: true)
                 : _LensView(result: result!),
       ),
     );
@@ -35,11 +35,33 @@ class ReaderLensBody extends StatelessWidget {
 class _Body extends StatelessWidget {
   final String text;
 
-  const _Body(this.text);
+  /// Sets the first letter large and red, the way a lead paragraph opens.
+  final bool initial;
+
+  const _Body(this.text, {this.initial = false});
 
   @override
-  Widget build(BuildContext context) =>
-      Text(text, style: AppTypography.body.copyWith(color: context.palette.inkBody));
+  Widget build(BuildContext context) {
+    final palette = context.palette;
+    final style = AppTypography.body.copyWith(color: palette.inkBody);
+    final trimmed = text.trimLeft();
+    if (!initial || trimmed.isEmpty) return Text(text, style: style);
+    return Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: trimmed.characters.first,
+            style: AppTypography.glyph(style.fontSize! * 2.4, weight: FontWeight.w900).copyWith(
+              color: palette.primary,
+              height: 0.8,
+            ),
+          ),
+          TextSpan(text: trimmed.characters.skip(1).toString()),
+        ],
+      ),
+      style: style,
+    );
+  }
 }
 
 class _LensView extends StatelessWidget {
@@ -55,23 +77,32 @@ class _LensView extends StatelessWidget {
       children: [
         if (result.bullets.isNotEmpty)
           Container(
-            padding: const EdgeInsets.all(AppSpacing.cardPadding),
             decoration: BoxDecoration(
-              color: palette.tint,
-              borderRadius: BorderRadius.circular(AppRadius.card),
+              border: Border(top: BorderSide(color: palette.ink, width: AppRules.strong)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 for (final bullet in result.bullets)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    decoration: BoxDecoration(
+                      border: Border(bottom: BorderSide(color: palette.outline, width: AppRules.strong)),
+                    ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.circle, size: 8, color: palette.primary),
+                        Padding(
+                          padding: const EdgeInsets.only(top: 9),
+                          child: Container(width: 7, height: 7, color: palette.primary),
+                        ),
                         const SizedBox(width: AppSpacing.md),
-                        Expanded(child: Text(bullet, style: AppTypography.body.copyWith(color: palette.ink))),
+                        Expanded(
+                          child: Text(
+                            bullet,
+                            style: AppTypography.body.copyWith(color: palette.ink, fontWeight: FontWeight.w600),
+                          ),
+                        ),
                       ],
                     ),
                   ),
@@ -83,11 +114,11 @@ class _LensView extends StatelessWidget {
         const SizedBox(height: AppSpacing.lg),
         Row(
           children: [
-            Icon(Icons.auto_awesome_rounded, size: 16, color: palette.accent),
+            Icon(Icons.auto_awesome_rounded, size: 14, color: palette.primary),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Text(
-                'Written by AI from the original · tap ${result.lens.label} again to go back',
+                'Written by AI from the original · tap ${result.lens.label} again to go back'.toUpperCase(),
                 style: AppTypography.captionSmall.copyWith(color: palette.inkSecondary),
               ),
             ),

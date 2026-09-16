@@ -9,6 +9,7 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/home_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_error_card.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_hero.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_item.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_skeleton.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
@@ -52,10 +53,11 @@ void main() {
 
     await tester.pumpAndSettle();
 
-    expect(find.textContaining(', Ada'), findsOneWidget);
-    expect(find.byType(FeedItem), findsNWidgets(2));
+    expect(find.textContaining(', ADA'), findsOneWidget);
+    expect(find.byType(FeedHero), findsOneWidget);
+    expect(find.byType(FeedItem), findsOneWidget);
     expect(find.byType(YouBadge), findsOneWidget);
-    expect(find.text('Latest'), findsOneWidget);
+    expect(find.text('LATEST'), findsOneWidget);
   });
 
   testWidgets('tapping a row opens the reader', (tester) async {
@@ -98,7 +100,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(FeedErrorCard), findsOneWidget);
-    expect(find.text('Your articles'), findsOneWidget);
+    expect(find.text('YOUR ARTICLES'), findsOneWidget);
     expect(find.byType(FeedItem), findsOneWidget);
   });
 
@@ -114,6 +116,6 @@ void main() {
     await tester.tap(find.text('Try again'));
     await tester.pumpAndSettle();
 
-    expect(find.byType(FeedItem), findsOneWidget);
+    expect(find.byType(FeedHero), findsOneWidget);
   });
 }

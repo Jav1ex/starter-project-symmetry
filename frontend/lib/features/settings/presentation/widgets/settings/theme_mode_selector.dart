@@ -4,7 +4,8 @@ import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 
-/// "Theme" row with a three-way segmented control.
+/// "Theme" block with three cells in a 2px frame; the chosen one is printed
+/// in ink.
 class ThemeModeSelector extends StatelessWidget {
   final AppThemeMode selected;
   final ValueChanged<AppThemeMode> onChanged;
@@ -25,11 +26,11 @@ class ThemeModeSelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     return Padding(
-      padding: const EdgeInsets.all(AppSpacing.xl),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.md, AppSpacing.screenMargin, AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Theme', style: AppTypography.body.copyWith(color: palette.ink)),
+          Text('Theme', style: AppTypography.valueLine.copyWith(color: palette.ink, fontSize: 16)),
           const SizedBox(height: AppSpacing.md),
           SegmentedButton<AppThemeMode>(
             showSelectedIcon: false,

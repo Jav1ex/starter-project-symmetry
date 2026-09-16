@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
+import 'package:news_app_clean_architecture/core/constants/app_info.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/relative_time_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/media/user_avatar.dart';
 
-/// Greeting by time of day, today's date and the account avatar button.
+/// The masthead: the wordmark set large, the account avatar on the right,
+/// and under them the dateline (greeting and today's date in small capitals
+/// behind a red square).
 class HomeHeader extends StatelessWidget {
   final UserEntity user;
   final DateTime now;
@@ -22,49 +25,70 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(
-        AppSpacing.xxl,
-        AppSpacing.lg,
-        AppSpacing.xxl,
-        AppSpacing.sm,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '${RelativeTimeFormatter.greeting(now)}, ${user.firstName}',
-                  style: AppTypography.headline.copyWith(color: palette.ink),
+    final words = AppInfo.name.split(' ');
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.md, AppSpacing.screenMargin, 0),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Expanded(
+                child: Text(
+                  words.join('\n').toUpperCase(),
+                  style: AppTypography.wordmark.copyWith(color: palette.ink),
                 ),
-                const SizedBox(height: AppSpacing.xs),
-                Text(
-                  RelativeTimeFormatter.longDate(now),
-                  style: AppTypography.bodySmall.copyWith(color: palette.inkSecondary),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: AppSpacing.lg),
-          Semantics(
-            button: true,
-            label: 'Account',
-            child: InkWell(
-              onTap: onAvatarTap,
-              customBorder: const CircleBorder(),
-              child: UserAvatar(
-                name: user.preferredName,
-                photoUrl: user.photoUrl,
-                size: AppSizes.touchTarget,
-                isCurrentUser: true,
               ),
-            ),
+              const SizedBox(width: AppSpacing.md),
+              Semantics(
+                button: true,
+                label: 'Account',
+                child: InkWell(
+                  onTap: onAvatarTap,
+                  child: UserAvatar(
+                    name: user.preferredName,
+                    photoUrl: user.photoUrl,
+                    size: 40,
+                    isCurrentUser: true,
+                    ringed: true,
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        ),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.sm, AppSpacing.screenMargin, AppSpacing.md),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(width: 7, height: 7, color: palette.primary),
+              const SizedBox(width: AppSpacing.sm),
+              Flexible(
+                child: Text(
+                  '${RelativeTimeFormatter.greeting(now)}, ${user.firstName}'.toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption.copyWith(color: palette.inkSecondary, letterSpacing: 1.1),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                child: Text('/', style: AppTypography.caption.copyWith(color: palette.outlineStrong)),
+              ),
+              Flexible(
+                child: Text(
+                  RelativeTimeFormatter.longDate(now).toUpperCase(),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.caption.copyWith(color: palette.inkSecondary, letterSpacing: 1.1),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

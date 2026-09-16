@@ -52,7 +52,7 @@ void main() {
     createHarnesses();
     await pumpSettings(tester);
 
-    expect(find.text('Settings'), findsOneWidget);
+    expect(find.text('SETTINGS'), findsOneWidget);
     expect(find.text('Top stories'), findsOneWidget);
     expect(find.text('Reading speed'), findsOneWidget);
     expect(find.text('ACCOUNT · ADA@EXAMPLE.COM'), findsOneWidget);

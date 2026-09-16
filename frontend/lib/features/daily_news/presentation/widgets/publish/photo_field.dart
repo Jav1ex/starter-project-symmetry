@@ -6,10 +6,11 @@ import 'package:news_app_clean_architecture/config/theme/app_palette.dart';
 import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/config/theme/app_typography.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/media/hatched_plate.dart';
 
-/// "Photo (optional)": a dashed 72dp target until a picture is chosen, then
-/// a 150dp preview with a labelled Remove pill. During upload a scrim and a
-/// progress ring cover the preview.
+/// "Photo (optional)": a hatched 72dp plate to tap until a picture is
+/// chosen, then a framed 150dp preview with a labelled Remove block. During
+/// upload a scrim and a progress ring cover the preview.
 class PhotoField extends StatelessWidget {
   final String? localPath;
   final String? remoteUrl;
@@ -41,10 +42,7 @@ class PhotoField extends StatelessWidget {
             children: [
               TextSpan(
                 text: ' (optional)',
-                style: AppTypography.label.copyWith(
-                  color: palette.inkSecondary,
-                  fontWeight: FontWeight.w400,
-                ),
+                style: AppTypography.label.copyWith(color: palette.inkSecondary, fontWeight: FontWeight.w400),
               ),
             ],
           ),
@@ -53,69 +51,65 @@ class PhotoField extends StatelessWidget {
         if (!hasPhoto)
           InkWell(
             onTap: onPick,
-            borderRadius: BorderRadius.circular(AppRadius.field),
-            child: Container(
+            child: HatchedPlate(
               height: AppSizes.smallThumb,
-              decoration: BoxDecoration(
-                color: palette.surface,
-                borderRadius: BorderRadius.circular(AppRadius.field),
-                border: Border.all(color: palette.outlineStrong, width: 1.5),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.add_photo_alternate_outlined, color: palette.primary),
-                  const SizedBox(width: AppSpacing.sm),
-                  Text('Add a photo', style: AppTypography.buttonSecondary.copyWith(color: palette.primary)),
-                ],
+              bordered: true,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
+                color: palette.background,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.add_photo_alternate_outlined, color: palette.primary, size: 18),
+                    const SizedBox(width: AppSpacing.sm),
+                    Text('Add a photo', style: AppTypography.button.copyWith(color: palette.ink)),
+                  ],
+                ),
               ),
             ),
           )
         else
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppRadius.field),
-            child: SizedBox(
-              height: 150,
-              width: double.infinity,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (localPath != null)
-                    Image.file(File(localPath!), fit: BoxFit.cover)
-                  else
-                    CachedNetworkImage(imageUrl: remoteUrl!, fit: BoxFit.cover),
-                  if (isUploading)
-                    ColoredBox(
-                      color: palette.ink.withValues(alpha: 0.45),
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            SizedBox(
-                              width: 48,
-                              height: 48,
-                              child: CircularProgressIndicator(color: palette.primaryContainer, strokeWidth: 4),
-                            ),
-                            const SizedBox(height: AppSpacing.sm),
-                            Text('Uploading photo…', style: AppTypography.label.copyWith(color: Colors.white)),
-                          ],
-                        ),
-                      ),
-                    )
-                  else
-                    Positioned(
-                      top: AppSpacing.sm,
-                      right: AppSpacing.sm,
-                      child: LabeledIconButton(
-                        icon: Icons.close_rounded,
-                        label: 'Remove',
-                        color: palette.ink,
-                        backgroundColor: palette.surface.withValues(alpha: 0.92),
-                        onPressed: onRemove,
+          Container(
+            height: 150,
+            width: double.infinity,
+            decoration: BoxDecoration(border: Border.all(color: palette.ink, width: AppRules.strong)),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                if (localPath != null)
+                  Image.file(File(localPath!), fit: BoxFit.cover)
+                else
+                  CachedNetworkImage(imageUrl: remoteUrl!, fit: BoxFit.cover),
+                if (isUploading)
+                  ColoredBox(
+                    color: palette.ink.withValues(alpha: 0.55),
+                    child: Center(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          SizedBox(
+                            width: 40,
+                            height: 40,
+                            child: CircularProgressIndicator(color: palette.primary, strokeWidth: 3),
+                          ),
+                          const SizedBox(height: AppSpacing.sm),
+                          Text('UPLOADING PHOTO…', style: AppTypography.overline.copyWith(color: Colors.white)),
+                        ],
                       ),
                     ),
-                ],
-              ),
+                  )
+                else
+                  Positioned(
+                    top: AppSpacing.sm,
+                    right: AppSpacing.sm,
+                    child: LabeledIconButton(
+                      icon: Icons.close_rounded,
+                      label: 'Remove',
+                      backgroundColor: palette.glass,
+                      onPressed: onRemove,
+                    ),
+                  ),
+              ],
             ),
           ),
       ],

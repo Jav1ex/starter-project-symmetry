@@ -42,9 +42,9 @@ void main() {
     await tester.tap(find.text('Start reading →'));
     await tester.pumpAndSettle();
 
-    expect(find.text('What do you want to read today?'), findsOneWidget);
+    expect(find.text('WHAT DO YOU WANT TO READ TODAY?'), findsOneWidget);
     expect(find.text('Pick a topic to start'), findsOneWidget);
-    await tester.tap(find.text('Health'));
+    await tester.tap(find.text('HEALTH'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Start with 1 topic'));
     await tester.pumpAndSettle();
@@ -64,8 +64,8 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(BriefSummaryStep), findsOneWidget);
-    expect(find.textContaining("That's your brief, Ada"), findsOneWidget);
-    expect(find.text('2 stories · 2 min · 1 saved for later'), findsOneWidget);
+    expect(find.textContaining("THAT'S YOUR BRIEF, ADA"), findsOneWidget);
+    expect(find.text('2 STORIES · 2 MIN · 1 SAVED FOR LATER'), findsOneWidget);
 
     await tester.tap(find.text('Back to feed'));
     await tester.pumpAndSettle();

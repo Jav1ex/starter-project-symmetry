@@ -53,8 +53,8 @@ class _ShrinkingWriteFabState extends State<ShrinkingWriteFab> {
       onPressed: widget.onPressed,
       isExtended: _extended,
       tooltip: 'Write an article',
-      icon: const Icon(Icons.edit_rounded),
-      label: const Text('Write'),
+      icon: const Icon(Icons.edit_rounded, size: 18),
+      label: const Text('WRITE'),
     );
   }
 }

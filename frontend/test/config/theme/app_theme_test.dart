@@ -24,12 +24,12 @@ void main() {
     expect(theme.colorScheme.surface, AppPalette.dark.background);
   });
 
-  test('headlines use the serif and body copy the sans', () {
+  test('every style uses DM Sans', () {
     final text = AppTheme.light().textTheme;
 
-    expect(text.headlineLarge?.fontFamily, AppTypography.serif);
-    expect(text.bodyLarge?.fontFamily, AppTypography.serif);
-    expect(text.bodyLarge?.fontSize, 17);
+    expect(text.headlineLarge?.fontFamily, AppTypography.family);
+    expect(text.bodyLarge?.fontFamily, AppTypography.family);
+    expect(text.bodyLarge?.fontSize, 16);
   });
 
   test('palette lerp interpolates between light and dark', () {

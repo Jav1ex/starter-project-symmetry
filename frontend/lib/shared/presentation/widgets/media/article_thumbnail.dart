@@ -5,19 +5,17 @@ import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/media/thumbnail_fallback.dart';
 
-/// Square thumbnail for an article: the network image when it has one,
-/// otherwise the typographic fallback. Wrapped in a [Hero] so the Reader can
-/// grow it into its header.
+/// Square thumbnail for an article with a hairline rule around it: the
+/// network image when it has one, otherwise the hatched plate. Wrapped in a
+/// [Hero] so the Reader can grow it into its header.
 class ArticleThumbnail extends StatelessWidget {
   final ArticleEntity article;
   final double size;
-  final double borderRadius;
 
   const ArticleThumbnail({
     super.key,
     required this.article,
     this.size = AppSizes.thumb,
-    this.borderRadius = AppRadius.thumb,
   });
 
   static String heroTag(ArticleEntity article) => 'thumb-${article.id}';
@@ -26,26 +24,18 @@ class ArticleThumbnail extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final Widget child = article.hasImage
-        ? ClipRRect(
-            borderRadius: BorderRadius.circular(borderRadius),
+        ? Container(
+            width: size,
+            height: size,
+            decoration: BoxDecoration(border: Border.all(color: palette.outlineStrong, width: AppRules.soft)),
             child: CachedNetworkImage(
               imageUrl: article.imageUrl!,
-              width: size,
-              height: size,
               fit: BoxFit.cover,
-              placeholder: (_, _) => Container(width: size, height: size, color: palette.skeletonBone),
-              errorWidget: (_, _, _) => ThumbnailFallback(
-                categoryLabel: article.category.label,
-                size: size,
-                borderRadius: borderRadius,
-              ),
+              placeholder: (_, _) => ColoredBox(color: palette.skeletonBone),
+              errorWidget: (_, _, _) => ThumbnailFallback(categoryLabel: article.category.label, size: size),
             ),
           )
-        : ThumbnailFallback(
-            categoryLabel: article.category.label,
-            size: size,
-            borderRadius: borderRadius,
-          );
+        : ThumbnailFallback(categoryLabel: article.category.label, size: size);
 
     return Hero(tag: heroTag(article), child: child);
   }

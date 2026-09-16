@@ -8,7 +8,8 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/blo
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/primary_button.dart';
 
-/// Step 1 of 3: pick the topics for today's five stories.
+/// Step 1 of 3: pick the topics for today's five stories, as framed blocks
+/// that fill with ink when chosen.
 class InterestPickerStep extends StatelessWidget {
   final Set<NewsCategory> selected;
   final bool isLoading;
@@ -33,12 +34,7 @@ class InterestPickerStep extends StatelessWidget {
     return Scaffold(
       body: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppSpacing.lg,
-            AppSpacing.sm,
-            AppSpacing.lg,
-            AppSpacing.xxl,
-          ),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.md, AppSpacing.xxl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
@@ -46,33 +42,24 @@ class InterestPickerStep extends StatelessWidget {
                 children: [
                   LabeledIconButton.close(onPressed: onClose),
                   const Spacer(),
-                  Text(
-                    'STEP 1 OF 3',
-                    style: AppTypography.sectionOverline.copyWith(color: palette.inkSecondary),
-                  ),
+                  Text('STEP 1 OF 3', style: AppTypography.sectionOverline.copyWith(color: palette.inkSecondary)),
                   const SizedBox(width: AppSpacing.sm),
                 ],
               ),
               Expanded(
                 child: ListView(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppSpacing.sm,
-                    vertical: AppSpacing.lg,
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: AppSpacing.lg),
                   children: [
                     Text(
-                      'What do you want to read today?',
+                      'WHAT DO YOU WANT TO READ TODAY?',
                       style: AppTypography.briefQuestion.copyWith(color: palette.ink),
                     ),
                     const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      'Pick as many as you like.',
-                      style: AppTypography.bodySmall.copyWith(color: palette.inkBody),
-                    ),
+                    Text('Pick as many as you like.', style: AppTypography.bodySmall.copyWith(color: palette.inkBody)),
                     const SizedBox(height: AppSpacing.xxl),
                     Wrap(
-                      spacing: AppSpacing.md,
-                      runSpacing: AppSpacing.md,
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.sm,
                       children: [
                         for (final topic in BriefCubit.topics)
                           _InterestChip(
@@ -85,12 +72,7 @@ class InterestPickerStep extends StatelessWidget {
                     const SizedBox(height: AppSpacing.xxl),
                     OutlinedButton.icon(
                       onPressed: onSurpriseMe,
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: palette.ink,
-                        side: BorderSide(color: palette.outlineStrong, width: 1.5),
-                        minimumSize: const Size.fromHeight(64),
-                      ),
-                      icon: Icon(Icons.auto_awesome_rounded, color: palette.primary),
+                      icon: Icon(Icons.auto_awesome_rounded, color: palette.primary, size: 18),
                       label: const Text('Surprise me'),
                     ),
                   ],
@@ -105,7 +87,7 @@ class InterestPickerStep extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.sm),
               Text(
-                'Five stories · about 4 minutes',
+                'FIVE STORIES · ABOUT 4 MINUTES',
                 textAlign: TextAlign.center,
                 style: AppTypography.caption.copyWith(color: palette.inkSecondary),
               ),
@@ -128,53 +110,44 @@ class _InterestChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final palette = context.palette;
     final duration = AppMotion.durationFor(context, AppMotion.short);
-    final foreground = selected ? Colors.white : palette.ink;
+    final foreground = selected ? palette.background : palette.ink;
     return Semantics(
       selected: selected,
       child: AnimatedScale(
-        scale: selected ? 1.04 : 1,
+        scale: selected ? 1.03 : 1,
         duration: duration,
         curve: Curves.easeOutBack,
         child: Material(
           color: Colors.transparent,
           child: InkWell(
             onTap: onPressed,
-            customBorder: const StadiumBorder(),
             child: AnimatedContainer(
               duration: duration,
               curve: Curves.easeOutCubic,
               height: AppSizes.button,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
               decoration: BoxDecoration(
-                color: selected ? palette.primary : palette.surface,
-                borderRadius: BorderRadius.circular(AppRadius.pill),
-                border: Border.all(
-                  color: selected ? palette.primary : palette.outlineStrong,
-                  width: 2,
-                ),
+                color: selected ? palette.ink : Colors.transparent,
+                border: Border.all(color: palette.ink, width: AppRules.strong),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   AnimatedSwitcher(
                     duration: duration,
-                    transitionBuilder: (child, animation) =>
-                        ScaleTransition(scale: animation, child: child),
+                    transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
                     child: Icon(
                       selected ? Icons.check_rounded : Icons.add_rounded,
                       key: ValueKey(selected),
-                      size: 22,
-                      color: selected ? Colors.white : palette.primary,
+                      size: 18,
+                      color: selected ? palette.primary : palette.ink,
                     ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   AnimatedDefaultTextStyle(
                     duration: duration,
-                    style: AppTypography.valueLine.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: foreground,
-                    ),
-                    child: Text(label),
+                    style: AppTypography.button.copyWith(color: foreground),
+                    child: Text(label.toUpperCase()),
                   ),
                 ],
               ),

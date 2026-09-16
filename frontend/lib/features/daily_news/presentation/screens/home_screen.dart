@@ -3,15 +3,18 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:news_app_clean_architecture/config/routes/app_router.dart';
 import 'package:news_app_clean_architecture/config/theme/app_motion.dart';
+import 'package:news_app_clean_architecture/config/theme/app_spacing.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_error_card.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_hero.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_item.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_section_header.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/feed/feed_skeleton.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/home/brief_card.dart';
+import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/home/category_strip.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/home/home_header.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/home/shrinking_write_fab.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
@@ -22,8 +25,9 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/empty_state.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/motion/staggered_entrance.dart';
 
-/// Home tab: greeting, then provider headlines and own articles in one
-/// timeline. Reloads whenever the feed settings change.
+/// Home tab: the masthead, the section strip, Today's Brief, then provider
+/// headlines and own articles in one numbered list led by the first story.
+/// Reloads whenever the feed settings change.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -77,17 +81,22 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomInset = MediaQuery.paddingOf(context).bottom;
     return BlocListener<SettingsCubit, SettingsState>(
       listenWhen: (previous, current) =>
           previous.settings.defaultCategory != current.settings.defaultCategory,
       listener: (context, state) =>
           context.read<FeedCubit>().load(HomeScreen.queryOf(state.settings)),
       child: Scaffold(
-        floatingActionButton: ShrinkingWriteFab(
-          onPressed: () => context.pushPublish(),
-          scrollDirection: _scrollDirection,
+        floatingActionButton: Padding(
+          padding: EdgeInsets.only(bottom: AppSizes.bottomBar + bottomInset),
+          child: ShrinkingWriteFab(
+            onPressed: () => context.pushPublish(),
+            scrollDirection: _scrollDirection,
+          ),
         ),
         body: SafeArea(
+          bottom: false,
           child: RefreshIndicator(
             onRefresh: () async {
               await context.read<FeedCubit>().refresh();
@@ -110,6 +119,16 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                   SliverToBoxAdapter(
+                    child: BlocBuilder<SettingsCubit, SettingsState>(
+                      buildWhen: (previous, current) =>
+                          previous.settings.defaultCategory != current.settings.defaultCategory,
+                      builder: (context, state) => CategoryStrip(
+                        selected: state.settings.defaultCategory,
+                        onSelected: context.read<SettingsCubit>().setDefaultCategory,
+                      ),
+                    ),
+                  ),
+                  SliverToBoxAdapter(
                     child: BlocBuilder<BriefCubit, BriefState>(
                       builder: (context, state) => BriefCard(
                         completedToday: state.isCompletedOn(DateTime.now()),
@@ -118,6 +137,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                   const _FeedBody(),
+                  SliverPadding(padding: EdgeInsets.only(bottom: AppSizes.bottomBar + bottomInset + AppSpacing.huge)),
                 ],
               ),
             ),
@@ -156,15 +176,13 @@ class _FeedBody extends StatelessWidget {
         message: FailureMessageFormatter.of(failure),
         onRetry: () => context.read<FeedCubit>().load(state.query!),
       ),
-      FeedLoaded() when state.isEmpty => Center(
-        child: EmptyState(
-          glyph: 'n',
-          title: 'Nothing new in ${state.query!.category.label} yet',
-          message: 'Try another category, or write the first story yourself.',
-          action: SecondaryButton(
-            label: 'Change category',
-            onPressed: context.pushDefaultCategoryPicker,
-          ),
+      FeedLoaded() when state.isEmpty => EmptyState(
+        glyph: 'n',
+        title: 'Nothing new in ${state.query!.category.label} yet',
+        message: 'Try another category, or write the first story yourself.',
+        action: SecondaryButton(
+          label: 'Change category',
+          onPressed: context.pushDefaultCategoryPicker,
         ),
       ),
       FeedLoaded(:final feed, :final loadedAt) => Column(
@@ -176,25 +194,38 @@ class _FeedBody extends StatelessWidget {
                   'Your own articles are still here below.',
               onRetry: () => context.read<FeedCubit>().load(state.query!),
             ),
+          if (feed.articles.isNotEmpty && feed.remoteFailure == null)
+            StaggeredEntrance(
+              key: ValueKey('feed-lead-${feed.articles.first.id}'),
+              index: 0,
+              child: FeedHero(
+                article: feed.articles.first,
+                isOwn: feed.articles.first.isOwnedBy(userId),
+                onTap: () => context.pushReader(feed.articles.first),
+              ),
+            ),
           FeedSectionHeader(
             title: feed.remoteFailure == null ? 'Latest' : 'Your articles',
+            count: feed.articles.length,
             updatedAt: loadedAt,
           ),
           for (final (index, article) in feed.articles.indexed)
-            StaggeredEntrance(
-              key: ValueKey('feed-${article.id}'),
-              index: index,
-              child: Column(
-                children: [
-                  FeedItem(
-                    article: article,
-                    isOwn: article.isOwnedBy(userId),
-                    onTap: () => context.pushReader(article),
-                  ),
-                  const Divider(),
-                ],
+            if (index > 0 || feed.remoteFailure != null)
+              StaggeredEntrance(
+                key: ValueKey('feed-${article.id}'),
+                index: index,
+                child: Column(
+                  children: [
+                    FeedItem(
+                      article: article,
+                      number: index + 1,
+                      isOwn: article.isOwnedBy(userId),
+                      onTap: () => context.pushReader(article),
+                    ),
+                    const Divider(),
+                  ],
+                ),
               ),
-            ),
         ],
       ),
     };

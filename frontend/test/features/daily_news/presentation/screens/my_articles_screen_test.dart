@@ -46,10 +46,10 @@ void main() {
   testWidgets('lists published and scheduled articles with their badges', (tester) async {
     await pumpMyArticles(tester, initial: AppRoutes.myArticles);
 
-    expect(find.text('2 published'), findsOneWidget);
+    expect(find.text('02'), findsWidgets);
     expect(find.byType(MyArticleRow), findsNWidgets(2));
-    expect(find.text('Published'), findsOneWidget);
-    expect(find.textContaining('Scheduled ·'), findsOneWidget);
+    expect(find.text('PUBLISHED'), findsOneWidget);
+    expect(find.textContaining('SCHEDULED ·'), findsOneWidget);
 
     await tester.tap(find.text('Edit').first);
     await tester.pumpAndSettle();
@@ -79,8 +79,8 @@ void main() {
   testWidgets('Profile shows the counters and opens My articles', (tester) async {
     await pumpMyArticles(tester, initial: AppRoutes.home);
 
-    expect(find.text('Published'), findsOneWidget);
-    expect(find.text('2'), findsWidgets);
+    expect(find.text('PUBLISHED'), findsOneWidget);
+    expect(find.text('02'), findsWidgets);
 
     await tester.tap(find.text('My articles').last);
     await tester.pumpAndSettle();
