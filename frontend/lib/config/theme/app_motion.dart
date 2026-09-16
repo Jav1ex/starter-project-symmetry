@@ -1,21 +1,17 @@
 import 'package:flutter/material.dart';
 
-/// Durations and curves of the Daily News motion system.
+/// Durations and curves of the Headline News motion system.
 ///
 /// Every value stays at or below 400 ms except the Brief swipe spring. When
 /// the platform asks to reduce motion, use [AppMotion.durationFor] so
 /// animations collapse to zero while keeping their end state.
 abstract final class AppMotion {
-  static const Duration micro = Duration(milliseconds: 150);
   static const Duration short = Duration(milliseconds: 200);
   static const Duration indicator = Duration(milliseconds: 250);
   static const Duration medium = Duration(milliseconds: 300);
-  static const Duration hero = Duration(milliseconds: 350);
   static const Duration long = Duration(milliseconds: 400);
   static const Duration feedStaggerStep = Duration(milliseconds: 40);
-  static const Duration feedStaggerTotal = Duration(milliseconds: 540);
   static const Duration shimmerPeriod = Duration(milliseconds: 1400);
-  static const Duration skeletonDelay = Duration(milliseconds: 150);
   static const Duration fabReextendIdle = Duration(milliseconds: 250);
   static const Duration bookmarkScale = Duration(milliseconds: 320);
 
