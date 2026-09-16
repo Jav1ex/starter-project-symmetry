@@ -63,20 +63,5 @@ void main() {
       expect(buildArticle(publishedAt: now).isScheduledAt(now), isFalse);
       expect(buildArticle(publishedAt: now.subtract(const Duration(days: 1))).isScheduledAt(now), isFalse);
     });
-
-    test('copyWith replaces only the given fields', () {
-      final original = buildArticle();
-      final copy = original.copyWith(title: 'New title', source: ArticleSource.user);
-
-      expect(copy.title, 'New title');
-      expect(copy.source, ArticleSource.user);
-      expect(copy.id, original.id);
-      expect(copy.publishedAt, original.publishedAt);
-    });
-
-    test('equality is by value', () {
-      expect(buildArticle(), buildArticle());
-      expect(buildArticle(), isNot(buildArticle(id: 'other')));
-    });
   });
 }

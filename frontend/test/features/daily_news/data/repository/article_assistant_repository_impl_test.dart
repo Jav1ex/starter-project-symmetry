@@ -6,7 +6,6 @@ import 'package:news_app_clean_architecture/features/daily_news/data/data_source
 import 'package:news_app_clean_architecture/features/daily_news/data/models/article_lens_result_model.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/editor_suggestions_model.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/article_assistant_repository_impl.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_article_assistant_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
 
 import '../../../../helpers/fixtures.dart';
@@ -64,17 +63,5 @@ void main() {
 
     final lens = ArticleLensResultModel.fromRawData(ArticleLens.plain, {});
     expect(lens.isEmpty, isTrue);
-  });
-
-  test('the in-memory editor answers from the text itself', () async {
-    const editor = InMemoryArticleAssistantRepository(latency: Duration.zero);
-    final long = buildDraft(content: 'First sentence here. Second one. Third one. Fourth.');
-
-    final suggestions = (await editor.suggest(long)).dataOrNull!;
-    expect(suggestions.headlines.length, 3);
-    expect(suggestions.summary, 'First sentence here.');
-
-    final brief = (await editor.apply(ArticleLens.brief, buildArticle(content: long.content))).dataOrNull!;
-    expect(brief.bullets.length, 3);
   });
 }

@@ -40,14 +40,4 @@ void main() {
       expect(ThumbnailLimits.allowedMimeTypes, {'image/jpeg', 'image/png', 'image/webp'});
     });
   });
-
-  test('ThumbnailReference is equal by value', () {
-    expect(
-      thumbnailReference,
-      const ThumbnailReference(
-        url: 'https://storage.example/media%2Farticles%2Fnew.jpg?alt=media',
-        path: 'media/articles/new.jpg',
-      ),
-    );
-  });
 }

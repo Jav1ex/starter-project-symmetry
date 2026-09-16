@@ -1,5 +1,4 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:news_app_clean_architecture/features/auth/data/repository/in_memory_auth_repository.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/params/credentials.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/features/settings/data/data_sources/local/settings_local_data_source.dart';
@@ -9,6 +8,7 @@ import 'package:news_app_clean_architecture/features/settings/domain/entities/ap
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../helpers/pump_app.dart';
+import '../../../../helpers/in_memory_auth_repository.dart';
 
 void main() {
   late InMemoryAuthRepository auth;

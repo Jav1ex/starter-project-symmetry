@@ -1,11 +1,11 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:news_app_clean_architecture/features/daily_news/data/repository/in_memory_speech_repository.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/speech_status.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/control_reading.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/read_aloud.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/listen/listen_cubit.dart';
 
 import '../../../../../helpers/pump_app.dart';
+import '../../../../../helpers/in_memory_speech_repository.dart';
 
 void main() {
   late InMemorySpeechRepository speech;
