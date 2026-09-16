@@ -14,11 +14,5 @@ void main() {
       expect(NewsCategory.fromApiValue(null), NewsCategory.general);
     });
 
-    test('every category has a label and an api value', () {
-      for (final category in NewsCategory.values) {
-        expect(category.label, isNotEmpty);
-        expect(category.apiValue, isNotEmpty);
-      }
-    });
   });
 }

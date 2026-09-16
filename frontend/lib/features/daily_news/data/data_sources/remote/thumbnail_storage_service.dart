@@ -1,3 +1,6 @@
+// coverage:ignore-file
+// Thin wrapper over the Cloud Storage SDK.
+// Covered by the repository tests above it, with the SDK mocked at this seam.
 import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';

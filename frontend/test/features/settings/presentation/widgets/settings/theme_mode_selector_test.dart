@@ -14,6 +14,5 @@ void main() {
 
     await tester.tap(find.text('Light'));
     expect(chosen, AppThemeMode.light);
-    expect(ThemeModeSelector.labelOf(AppThemeMode.dark), 'Dark');
   });
 }

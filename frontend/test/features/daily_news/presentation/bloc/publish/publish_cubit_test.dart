@@ -9,13 +9,11 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/publish/publish_cubit.dart';
 
-import '../../../../../helpers/feed_harness.dart';
 import '../../../../../helpers/fixtures.dart';
-import '../../../../../helpers/pump_app.dart';
+import '../../../../../helpers/mocks.dart';
 
 void main() {
   setUpAll(() {
-    registerCommonFallbacks();
     registerFallbackValue(PublishArticleParams(draft: buildDraft()));
     registerFallbackValue(UpdateArticleParams(article: buildArticle(), draft: buildDraft()));
   });

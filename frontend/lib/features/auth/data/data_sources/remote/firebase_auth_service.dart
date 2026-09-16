@@ -1,3 +1,6 @@
+// coverage:ignore-file
+// Thin wrapper over the Firebase Auth and Google Sign-In SDKs.
+// Covered by the repository tests above it, with the SDK mocked at this seam.
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:news_app_clean_architecture/features/auth/data/models/user_model.dart';

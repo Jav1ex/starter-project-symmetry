@@ -3,29 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/publish_article_params.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article_lens.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/apply_article_lens.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/clear_draft.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/load_draft.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_draft.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/control_reading.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/delete_article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_feed.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_my_articles.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_saved_articles.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_top_headlines.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/search_articles.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/suggest_article_edits.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/pick_thumbnail.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/publish_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/read_aloud.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/remove_saved_article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/update_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/editor_assistant/editor_assistant_cubit.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
@@ -40,44 +25,14 @@ import 'package:provider/single_child_widget.dart';
 
 import 'fixtures.dart';
 import 'in_memory_speech_repository.dart';
+import 'mocks.dart';
 import 'pump_app.dart';
-
-class MockGetFeedUseCase extends Mock implements GetFeedUseCase {}
-
-class MockGetSavedArticlesUseCase extends Mock implements GetSavedArticlesUseCase {}
-
-class MockSaveArticleUseCase extends Mock implements SaveArticleUseCase {}
-
-class MockRemoveSavedArticleUseCase extends Mock implements RemoveSavedArticleUseCase {}
-
-class MockGetMyArticlesUseCase extends Mock implements GetMyArticlesUseCase {}
-
-class MockDeleteArticleUseCase extends Mock implements DeleteArticleUseCase {}
-
-class MockPublishArticleUseCase extends Mock implements PublishArticleUseCase {}
-
-class MockUpdateArticleUseCase extends Mock implements UpdateArticleUseCase {}
-
-class MockPickThumbnailUseCase extends Mock implements PickThumbnailUseCase {}
-
-class MockGetTopHeadlinesUseCase extends Mock implements GetTopHeadlinesUseCase {}
-
-class MockSearchArticlesUseCase extends Mock implements SearchArticlesUseCase {}
-
-class MockSuggestArticleEditsUseCase extends Mock implements SuggestArticleEditsUseCase {}
-
-class MockApplyArticleLensUseCase extends Mock implements ApplyArticleLensUseCase {}
-
-class MockLoadDraftUseCase extends Mock implements LoadDraftUseCase {}
-
-class MockSaveDraftUseCase extends Mock implements SaveDraftUseCase {}
-
-class MockClearDraftUseCase extends Mock implements ClearDraftUseCase {}
 
 /// Everything the Home shell needs: session, settings and the app-wide
 /// cubits (saved, feed, my articles), plus a PublishCubit factory in the
 /// service locator. Create it inside the test body and pass [providers] to
 /// the pump helpers.
+
 class ShellHarness {
   final SessionHarness session = SessionHarness();
   final SettingsHarness settings = SettingsHarness();

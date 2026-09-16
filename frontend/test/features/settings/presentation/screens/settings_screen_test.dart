@@ -12,8 +12,6 @@ import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   late SessionHarness session;
   late SettingsHarness settings;
 
@@ -28,9 +26,7 @@ void main() {
   }
 
   Future<void> pumpSettings(WidgetTester tester, {Map<String, WidgetBuilder> extra = const {}}) async {
-    tester.view.physicalSize = const Size(600, 1600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
+    useScreen(tester, const Size(600, 1600));
     await tester.pump();
     await pumpRoutedApp(
       tester,
@@ -134,5 +130,16 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(AboutDialog), findsOneWidget);
+  });
+
+  testWidgets('choosing a reading speed updates the cubit', (tester) async {
+    createHarnesses();
+    await pumpSettings(tester);
+
+    await tester.ensureVisible(find.text('Faster'));
+    await tester.tap(find.text('Faster'));
+    await tester.pumpAndSettle();
+
+    expect(settings.cubit.state.settings.speechRate, SpeechRatePreference.fast);
   });
 }

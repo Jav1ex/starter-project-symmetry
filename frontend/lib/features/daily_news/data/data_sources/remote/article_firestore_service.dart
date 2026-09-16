@@ -1,3 +1,6 @@
+// coverage:ignore-file
+// Thin wrapper over the Cloud Firestore SDK.
+// Covered by the repository tests above it, with the SDK mocked at this seam.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/user_article_model.dart';
 

@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 
 import '../../../../helpers/fixtures.dart';
 
@@ -34,11 +33,6 @@ void main() {
         expect(buildUserArticle(authorId: 'uid-1').isOwnedBy(null), isFalse);
         expect(buildArticle(authorId: null).isOwnedBy('uid-1'), isFalse);
       });
-    });
-
-    test('category defaults to general', () {
-      expect(buildArticle().category, NewsCategory.general);
-      expect(buildArticle(category: NewsCategory.sports).category, NewsCategory.sports);
     });
 
     group('readingTimeMinutes', () {

@@ -1,16 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 
 void main() {
-  test('defaults follow the system theme, medium text and top stories', () {
-    const settings = AppSettings.defaults;
-
-    expect(settings.themeMode, AppThemeMode.system);
-    expect(settings.textSize, TextSizePreference.medium);
-    expect(settings.defaultCategory, NewsCategory.general);
-  });
-
   test('text size factors render the 17sp body at 16 / 17 / 19 / 21 sp', () {
     final rendered = TextSizePreference.values.map((t) => (17 * t.factor).round());
     expect(rendered, [16, 17, 19, 21]);

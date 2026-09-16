@@ -9,8 +9,6 @@ import 'package:news_app_clean_architecture/features/settings/presentation/bloc/
 import '../../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   late SettingsHarness harness;
 
   setUp(() => harness = SettingsHarness());

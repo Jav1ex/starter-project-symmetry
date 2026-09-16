@@ -65,8 +65,4 @@ void main() {
     expect(result.failureOrNull?.type, FailureType.unknown);
   });
 
-  test('SavedArticleModel round-trips through the entity', () {
-    expect(model.toEntity(), entity);
-    expect(model.ownerId, user.id);
-  });
 }

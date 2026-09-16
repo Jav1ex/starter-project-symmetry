@@ -13,8 +13,6 @@ import 'helpers/fixtures.dart';
 import 'helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   late ShellHarness shell;
   late SessionHarness session;
   late SettingsHarness settings;

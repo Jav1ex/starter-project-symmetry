@@ -5,6 +5,7 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/repository/speech_repository.dart';
 
 /// Silent voice for tests: tracks status and what was asked to be read.
+
 class InMemorySpeechRepository implements SpeechRepository {
   final StreamController<SpeechStatus> _status = StreamController<SpeechStatus>.broadcast();
   SpeechStatus _current = SpeechStatus.idle;

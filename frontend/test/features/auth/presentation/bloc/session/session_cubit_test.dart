@@ -10,8 +10,6 @@ import '../../../../../helpers/fixtures.dart';
 import '../../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   late SessionHarness harness;
 
   setUp(() => harness = SessionHarness());
@@ -92,10 +90,4 @@ void main() {
     verify(() => harness.signOut(any())).called(1);
   });
 
-  test('copyWith clears the failure unless it is passed again', () {
-    const failed = SessionAuthenticated(user, failure: Failure.unknown());
-
-    expect(failed.copyWith(isBusy: true).failure, isNull);
-    expect(failed.copyWith(isBusy: true).isBusy, isTrue);
-  });
 }

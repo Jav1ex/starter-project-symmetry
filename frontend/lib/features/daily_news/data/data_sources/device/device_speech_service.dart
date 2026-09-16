@@ -1,3 +1,6 @@
+// coverage:ignore-file
+// Thin wrapper over the platform text-to-speech plugin.
+// Covered by the repository tests above it, with the SDK mocked at this seam.
 import 'dart:async';
 
 import 'package:flutter_tts/flutter_tts.dart';

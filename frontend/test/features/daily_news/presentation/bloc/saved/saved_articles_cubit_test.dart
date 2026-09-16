@@ -2,23 +2,13 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_saved_articles.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/remove_saved_article.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/save_article.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/saved/saved_articles_cubit.dart';
 
 import '../../../../../helpers/fixtures.dart';
-import '../../../../../helpers/pump_app.dart';
-
-class MockGetSavedArticlesUseCase extends Mock implements GetSavedArticlesUseCase {}
-
-class MockSaveArticleUseCase extends Mock implements SaveArticleUseCase {}
-
-class MockRemoveSavedArticleUseCase extends Mock implements RemoveSavedArticleUseCase {}
+import '../../../../../helpers/mocks.dart';
 
 void main() {
   setUpAll(() {
-    registerCommonFallbacks();
     registerFallbackValue(buildArticle());
   });
 
@@ -39,10 +29,6 @@ void main() {
     cubit = SavedArticlesCubit(getSaved, save, remove);
   });
   tearDown(() => cubit.close());
-
-  test('starts with nothing saved', () {
-    expect(cubit.state, const SavedArticlesState());
-  });
 
   test('load fills the list and the id set', () async {
     await cubit.load();

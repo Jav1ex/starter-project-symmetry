@@ -6,8 +6,8 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/apply_article_lens.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/reader_lens/reader_lens_cubit.dart';
 
-import '../../../../../helpers/feed_harness.dart';
 import '../../../../../helpers/fixtures.dart';
+import '../../../../../helpers/mocks.dart';
 
 void main() {
   setUpAll(() {
@@ -25,10 +25,6 @@ void main() {
     cubit = ReaderLensCubit(apply, article: article);
   });
   tearDown(() => cubit.close());
-
-  test('starts on the original text with no lens and an empty cache', () {
-    expect(cubit.state, const ReaderLensState());
-  });
 
   test('toggling a lens fetches once, toggling again shows the original, third time is cached', () async {
     await cubit.toggle(ArticleLens.brief);

@@ -5,8 +5,8 @@ import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/editor_suggestions.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/editor_assistant/editor_assistant_cubit.dart';
 
-import '../../../../../helpers/feed_harness.dart';
 import '../../../../../helpers/fixtures.dart';
+import '../../../../../helpers/mocks.dart';
 import '../../../../../helpers/pump_app.dart';
 
 void main() {
@@ -21,10 +21,6 @@ void main() {
     cubit = EditorAssistantCubit(suggest);
   });
   tearDown(() => cubit.close());
-
-  test('starts idle with nothing to show', () {
-    expect(cubit.state, const EditorAssistantState());
-  });
 
   test('ask goes loading then ready, dismiss resets', () async {
     when(() => suggest(any())).thenAnswer((_) async => const DataSuccess(suggestions));

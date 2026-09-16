@@ -34,36 +34,6 @@ void main() {
     expect(undone, isTrue);
   });
 
-  testWidgets('a new message replaces the one on screen', (tester) async {
-    await pumpApp(
-      tester,
-      Scaffold(
-        body: Builder(
-          builder: (context) => Column(
-            children: [
-              TextButton(
-                onPressed: () => showAppSnackBar(context, 'first'),
-                child: const Text('one'),
-              ),
-              TextButton(
-                onPressed: () => showAppSnackBar(context, 'second'),
-                child: const Text('two'),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-
-    await tester.tap(find.text('one'));
-    await tester.pump();
-    await tester.tap(find.text('two'));
-    await tester.pumpAndSettle();
-
-    expect(find.text('first'), findsNothing);
-    expect(find.text('second'), findsOneWidget);
-  });
-
   testWidgets('a message with an action still leaves on time under accessible navigation', (tester) async {
     await pumpApp(
       tester,

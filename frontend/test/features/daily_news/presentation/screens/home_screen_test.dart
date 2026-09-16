@@ -21,12 +21,8 @@ import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   Future<void> pumpHome(WidgetTester tester, ShellHarness harness) async {
-    tester.view.physicalSize = const Size(600, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
+    useScreen(tester, const Size(600, 1400));
     await tester.pump();
     await pumpRoutedApp(
       tester,
@@ -35,6 +31,7 @@ void main() {
         AppRoutes.home: (_) => const HomeScreen(),
         AppRoutes.reader: (_) => const Text('reader'),
         AppRoutes.settingsCategory: (_) => const Text('category picker'),
+        AppRoutes.publish: (_) => const Text('publish form'),
       },
       providers: harness.providers,
     );
@@ -117,5 +114,74 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(FeedHero), findsOneWidget);
+  });
+
+  testWidgets('the Write block hides while the feed moves, returns once it settles and opens the form',
+      (tester) async {
+    final harness = ShellHarness(
+      feed: FeedEntity(articles: [for (var i = 0; i < 12; i++) buildArticle(id: '$i', imageUrl: null, title: 'Story $i')]),
+    );
+    await pumpHome(tester, harness);
+    await tester.pumpAndSettle();
+    AnimatedSlide slide() => tester.widget<AnimatedSlide>(find.byType(AnimatedSlide));
+    expect(slide().offset, Offset.zero);
+
+    final gesture = await tester.startGesture(tester.getCenter(find.byType(CustomScrollView)));
+    await gesture.moveBy(const Offset(0, -80));
+    await tester.pump();
+    await gesture.moveBy(const Offset(0, -80));
+    await tester.pump();
+    expect(slide().offset, isNot(Offset.zero));
+
+    await gesture.up();
+    await tester.pumpAndSettle();
+    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
+    expect(slide().offset, Offset.zero);
+
+    await tester.tap(find.text('WRITE'));
+    await tester.pumpAndSettle();
+    expect(find.text('publish form'), findsOneWidget);
+  });
+
+  testWidgets('pulling down refreshes the feed and confirms it', (tester) async {
+    final harness = ShellHarness(feed: FeedEntity(articles: [buildArticle(imageUrl: null)]));
+    await pumpHome(tester, harness);
+    await tester.pumpAndSettle();
+
+    await tester.fling(find.byType(CustomScrollView), const Offset(0, 400), 1000);
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+    await tester.pump(const Duration(seconds: 1));
+
+    verify(() => harness.getFeed(any())).called(2);
+    expect(find.text('Feed updated'), findsOneWidget);
+    await tester.pump(const Duration(seconds: 5));
+  });
+
+  testWidgets('Try again on a partial feed reloads it, and a numbered row opens the reader', (tester) async {
+    final harness = ShellHarness(
+      feed: FeedEntity(
+        articles: [buildUserArticle(authorId: user.id, imageUrl: null).copyWith(title: 'Own one')],
+        remoteFailure: const Failure.network(),
+      ),
+    );
+    await pumpHome(tester, harness);
+    await tester.pumpAndSettle();
+    expect(find.byType(FeedErrorCard), findsOneWidget);
+
+    when(() => harness.getFeed(any())).thenAnswer((_) async => DataSuccess(FeedEntity(articles: [
+          buildArticle(id: 'r1', imageUrl: null, title: 'Lead'),
+          buildArticle(id: 'r2', imageUrl: null, title: 'Second row'),
+        ])));
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+    expect(find.byType(FeedErrorCard), findsNothing);
+    expect(find.byType(FeedHero), findsOneWidget);
+
+    await tester.ensureVisible(find.text('Second row'));
+    await tester.tap(find.text('Second row'));
+    await tester.pumpAndSettle();
+    expect(find.text('reader'), findsOneWidget);
   });
 }

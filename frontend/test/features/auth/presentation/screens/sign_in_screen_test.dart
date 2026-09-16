@@ -18,7 +18,6 @@ import '../../../../helpers/pump_app.dart';
 
 void main() {
   setUpAll(() {
-    registerCommonFallbacks();
     registerFallbackValue(const SignInParams(email: '', password: ''));
   });
 

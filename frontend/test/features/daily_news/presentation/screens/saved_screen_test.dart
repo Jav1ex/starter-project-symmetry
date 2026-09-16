@@ -14,16 +14,12 @@ import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   Future<ShellHarness> pumpShell(WidgetTester tester) async {
     final harness = ShellHarness();
     when(() => harness.getSaved(any())).thenAnswer(
       (_) async => DataSuccess([buildArticle(id: 'a', title: 'Kept story')]),
     );
-    tester.view.physicalSize = const Size(600, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
+    useScreen(tester, const Size(600, 1400));
     await tester.pump();
     await pumpRoutedApp(
       tester,

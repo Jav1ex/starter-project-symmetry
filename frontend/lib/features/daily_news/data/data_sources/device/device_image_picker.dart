@@ -1,3 +1,6 @@
+// coverage:ignore-file
+// Thin wrapper over the platform image picker plugin.
+// Covered by the repository tests above it, with the SDK mocked at this seam.
 import 'package:image_picker/image_picker.dart';
 import 'package:news_app_clean_architecture/features/daily_news/data/models/local_image_model.dart';
 

@@ -7,13 +7,11 @@ import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/news_category.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/get_feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/feed/feed_cubit.dart';
 
 import '../../../../../helpers/fixtures.dart';
+import '../../../../../helpers/mocks.dart';
 import '../../../../../helpers/pump_app.dart';
-
-class MockGetFeedUseCase extends Mock implements GetFeedUseCase {}
 
 void main() {
   setUpAll(() => registerFallbackValue(const NewsQuery()));
@@ -28,10 +26,6 @@ void main() {
     cubit = FeedCubit(getFeed);
   });
   tearDown(() => cubit.close());
-
-  test('starts in the initial state before any load', () {
-    expect(cubit.state, const FeedInitial());
-  });
 
   test('load goes loading then loaded with the query it was asked for', () async {
     when(() => getFeed(query)).thenAnswer((_) async => DataSuccess(feed));

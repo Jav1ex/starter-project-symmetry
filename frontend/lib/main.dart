@@ -1,3 +1,5 @@
+// coverage:ignore-file
+// Entry point: initialises Firebase and the service locator on a real device.
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:news_app_clean_architecture/app.dart';

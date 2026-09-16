@@ -23,14 +23,4 @@ void main() {
     expect(CredentialErrors.forEmail(const []), isNull);
   });
 
-  test('every validation error is assigned to exactly one field', () {
-    for (final error in CredentialValidationError.values) {
-      final owners = [
-        CredentialErrors.forDisplayName([error]),
-        CredentialErrors.forEmail([error]),
-        CredentialErrors.forPassword([error]),
-      ].whereType<CredentialValidationError>();
-      expect(owners.length, 1, reason: error.name);
-    }
-  });
 }

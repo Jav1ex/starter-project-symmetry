@@ -16,19 +16,14 @@ import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
-  // Fields in form order: title, short description, article text.
   Finder fieldLabelled(String label) => find.descendant(
-        of: find.byType(LabeledTextField).at(label == 'Title' ? 0 : 2),
+        of: find.byWidgetPredicate((widget) => widget is LabeledTextField && widget.label == label),
         matching: find.byType(TextField),
       );
 
   Future<ShellHarness> pumpPublish(WidgetTester tester, {bool edit = false, ShellHarness? using}) async {
     final harness = using ?? ShellHarness();
-    tester.view.physicalSize = const Size(600, 1600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
+    useScreen(tester, const Size(600, 1600));
     await tester.pump();
     await pumpRoutedApp(
       tester,
@@ -155,5 +150,38 @@ void main() {
     expect(find.text('Clear draft'), findsNothing);
     expect(find.text('Draft cleared.'), findsOneWidget);
     verify(() => harness.clearDraft(any())).called(1);
+  });
+
+  testWidgets('"Use this" on the summary fills the short description', (tester) async {
+    await pumpPublish(tester);
+
+    await tester.enterText(fieldLabelled('Article text'), List.filled(45, 'word').join(' '));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Ask the editor'));
+    await tester.tap(find.text('Ask the editor'));
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.text('Use this').last);
+    await tester.tap(find.text('Use this').last);
+    await tester.pumpAndSettle();
+
+    expect(find.byType(EditorSuggestionsSheet), findsNothing);
+    expect(tester.widget<TextField>(fieldLabelled('Short description')).controller?.text, 'A short summary.');
+  });
+
+  testWidgets('Read it on the confirmation opens the new article', (tester) async {
+    final harness = await pumpPublish(tester);
+    when(() => harness.publishArticle(any()))
+        .thenAnswer((_) async => DataSuccess(buildUserArticle(id: 'new', authorId: user.id)));
+
+    await tester.enterText(fieldLabelled('Title'), 'T');
+    await tester.enterText(fieldLabelled('Article text'), 'B');
+    await tester.pumpAndSettle();
+    await tester.ensureVisible(find.widgetWithText(FilledButton, 'Publish Article'));
+    await tester.tap(find.widgetWithText(FilledButton, 'Publish Article'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Read it'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('reader'), findsOneWidget);
   });
 }

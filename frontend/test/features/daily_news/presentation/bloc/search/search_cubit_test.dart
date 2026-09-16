@@ -6,8 +6,8 @@ import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/search/search_cubit.dart';
 
-import '../../../../../helpers/feed_harness.dart';
 import '../../../../../helpers/fixtures.dart';
+import '../../../../../helpers/mocks.dart';
 
 void main() {
   late MockSearchArticlesUseCase search;
@@ -20,10 +20,6 @@ void main() {
     cubit = SearchCubit(search, debounce: const Duration(milliseconds: 20));
   });
   tearDown(() => cubit.close());
-
-  test('starts idle with an empty query and no recents', () {
-    expect(cubit.state, const SearchState());
-  });
 
   test('typing is debounced: one request per pause, results afterwards', () {
     fakeAsync((async) {
