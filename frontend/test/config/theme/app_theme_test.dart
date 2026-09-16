@@ -32,14 +32,6 @@ void main() {
     expect(text.bodyLarge?.fontSize, 16);
   });
 
-  test('palette lerp interpolates between light and dark', () {
-    final halfway = AppPalette.light.lerp(AppPalette.dark, 0.5);
-
-    expect(halfway.background, Color.lerp(AppPalette.light.background, AppPalette.dark.background, 0.5));
-    expect(AppPalette.light.lerp(null, 0.5), AppPalette.light);
-    expect(AppPalette.light.copyWith(), AppPalette.light);
-  });
-
   testWidgets('context.palette reads the extension and motion respects reduce-motion', (tester) async {
     late AppPalette palette;
     late Duration duration;

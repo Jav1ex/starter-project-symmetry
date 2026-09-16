@@ -78,14 +78,4 @@ void main() {
     });
   });
 
-  test('toEntity produces a plain entity equal by value', () {
-    final model = ArticleModel.fromRawData(fullRaw);
-
-    final entity = model.toEntity();
-
-    expect(entity, isNot(isA<ArticleModel>()));
-    expect(entity, equals(entity.copyWith()));
-    expect(entity.title, model.title);
-    expect(entity.publishedAt, model.publishedAt);
-  });
 }

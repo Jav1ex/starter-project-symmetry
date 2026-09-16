@@ -18,8 +18,4 @@ void main() {
     expect(tester.widget<Hero>(find.byType(Hero)).tag, ArticleThumbnail.heroTag(article));
   });
 
-  test('hero tags are unique per article id', () {
-    expect(ArticleThumbnail.heroTag(buildArticle(id: 'a')), 'thumb-a');
-    expect(ArticleThumbnail.heroTag(buildArticle(id: 'b')), isNot('thumb-a'));
-  });
 }

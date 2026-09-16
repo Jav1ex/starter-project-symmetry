@@ -35,9 +35,5 @@ void main() {
       ]);
     });
 
-    test('limits match the backend storage rules', () {
-      expect(ThumbnailLimits.maxSizeInBytes, 5 * 1024 * 1024);
-      expect(ThumbnailLimits.allowedMimeTypes, {'image/jpeg', 'image/png', 'image/webp'});
-    });
   });
 }

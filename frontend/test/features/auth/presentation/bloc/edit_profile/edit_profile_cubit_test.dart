@@ -6,14 +6,11 @@ import 'package:news_app_clean_architecture/features/auth/domain/params/credenti
 import 'package:news_app_clean_architecture/features/auth/domain/params/profile_update.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/edit_profile/edit_profile_cubit.dart';
 
-import '../../../../../helpers/feed_harness.dart';
 import '../../../../../helpers/fixtures.dart';
 import '../../../../../helpers/mocks.dart';
-import '../../../../../helpers/pump_app.dart';
 
 void main() {
   setUpAll(() {
-    registerCommonFallbacks();
     registerFallbackValue(const ProfileUpdate());
   });
 
@@ -64,5 +61,14 @@ void main() {
 
     expect(cubit.state.status, EditProfileStatus.failure);
     expect(cubit.state.failure, const Failure.network());
+  });
+
+  test('a photo pick that fails keeps the form and reports it', () async {
+    when(() => pickPhoto(any())).thenAnswer((_) async => const DataFailed(Failure.cancelled()));
+
+    await cubit.pickPhoto();
+
+    expect(cubit.state.photo, isNull);
+    expect(cubit.state.failure, const Failure.cancelled());
   });
 }

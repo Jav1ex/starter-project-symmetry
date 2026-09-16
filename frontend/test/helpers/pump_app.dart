@@ -5,15 +5,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:provider/single_child_widget.dart';
 import 'package:news_app_clean_architecture/config/theme/app_theme.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/usecase/usecase.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
-import 'package:news_app_clean_architecture/features/daily_news/domain/entities/saved_draft.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
+import 'package:news_app_clean_architecture/features/daily_news/domain/entities/saved_draft.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
+import 'package:provider/single_child_widget.dart';
 
 import 'mocks.dart';
 
@@ -25,11 +25,7 @@ Future<void> pumpApp(
   List<SingleChildWidget> providers = const [],
   Size? size,
 }) async {
-  if (size != null) {
-    tester.view.physicalSize = size;
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
-  }
+  if (size != null) useScreen(tester, size);
   await tester.pumpWidget(
     _wrapProviders(
       providers,
@@ -40,7 +36,13 @@ Future<void> pumpApp(
     ),
   );
 }
-
+/// Sizes the test window like a phone (logical pixels) for the rest of the
+/// test; the default 800×600 window cuts most screens short.
+void useScreen(WidgetTester tester, Size size) {
+  tester.view.physicalSize = size;
+  tester.view.devicePixelRatio = 1;
+  addTearDown(tester.view.reset);
+}
 /// Pumps a small [GoRouter] whose routes are given by path, so screens that
 /// call `context.go` / `context.push` can be exercised and their navigation
 /// asserted through the returned router.
@@ -58,7 +60,6 @@ Future<GoRouter> pumpRoutedApp(
     ],
   );
   addTearDown(router.dispose);
-
   await tester.pumpWidget(
     _wrapProviders(
       providers,
@@ -67,17 +68,15 @@ Future<GoRouter> pumpRoutedApp(
   );
   return router;
 }
-
 Widget _wrapProviders(List<SingleChildWidget> providers, Widget child) {
   if (providers.isEmpty) return child;
   return MultiBlocProvider(providers: providers, child: child);
 }
-
 /// Current location of a [GoRouter], for navigation assertions.
 String locationOf(GoRouter router) =>
     router.routerDelegate.currentConfiguration.uri.toString();
-
 /// A [SessionCubit] fed by a controller the test drives.
+
 class SessionHarness {
   final MockWatchAuthStateUseCase watchAuthState = MockWatchAuthStateUseCase();
   final MockSignOutUseCase signOut = MockSignOutUseCase();

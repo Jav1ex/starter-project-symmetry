@@ -20,16 +20,6 @@ class SearchIdleView extends StatelessWidget {
     required this.onTopicTap,
   });
 
-  static IconData iconFor(NewsCategory category) => switch (category) {
-        NewsCategory.business => Icons.work_outline_rounded,
-        NewsCategory.sports => Icons.sports_soccer_rounded,
-        NewsCategory.technology => Icons.memory_rounded,
-        NewsCategory.health => Icons.favorite_outline_rounded,
-        NewsCategory.science => Icons.science_outlined,
-        NewsCategory.entertainment => Icons.theater_comedy_outlined,
-        NewsCategory.general => Icons.newspaper_rounded,
-      };
-
   @override
   Widget build(BuildContext context) {
     final palette = context.palette;

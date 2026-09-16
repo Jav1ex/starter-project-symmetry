@@ -1,3 +1,6 @@
+// coverage:ignore-file
+// Thin wrapper over the Cloud Functions SDK.
+// Covered by the repository tests above it, with the SDK mocked at this seam.
 import 'package:cloud_functions/cloud_functions.dart';
 
 /// Calls the `assistArticle` Cloud Function. The only place that knows the

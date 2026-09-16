@@ -54,4 +54,9 @@ void main() {
     expect(result.isFailure, isTrue);
     expect((await repository.stop()).isSuccess, isTrue);
   });
+
+  test('pause delegates to the engine', () async {
+    expect((await repository.pause()).isSuccess, isTrue);
+    verify(service.pause).called(1);
+  });
 }

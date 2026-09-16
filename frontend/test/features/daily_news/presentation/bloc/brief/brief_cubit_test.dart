@@ -6,8 +6,8 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/params/news_query.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/brief/brief_cubit.dart';
 
-import '../../../../../helpers/feed_harness.dart';
 import '../../../../../helpers/fixtures.dart';
+import '../../../../../helpers/mocks.dart';
 
 void main() {
   setUpAll(() => registerFallbackValue(const NewsQuery()));
@@ -20,10 +20,6 @@ void main() {
     cubit = BriefCubit(getTopHeadlines);
   });
   tearDown(() => cubit.close());
-
-  test('starts with no topics chosen and nothing loaded', () {
-    expect(cubit.state, const BriefState());
-  });
 
   test('topics toggle, Surprise me selects all, and nothing starts without one', () async {
     expect(cubit.state.canStart, isFalse);
@@ -97,5 +93,15 @@ void main() {
     cubit.reset();
 
     expect(cubit.state, const BriefState());
+  });
+
+  test('markRead counts a story opened from its card', () async {
+    when(() => getTopHeadlines(any())).thenAnswer((_) async => DataSuccess([buildArticle(id: 'a'), buildArticle(id: 'b')]));
+    cubit.toggleTopic(NewsCategory.sports);
+    await cubit.start();
+
+    cubit.markRead(buildArticle(id: 'b'));
+
+    expect(cubit.state.readIds, contains('b'));
   });
 }

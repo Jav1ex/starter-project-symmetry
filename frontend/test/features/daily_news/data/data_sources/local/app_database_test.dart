@@ -13,6 +13,7 @@ import '../../../../../helpers/fixtures.dart';
 /// Exercises the real Floor database on the host through sqflite_ffi, so the
 /// DAO queries, the type converters and the migrations are verified against
 /// SQLite rather than against mocks.
+
 void main() {
   setUpAll(() {
     sqfliteFfiInit();
@@ -82,8 +83,8 @@ void main() {
     });
 
     tearDown(() async {
-      final file = File(path);
-      if (await file.exists()) await file.delete();
+      final directory = File(path).parent;
+      if (await directory.exists()) await directory.delete(recursive: true);
     });
 
     test('from v2 the table is rebuilt per owner; bookmarks with no owner are dropped', () async {

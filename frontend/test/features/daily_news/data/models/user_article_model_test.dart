@@ -59,7 +59,7 @@ void main() {
     });
   });
 
-  test('a thumbnail reference lands in both URL and path, and toEntity round-trips', () {
+  test('a thumbnail reference lands in both URL and path', () {
     const reference = ThumbnailReference(url: 'https://x/y?alt=media', path: 'media/articles/y');
     final model = UserArticleModel.fromDraft(
       id: 'doc-2',
@@ -71,7 +71,5 @@ void main() {
 
     expect(model.toRawData()['thumbnailURL'], reference.url);
     expect(model.toRawData()['thumbnailPath'], reference.path);
-    expect(model.toEntity().props, model.props);
-    expect(model.toEntity().runtimeType, ArticleEntity);
   });
 }

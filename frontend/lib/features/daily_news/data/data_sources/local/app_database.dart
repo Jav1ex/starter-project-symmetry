@@ -1,3 +1,5 @@
+// coverage:ignore-file
+// Floor database definition; the DAO is exercised through the repository tests.
 // Floor marks type converters as experimental although they have been stable since 1.0.
 // ignore_for_file: experimental_member_use
 

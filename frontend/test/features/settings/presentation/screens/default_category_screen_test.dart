@@ -7,8 +7,6 @@ import 'package:news_app_clean_architecture/features/settings/presentation/scree
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   late SettingsHarness settings;
 
   void createSettings() {

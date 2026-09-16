@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/config/routes/app_routes.dart';
+import 'package:news_app_clean_architecture/core/resources/data_state.dart';
+import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/feed.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/brief_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/home_screen.dart';
@@ -14,17 +16,13 @@ import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   testWidgets('Home card opens the brief; topics, two cards, summary, then Brief done', (tester) async {
     final stories = [
       buildArticle(id: 'a', imageUrl: null, title: 'First story'),
       buildArticle(id: 'b', imageUrl: null, title: 'Second story'),
     ];
     final harness = ShellHarness(feed: FeedEntity(articles: stories));
-    tester.view.physicalSize = const Size(600, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
+    useScreen(tester, const Size(600, 1400));
     await tester.pump();
     await pumpRoutedApp(
       tester,
@@ -71,5 +69,61 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byType(BriefCard), findsOneWidget);
     expect(find.text('BRIEF DONE'), findsOneWidget);
+  });
+
+  testWidgets('a brief that fails offers other topics; Listen, Read and Open Saved work from the cards',
+      (tester) async {
+    final stories = [buildArticle(id: 'a', imageUrl: null, title: 'First story')];
+    final harness = ShellHarness(feed: FeedEntity(articles: stories));
+    when(() => harness.getTopHeadlines(any())).thenAnswer((_) async => const DataFailed(Failure.server()));
+    useScreen(tester, const Size(600, 1400));
+    await tester.pump();
+    final router = await pumpRoutedApp(
+      tester,
+      initialLocation: AppRoutes.brief,
+      routes: {
+        AppRoutes.brief: (_) => const BriefScreen(),
+        AppRoutes.reader: (_) => const Text('reader'),
+        AppRoutes.home: (_) => const Text('home'),
+      },
+      providers: harness.providers,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('HEALTH'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Start with 1 topic'));
+    await tester.pumpAndSettle();
+    expect(find.text("Couldn't build your brief"), findsOneWidget);
+
+    when(() => harness.getTopHeadlines(any())).thenAnswer((_) async => DataSuccess(stories));
+    await tester.tap(find.text('Pick other topics'));
+    await tester.pumpAndSettle();
+    expect(find.text('WHAT DO YOU WANT TO READ TODAY?'), findsOneWidget);
+    await tester.tap(find.text('HEALTH'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Start with 1 topic'));
+    await tester.pumpAndSettle();
+    expect(find.text('First story'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Listen'));
+    await tester.pumpAndSettle();
+    expect(harness.speech.spoken.single, startsWith('First story.'));
+    await tester.tap(find.byTooltip('Stop'));
+    await tester.pumpAndSettle();
+    expect(find.byTooltip('Listen'), findsOneWidget);
+
+    await tester.tap(find.text('Read'));
+    await tester.pumpAndSettle();
+    expect(find.text('reader'), findsOneWidget);
+    expect(harness.briefCubit.state.readIds, contains('a'));
+    router.pop();
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Finish the brief'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Open Saved'));
+    await tester.pumpAndSettle();
+    expect(locationOf(router), '${AppRoutes.home}?tab=2');
   });
 }

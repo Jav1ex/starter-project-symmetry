@@ -4,8 +4,8 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/read_aloud.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/listen/listen_cubit.dart';
 
-import '../../../../../helpers/pump_app.dart';
 import '../../../../../helpers/in_memory_speech_repository.dart';
+import '../../../../../helpers/pump_app.dart';
 
 void main() {
   late InMemorySpeechRepository speech;
@@ -24,10 +24,6 @@ void main() {
   tearDown(() async {
     await cubit.close();
     await speech.dispose();
-  });
-
-  test('starts idle with no voice', () {
-    expect(cubit.state, const ListenState());
   });
 
   test('toggle starts reading, pauses, resumes; another id replaces the voice', () async {

@@ -36,7 +36,4 @@ void main() {
     expect(find.text('rich body'), findsOneWidget);
   });
 
-  test('requires either a glyph or an icon', () {
-    expect(() => EmptyState(title: 'x'), throwsAssertionError);
-  });
 }

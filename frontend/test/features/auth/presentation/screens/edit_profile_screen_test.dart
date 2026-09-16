@@ -3,12 +3,14 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/config/routes/app_routes.dart';
 import 'package:news_app_clean_architecture/core/resources/data_state.dart';
+import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/params/profile_update.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/edit_profile/edit_profile_cubit.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/screens/edit_profile_screen.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/screens/profile_screen.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
+import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
 
 import '../../../../helpers/feed_harness.dart';
 import '../../../../helpers/fixtures.dart';
@@ -17,7 +19,6 @@ import '../../../../helpers/pump_app.dart';
 
 void main() {
   setUpAll(() {
-    registerCommonFallbacks();
     registerFallbackValue(const ProfileUpdate());
   });
 
@@ -29,9 +30,7 @@ void main() {
       (u, _) => EditProfileCubit(updateProfile, harness.pickThumbnail, user: u),
     );
     addTearDown(() => sl.unregister<EditProfileCubit>());
-    tester.view.physicalSize = const Size(600, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
+    useScreen(tester, const Size(600, 1400));
     await tester.pump();
     await pumpRoutedApp(
       tester,
@@ -66,5 +65,32 @@ void main() {
     expect(sent.photo, buildImage());
     expect(find.byType(ProfileScreen), findsOneWidget);
     expect(find.text('Profile updated'), findsOneWidget);
+  });
+
+  testWidgets('submitting from the keyboard saves, and a rejected save is announced', (tester) async {
+    final harness = ShellHarness();
+    final updateProfile = MockUpdateProfileUseCase();
+    when(() => updateProfile(any())).thenAnswer((_) async => const DataFailed(Failure.network()));
+    sl.registerFactoryParam<EditProfileCubit, UserEntity, void>(
+      (u, _) => EditProfileCubit(updateProfile, harness.pickThumbnail, user: u),
+    );
+    addTearDown(() => sl.unregister<EditProfileCubit>());
+    useScreen(tester, const Size(600, 1400));
+    await tester.pump();
+    await pumpRoutedApp(
+      tester,
+      initialLocation: AppRoutes.editProfile,
+      routes: {AppRoutes.editProfile: (_) => const EditProfileScreen()},
+      providers: harness.providers,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.enterText(find.byType(TextField), 'Grace');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+
+    verify(() => updateProfile(any())).called(1);
+    expect(find.byType(EditProfileScreen), findsOneWidget);
+    expect(find.text(FailureMessageFormatter.of(const Failure.network())), findsOneWidget);
   });
 }

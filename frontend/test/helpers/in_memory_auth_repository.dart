@@ -13,6 +13,7 @@ import 'package:news_app_clean_architecture/features/auth/domain/repository/auth
 /// [FailureType.invalidCredentials], a repeated sign-up fails with
 /// [FailureType.emailAlreadyInUse], and Google sign-in always succeeds with a
 /// fixed account.
+
 class InMemoryAuthRepository implements AuthRepository {
   final Map<String, _Account> _accounts = {};
   final StreamController<UserEntity?> _controller =
@@ -29,7 +30,7 @@ class InMemoryAuthRepository implements AuthRepository {
   );
 
   InMemoryAuthRepository({
-    Duration latency = const Duration(milliseconds: 400),
+    Duration latency = Duration.zero,
     UserEntity? initialUser,
   }) : _latency = latency {
     _currentUser = initialUser;

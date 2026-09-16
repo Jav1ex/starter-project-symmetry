@@ -12,13 +12,9 @@ import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   Future<ShellHarness> pumpSearch(WidgetTester tester) async {
     final harness = ShellHarness(feed: FeedEntity(articles: [buildArticle(title: 'Tram strike ends')]));
-    tester.view.physicalSize = const Size(600, 1400);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
+    useScreen(tester, const Size(600, 1400));
     await tester.pump();
     await pumpRoutedApp(
       tester,
@@ -61,5 +57,22 @@ void main() {
 
     verify(() => harness.searchArticles('Sports')).called(1);
     expect(find.text('No stories about "Sports"'), findsOneWidget);
+  });
+
+  testWidgets('Clear returns to the recent list, and a recent query runs again', (tester) async {
+    final harness = await pumpSearch(tester);
+
+    await tester.enterText(find.byType(TextField), 'tram');
+    await tester.testTextInput.receiveAction(TextInputAction.search);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Clear'));
+    await tester.pumpAndSettle();
+    expect(find.text('RECENT'), findsOneWidget);
+
+    await tester.tap(find.text('tram'));
+    await tester.pumpAndSettle();
+
+    verify(() => harness.searchArticles('tram')).called(greaterThanOrEqualTo(2));
+    expect(find.text('1 RESULT'), findsOneWidget);
   });
 }

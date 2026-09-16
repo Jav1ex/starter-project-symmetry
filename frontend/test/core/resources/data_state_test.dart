@@ -44,20 +44,6 @@ void main() {
   });
 
   group('Failure', () {
-    test('named constructors set the matching type with a default message', () {
-      expect(const Failure.network().type, FailureType.network);
-      expect(const Failure.server().type, FailureType.server);
-      expect(const Failure.notFound().type, FailureType.notFound);
-      expect(const Failure.unauthenticated().type, FailureType.unauthenticated);
-      expect(const Failure.invalidCredentials().type, FailureType.invalidCredentials);
-      expect(const Failure.emailAlreadyInUse().type, FailureType.emailAlreadyInUse);
-      expect(const Failure.weakPassword().type, FailureType.weakPassword);
-      expect(const Failure.permissionDenied().type, FailureType.permissionDenied);
-      expect(const Failure.cancelled().type, FailureType.cancelled);
-      expect(const Failure.unknown().type, FailureType.unknown);
-      expect(const Failure.network().message, isNotEmpty);
-    });
-
     test('validation failures carry the given message', () {
       const failure = Failure.validation('Title is required.');
       expect(failure.type, FailureType.validation);

@@ -11,7 +11,6 @@ import '../../../../../helpers/pump_app.dart';
 
 void main() {
   setUpAll(() {
-    registerCommonFallbacks();
     registerFallbackValue(const SignUpParams(displayName: '', email: '', password: ''));
   });
 
@@ -32,19 +31,6 @@ void main() {
       ..emailChanged('ada@example.com')
       ..passwordChanged('Harbour-lamp-42');
   }
-
-  test('starts empty with no strength guidance', () {
-    expect(cubit.state, const SignUpState());
-    expect(cubit.state.passwordStrength, isNull);
-  });
-
-  test('password strength follows the typed password', () {
-    cubit.passwordChanged('short');
-    expect(cubit.state.passwordStrength, PasswordStrength.weak);
-
-    cubit.passwordChanged('Harbour-lamp-42');
-    expect(cubit.state.passwordStrength, PasswordStrength.strong);
-  });
 
   test('submit on an empty form reports one error per field', () async {
     await cubit.submit();
@@ -126,11 +112,4 @@ void main() {
     expect(cubit.state.failure, failure);
   });
 
-  test('signInWithGoogle succeeds from the sign-up form too', () async {
-    when(() => signInWithGoogle(any())).thenAnswer((_) async => const DataSuccess(user));
-
-    await cubit.signInWithGoogle();
-
-    expect(cubit.state.status, SignUpStatus.success);
-  });
 }

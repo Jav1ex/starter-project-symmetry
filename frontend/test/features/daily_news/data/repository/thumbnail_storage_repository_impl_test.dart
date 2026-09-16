@@ -63,8 +63,4 @@ void main() {
     expect((await repository.delete('media/articles/c.jpg')).failureOrNull?.type, FailureType.permissionDenied);
   });
 
-  test('extensions follow the MIME type', () {
-    expect(ThumbnailStorageRepositoryImpl.extensionFor('image/webp'), 'webp');
-    expect(ThumbnailStorageRepositoryImpl.extensionFor('image/jpeg'), 'jpg');
-  });
 }

@@ -74,4 +74,13 @@ void main() {
     expect((await repository.signOut()).isSuccess, isTrue);
     verify(service.signOut).called(1);
   });
+
+  test('updateProfile returns the refreshed account as an entity', () async {
+    when(() => service.updateProfile(displayName: 'Grace', photoUrl: null))
+        .thenAnswer((_) async => const UserModel(id: 'uid-1', displayName: 'Grace'));
+
+    final result = await repository.updateProfile(displayName: 'Grace');
+
+    expect(result.dataOrNull?.displayName, 'Grace');
+  });
 }

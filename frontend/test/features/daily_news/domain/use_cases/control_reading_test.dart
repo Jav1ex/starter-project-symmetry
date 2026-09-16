@@ -4,8 +4,8 @@ import 'package:news_app_clean_architecture/features/daily_news/domain/entities/
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/control_reading.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/use_cases/read_aloud.dart';
 
-import '../../../../helpers/pump_app.dart';
 import '../../../../helpers/in_memory_speech_repository.dart';
+import '../../../../helpers/pump_app.dart';
 
 void main() {
   late InMemorySpeechRepository speech;

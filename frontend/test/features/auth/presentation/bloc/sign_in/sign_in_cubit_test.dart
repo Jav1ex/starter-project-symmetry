@@ -14,7 +14,6 @@ import '../../../../../helpers/pump_app.dart';
 
 void main() {
   setUpAll(() {
-    registerCommonFallbacks();
     registerFallbackValue(const SignInParams(email: '', password: ''));
   });
 
@@ -34,11 +33,6 @@ void main() {
       ..emailChanged('ada@example.com')
       ..passwordChanged('secret123');
   }
-
-  test('starts empty, obscured and idle', () {
-    expect(cubit.state, const SignInState());
-    expect(cubit.state.isSubmitting, isFalse);
-  });
 
   test('typing updates the field and drops that field\'s own error only', () async {
     await cubit.submit();

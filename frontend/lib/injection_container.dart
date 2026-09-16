@@ -1,3 +1,5 @@
+// coverage:ignore-file
+// Composition root: wires SDK instances that only exist on a device.
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';

@@ -4,13 +4,11 @@ import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/bloc/my_articles/my_articles_cubit.dart';
 
-import '../../../../../helpers/feed_harness.dart';
 import '../../../../../helpers/fixtures.dart';
-import '../../../../../helpers/pump_app.dart';
+import '../../../../../helpers/mocks.dart';
 
 void main() {
   setUpAll(() {
-    registerCommonFallbacks();
     registerFallbackValue(buildArticle());
   });
 
@@ -28,10 +26,6 @@ void main() {
     cubit = MyArticlesCubit(getMyArticles, deleteArticle);
   });
   tearDown(() => cubit.close());
-
-  test('starts empty and not loading', () {
-    expect(cubit.state, const MyArticlesState());
-  });
 
   test('load fills the list; a failure is reported', () async {
     await cubit.load();

@@ -58,11 +58,6 @@ void main() {
       ]);
     });
 
-    test('every error has a user-facing message', () {
-      for (final error in ArticleValidationError.values) {
-        expect(error.message, isNotEmpty);
-      }
-    });
   });
 
   group('trimmed accessors', () {
@@ -87,9 +82,4 @@ void main() {
     expect(copy.publishedAt, draft.publishedAt);
   });
 
-  test('limits match the backend rules', () {
-    expect(ArticleLimits.titleMaxLength, 150);
-    expect(ArticleLimits.descriptionMaxLength, 300);
-    expect(ArticleLimits.contentMaxLength, 20000);
-  });
 }

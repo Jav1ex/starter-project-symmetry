@@ -2,10 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/config/routes/app_routes.dart';
+import 'package:news_app_clean_architecture/core/resources/data_state.dart';
+import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/screens/my_articles_screen.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/my_articles/delete_article_dialog.dart';
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/my_articles/my_article_row.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/screens/profile_screen.dart';
+import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/feedback/empty_state.dart';
 
 import '../../../../helpers/feed_harness.dart';
@@ -13,8 +16,6 @@ import '../../../../helpers/fixtures.dart';
 import '../../../../helpers/pump_app.dart';
 
 void main() {
-  setUpAll(registerCommonFallbacks);
-
   final live = buildUserArticle(id: 'live', authorId: user.id).copyWith(title: 'Live story');
   final scheduled = buildUserArticle(
     id: 'sched',
@@ -24,9 +25,7 @@ void main() {
 
   Future<ShellHarness> pumpMyArticles(WidgetTester tester, {required String initial}) async {
     final harness = ShellHarness(myArticles: [live, scheduled]);
-    tester.view.physicalSize = const Size(600, 1600);
-    tester.view.devicePixelRatio = 1;
-    addTearDown(tester.view.reset);
+    useScreen(tester, const Size(600, 1600));
     await tester.pump();
     await pumpRoutedApp(
       tester,
@@ -100,5 +99,67 @@ void main() {
 
     expect(find.byType(EmptyState), findsOneWidget);
     expect(find.text('Your byline starts here'), findsOneWidget);
+  });
+
+  testWidgets('Edit opens the form for that article', (tester) async {
+    await pumpMyArticles(tester, initial: AppRoutes.myArticles);
+
+    await tester.tap(find.text('Edit').first);
+    await tester.pumpAndSettle();
+
+    expect(find.text('publish form'), findsOneWidget);
+  });
+
+  testWidgets('a failed load explains itself and Try again reloads', (tester) async {
+    final harness = ShellHarness();
+    when(() => harness.getMyArticles(any())).thenAnswer((_) async => const DataFailed(Failure.server()));
+    await tester.pump();
+    await pumpRoutedApp(
+      tester,
+      initialLocation: AppRoutes.myArticles,
+      routes: {AppRoutes.myArticles: (_) => const MyArticlesScreen()},
+      providers: harness.providers,
+    );
+    await tester.pumpAndSettle();
+    expect(find.text("Couldn't load your articles"), findsOneWidget);
+
+    when(() => harness.getMyArticles(any())).thenAnswer((_) async => DataSuccess([live]));
+    await tester.tap(find.text('Try again'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MyArticleRow), findsOneWidget);
+  });
+
+  testWidgets('a delete the server rejects keeps the row and says why', (tester) async {
+    final harness = await pumpMyArticles(tester, initial: AppRoutes.myArticles);
+    when(() => harness.deleteArticle(any())).thenAnswer((_) async => const DataFailed(Failure.server()));
+
+    await tester.tap(find.text('Delete').first);
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Delete article'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(MyArticleRow), findsNWidgets(2));
+    expect(find.text(FailureMessageFormatter.of(const Failure.server())), findsOneWidget);
+  });
+
+  testWidgets('Write your first article opens the form', (tester) async {
+    final harness = ShellHarness();
+    await tester.pump();
+    await pumpRoutedApp(
+      tester,
+      initialLocation: AppRoutes.myArticles,
+      routes: {
+        AppRoutes.myArticles: (_) => const MyArticlesScreen(),
+        AppRoutes.publish: (_) => const Text('publish form'),
+      },
+      providers: harness.providers,
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Write your first article'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('publish form'), findsOneWidget);
   });
 }

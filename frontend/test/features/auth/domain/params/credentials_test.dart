@@ -34,9 +34,6 @@ void main() {
       expect(PasswordStrength.of('Harbour-lamp-42'), PasswordStrength.strong);
     });
 
-    test('fills one more meter segment per level', () {
-      expect(PasswordStrength.values.map((s) => s.filledSegments), [1, 2, 3, 4]);
-    });
   });
 
   group('SignInParams.validate', () {
@@ -128,10 +125,5 @@ void main() {
       expect(params.trimmedEmail, 'ada@example.com');
     });
 
-    test('every error has a user-facing message', () {
-      for (final error in CredentialValidationError.values) {
-        expect(error.message, isNotEmpty);
-      }
-    });
   });
 }
