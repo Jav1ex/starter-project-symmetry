@@ -102,7 +102,7 @@ I also leave with a much firmer grip on Clean Architecture as a daily discipline
 folder layout: the moments where a repository reached into another feature, or a cubit emitted
 after being closed, were caught because the boundaries were explicit.
 
-Professionally, the biggest growth was in **editing my own work**. Three of the features I built
+Professionally, the biggest growth was in **editing my own work**. Several of the features I built
 are not in the final app because they did not earn their place, and the codebase is better for
 it. Saying no to my own ideas was harder than building them.
 
