@@ -90,26 +90,6 @@ void main() {
     expect(auth.currentUser, isNull);
   });
 
-  group('deleteAccount', () {
-    test('fails when signed out', () async {
-      final result = await auth.deleteAccount();
-
-      expect(result.failureOrNull?.type, FailureType.unauthenticated);
-    });
-
-    test('removes the account so it can no longer sign in', () async {
-      await auth.signUpWithEmail(signUp);
-
-      await auth.deleteAccount();
-      final again = await auth.signInWithEmail(
-        const SignInParams(email: 'ada@example.com', password: 'longenough'),
-      );
-
-      expect(auth.currentUser, isNull);
-      expect(again.failureOrNull?.type, FailureType.invalidCredentials);
-    });
-  });
-
   test('watchAuthState emits the current state first, then every change', () async {
     final events = <String?>[];
     final subscription = auth.watchAuthState().listen((u) => events.add(u?.id));

@@ -15,7 +15,6 @@ void main() {
     expect(typeOf(FirebaseAuthException(code: 'email-already-in-use')), FailureType.emailAlreadyInUse);
     expect(typeOf(FirebaseAuthException(code: 'weak-password')), FailureType.weakPassword);
     expect(typeOf(FirebaseAuthException(code: 'network-request-failed')), FailureType.network);
-    expect(typeOf(FirebaseAuthException(code: 'requires-recent-login')), FailureType.permissionDenied);
     expect(typeOf(FirebaseAuthException(code: 'something-new')), FailureType.unknown);
   });
 

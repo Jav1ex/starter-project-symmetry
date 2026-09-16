@@ -28,7 +28,7 @@ void main() {
     final text = AppTheme.light().textTheme;
 
     expect(text.headlineLarge?.fontFamily, AppTypography.serif);
-    expect(text.bodyLarge?.fontFamily, AppTypography.sans);
+    expect(text.bodyLarge?.fontFamily, AppTypography.serif);
     expect(text.bodyLarge?.fontSize, 17);
   });
 

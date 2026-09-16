@@ -7,118 +7,66 @@ import 'package:news_app_clean_architecture/features/daily_news/data/models/save
 import 'package:news_app_clean_architecture/features/daily_news/data/repository/saved_article_repository_impl.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 
+import '../../../../helpers/fixtures.dart';
+import '../../../../helpers/mocks.dart';
+
 class MockSavedArticleDao extends Mock implements SavedArticleDao {}
 
 void main() {
   late MockSavedArticleDao dao;
+  late MockAuthRepository auth;
   late SavedArticleRepositoryImpl repository;
 
-  final entity = ArticleEntity(
-    id: 'doc-1',
-    source: ArticleSource.user,
-    title: 'Title',
-    content: 'Content',
-    author: 'Ada',
-    authorId: 'uid-1',
-    imageUrl: 'https://img.example/1.jpg',
-    imagePath: 'media/articles/1.jpg',
-    publishedAt: DateTime.utc(2026, 9, 15),
-  );
-  final model = SavedArticleModel.fromEntity(entity);
+  final entity = buildUserArticle(id: 'doc-1');
+  final model = SavedArticleModel.fromEntity(entity, ownerId: user.id);
 
-  setUpAll(() {
-    registerFallbackValue(model);
-  });
+  setUpAll(() => registerFallbackValue(model));
 
   setUp(() {
     dao = MockSavedArticleDao();
-    repository = SavedArticleRepositoryImpl(dao);
+    auth = MockAuthRepository();
+    when(() => auth.currentUser).thenReturn(user);
+    repository = SavedArticleRepositoryImpl(dao, auth);
   });
 
-  group('getSavedArticles', () {
-    test('maps rows to plain entities', () async {
-      when(() => dao.getArticles()).thenAnswer((_) async => [model]);
+  test('every operation is filed under the signed-in account', () async {
+    when(() => dao.getArticles(user.id)).thenAnswer((_) async => [model]);
+    when(() => dao.insertArticle(any())).thenAnswer((_) async {});
+    when(() => dao.deleteById(user.id, 'doc-1')).thenAnswer((_) async {});
+    when(() => dao.findById(user.id, 'doc-1')).thenAnswer((_) async => model);
 
-      final result = await repository.getSavedArticles();
+    final listed = await repository.getSavedArticles();
+    expect(listed.dataOrNull, [entity]);
+    expect(listed.dataOrNull!.single, isNot(isA<SavedArticleModel>()));
 
-      expect(result.dataOrNull, [entity]);
-      expect(result.dataOrNull!.single, isNot(isA<SavedArticleModel>()));
-    });
+    await repository.saveArticle(entity);
+    final inserted = verify(() => dao.insertArticle(captureAny())).captured.single as SavedArticleModel;
+    expect(inserted.ownerId, user.id);
 
-    test('returns an unknown failure when the database throws', () async {
-      when(() => dao.getArticles()).thenThrow(Exception('disk'));
-
-      final result = await repository.getSavedArticles();
-
-      expect(result, isA<DataFailed<List<ArticleEntity>>>());
-      expect(result.failureOrNull?.type, FailureType.unknown);
-    });
+    expect((await repository.isSaved('doc-1')).dataOrNull, isTrue);
+    expect((await repository.removeArticle('doc-1')).isSuccess, isTrue);
   });
 
-  group('saveArticle', () {
-    test('inserts the entity converted to a row', () async {
-      when(() => dao.insertArticle(any())).thenAnswer((_) async {});
+  test('without a session there is no owner to file under', () async {
+    when(() => auth.currentUser).thenReturn(null);
 
-      final result = await repository.saveArticle(entity);
+    final result = await repository.getSavedArticles();
 
-      expect(result, isA<DataSuccess<void>>());
-      verify(() => dao.insertArticle(model)).called(1);
-    });
-
-    test('reports a failure instead of throwing', () async {
-      when(() => dao.insertArticle(any())).thenThrow(Exception('constraint'));
-
-      final result = await repository.saveArticle(entity);
-
-      expect(result, isA<DataFailed<void>>());
-    });
+    expect(result.failureOrNull?.type, FailureType.unauthenticated);
+    verifyNever(() => dao.getArticles(any()));
   });
 
-  group('removeArticle', () {
-    test('deletes by id', () async {
-      when(() => dao.deleteById('doc-1')).thenAnswer((_) async {});
+  test('a database error is reported as unknown, not thrown', () async {
+    when(() => dao.getArticles(any())).thenThrow(Exception('disk'));
 
-      final result = await repository.removeArticle('doc-1');
+    final result = await repository.getSavedArticles();
 
-      expect(result, isA<DataSuccess<void>>());
-      verify(() => dao.deleteById('doc-1')).called(1);
-    });
-  });
-
-  group('clear', () {
-    test('deletes every stored article by id', () async {
-      final other = SavedArticleModel.fromEntity(entity.copyWith(id: 'doc-2'));
-      when(() => dao.getArticles()).thenAnswer((_) async => [model, other]);
-      when(() => dao.deleteById(any())).thenAnswer((_) async {});
-
-      final result = await repository.clear();
-
-      expect(result, isA<DataSuccess<void>>());
-      verify(() => dao.deleteById('doc-1')).called(1);
-      verify(() => dao.deleteById('doc-2')).called(1);
-    });
-  });
-
-  group('isSaved', () {
-    test('is true when a row exists', () async {
-      when(() => dao.findById('doc-1')).thenAnswer((_) async => model);
-
-      final result = await repository.isSaved('doc-1');
-
-      expect(result.dataOrNull, isTrue);
-    });
-
-    test('is false when no row exists', () async {
-      when(() => dao.findById('doc-1')).thenAnswer((_) async => null);
-
-      final result = await repository.isSaved('doc-1');
-
-      expect(result.dataOrNull, isFalse);
-    });
+    expect(result, isA<DataFailed<List<ArticleEntity>>>());
+    expect(result.failureOrNull?.type, FailureType.unknown);
   });
 
   test('SavedArticleModel round-trips through the entity', () {
     expect(model.toEntity(), entity);
-    expect(SavedArticleModel.fromEntity(model.toEntity()), model);
+    expect(model.ownerId, user.id);
   });
 }

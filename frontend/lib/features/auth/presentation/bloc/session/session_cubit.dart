@@ -6,7 +6,6 @@ import 'package:news_app_clean_architecture/core/resources/data_state.dart';
 import 'package:news_app_clean_architecture/core/resources/failure.dart';
 import 'package:news_app_clean_architecture/core/usecase/usecase.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/entities/user.dart';
-import 'package:news_app_clean_architecture/features/auth/domain/use_cases/delete_account.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_out.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/watch_auth_state.dart';
 
@@ -16,15 +15,14 @@ part 'session_state.dart';
 ///
 /// Lives above the router: every screen can read who is signed in, and the
 /// router redirects when the state flips. Sign-in and sign-up forms have
-/// their own cubits; this one only reflects the outcome and handles the two
-/// account-wide actions, signing out and deleting the account.
+/// their own cubits; this one only reflects the outcome and handles the one
+/// account-wide action, signing out.
 class SessionCubit extends Cubit<SessionState> {
   final WatchAuthStateUseCase _watchAuthState;
   final SignOutUseCase _signOut;
-  final DeleteAccountUseCase _deleteAccount;
   StreamSubscription<UserEntity?>? _subscription;
 
-  SessionCubit(this._watchAuthState, this._signOut, this._deleteAccount)
+  SessionCubit(this._watchAuthState, this._signOut)
       : super(const SessionUnknown()) {
     _subscription = _watchAuthState(const NoParams()).listen(_onUserChanged);
   }
@@ -34,9 +32,6 @@ class SessionCubit extends Cubit<SessionState> {
   }
 
   Future<void> signOut() => _runAccountAction(() => _signOut(const NoParams()));
-
-  Future<void> deleteAccount() =>
-      _runAccountAction(() => _deleteAccount(const NoParams()));
 
   Future<void> _runAccountAction(
     Future<DataState<void>> Function() action,

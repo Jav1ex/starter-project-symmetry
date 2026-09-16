@@ -69,18 +69,6 @@ void main() {
     expect((await repository.signInWithGoogle()).failureOrNull?.type, FailureType.network);
   });
 
-  test('deleteAccount refuses when nobody is signed in, otherwise delegates', () async {
-    when(() => service.currentUser).thenReturn(null);
-    expect((await repository.deleteAccount()).failureOrNull?.type, FailureType.unauthenticated);
-
-    when(() => service.currentUser).thenReturn(model);
-    when(service.deleteAccount).thenAnswer((_) async {});
-    expect((await repository.deleteAccount()).isSuccess, isTrue);
-
-    when(service.deleteAccount).thenThrow(FirebaseAuthException(code: 'requires-recent-login'));
-    expect((await repository.deleteAccount()).failureOrNull?.type, FailureType.permissionDenied);
-  });
-
   test('signOut delegates', () async {
     when(service.signOut).thenAnswer((_) async {});
     expect((await repository.signOut()).isSuccess, isTrue);

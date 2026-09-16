@@ -1,7 +1,5 @@
 import 'package:mocktail/mocktail.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/repository/auth_repository.dart';
-import 'package:news_app_clean_architecture/features/auth/domain/use_cases/clear_account_local_data.dart';
-import 'package:news_app_clean_architecture/features/auth/domain/use_cases/delete_account.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_email.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_in_with_google.dart';
 import 'package:news_app_clean_architecture/features/auth/domain/use_cases/sign_out.dart';
@@ -42,10 +40,6 @@ class MockSettingsRepository extends Mock implements SettingsRepository {}
 class MockWatchAuthStateUseCase extends Mock implements WatchAuthStateUseCase {}
 
 class MockSignOutUseCase extends Mock implements SignOutUseCase {}
-
-class MockClearAccountLocalDataUseCase extends Mock implements ClearAccountLocalDataUseCase {}
-
-class MockDeleteAccountUseCase extends Mock implements DeleteAccountUseCase {}
 
 class MockSignInWithEmailUseCase extends Mock implements SignInWithEmailUseCase {}
 

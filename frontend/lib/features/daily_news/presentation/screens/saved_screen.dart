@@ -37,7 +37,6 @@ class _SavedScreenState extends State<SavedScreen> {
       'Removed from Saved',
       actionLabel: 'Undo',
       onAction: cubit.undoRemove,
-      duration: const Duration(seconds: 5),
     );
   }
 

@@ -23,6 +23,4 @@ abstract interface class AuthRepository {
   Future<DataState<UserEntity>> updateProfile({String? displayName, String? photoUrl});
 
   Future<DataState<void>> signOut();
-
-  Future<DataState<void>> deleteAccount();
 }

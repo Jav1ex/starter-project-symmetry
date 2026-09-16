@@ -1,13 +1,18 @@
 import 'package:floor/floor.dart';
 import 'package:news_app_clean_architecture/features/daily_news/domain/entities/article.dart';
 
-/// Row of the `saved_article` table: an article bookmarked on this device.
+/// Row of the `saved_article` table: an article bookmarked on this device by
+/// one account. Several accounts on the same phone keep separate bookmarks,
+/// which is why the key is (owner, article).
 ///
 /// Floor maps every inherited field to a column; `publishedAt`, `source` and
 /// `category` go through the type converters registered on the database.
-@Entity(tableName: 'saved_article', primaryKeys: ['id'])
+@Entity(tableName: 'saved_article', primaryKeys: ['ownerId', 'id'])
 class SavedArticleModel extends ArticleEntity {
+  final String ownerId;
+
   const SavedArticleModel({
+    required this.ownerId,
     required super.id,
     required super.source,
     required super.title,
@@ -22,8 +27,9 @@ class SavedArticleModel extends ArticleEntity {
     super.url,
   });
 
-  factory SavedArticleModel.fromEntity(ArticleEntity entity) {
+  factory SavedArticleModel.fromEntity(ArticleEntity entity, {required String ownerId}) {
     return SavedArticleModel(
+      ownerId: ownerId,
       id: entity.id,
       source: entity.source,
       title: entity.title,

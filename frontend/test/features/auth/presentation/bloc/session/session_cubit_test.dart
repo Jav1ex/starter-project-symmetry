@@ -69,27 +69,13 @@ void main() {
     expect(harness.cubit.state, const SessionAuthenticated(user, failure: failure));
   });
 
-  test('deleteAccount runs the use case and reports a failure the same way', () async {
-    const failure = Failure.unknown();
-    when(() => harness.deleteAccount(any())).thenAnswer((_) async => const DataFailed(failure));
-    harness.signIn(user);
-    await flush();
-
-    await harness.cubit.deleteAccount();
-
-    expect(harness.cubit.state, const SessionAuthenticated(user, failure: failure));
-    verify(() => harness.deleteAccount(any())).called(1);
-  });
-
   test('account actions are ignored while signed out', () async {
     harness.signOutUser();
     await flush();
 
     await harness.cubit.signOut();
-    await harness.cubit.deleteAccount();
 
     verifyNever(() => harness.signOut(any()));
-    verifyNever(() => harness.deleteAccount(any()));
   });
 
   test('a second action is ignored while the first is still running', () async {
@@ -99,11 +85,11 @@ void main() {
     await flush();
 
     final first = harness.cubit.signOut();
-    await harness.cubit.deleteAccount();
+    await harness.cubit.signOut();
     gate.complete(const DataSuccess(null));
     await first;
 
-    verifyNever(() => harness.deleteAccount(any()));
+    verify(() => harness.signOut(any())).called(1);
   });
 
   test('copyWith clears the failure unless it is passed again', () {

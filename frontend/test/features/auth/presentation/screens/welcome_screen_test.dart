@@ -16,7 +16,6 @@ void main() {
 
     expect(find.byType(BrandMark), findsOneWidget);
     expect(find.text('Headline\nNews'), findsOneWidget);
-    expect(find.text(WelcomeScreen.valueLine), findsOneWidget);
     expect(find.widgetWithText(FilledButton, 'Sign in'), findsOneWidget);
     expect(find.widgetWithText(OutlinedButton, 'Create account'), findsOneWidget);
   });

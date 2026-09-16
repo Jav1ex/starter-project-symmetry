@@ -99,16 +99,6 @@ class InMemoryAuthRepository implements AuthRepository {
     return const DataSuccess(null);
   }
 
-  @override
-  Future<DataState<void>> deleteAccount() async {
-    await _simulateLatency();
-    final user = _currentUser;
-    if (user == null) return const DataFailed(Failure.unauthenticated());
-    _accounts.removeWhere((_, account) => account.user.id == user.id);
-    _setCurrentUser(null);
-    return const DataSuccess(null);
-  }
-
   void _setCurrentUser(UserEntity? user) {
     _currentUser = user;
     _controller.add(user);

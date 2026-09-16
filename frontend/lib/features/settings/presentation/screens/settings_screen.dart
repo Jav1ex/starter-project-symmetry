@@ -8,8 +8,6 @@ import 'package:news_app_clean_architecture/core/constants/app_info.dart';
 import 'package:news_app_clean_architecture/features/auth/presentation/bloc/session/session_cubit.dart';
 import 'package:news_app_clean_architecture/features/settings/domain/entities/app_settings.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/bloc/settings/settings_cubit.dart';
-import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/danger_zone_card.dart';
-import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/delete_account_dialog.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/settings_row.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/settings_section.dart';
 import 'package:news_app_clean_architecture/features/settings/presentation/widgets/settings/text_size_control.dart';
@@ -75,8 +73,6 @@ class SettingsScreen extends StatelessWidget {
               const _AboutSection(),
               const SizedBox(height: AppSpacing.xxl),
               const _AccountSection(),
-              const SizedBox(height: AppSpacing.lg),
-              const _DangerZone(),
             ],
           ),
         ),
@@ -221,27 +217,6 @@ class _AccountSection extends StatelessWidget {
         );
       },
     );
-  }
-}
-
-class _DangerZone extends StatelessWidget {
-  const _DangerZone();
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<SessionCubit, SessionState>(
-      builder: (context, state) {
-        return DangerZoneCard(
-          onDeleteAccount: _isBusy(state) ? null : () => _confirmDelete(context),
-        );
-      },
-    );
-  }
-
-  Future<void> _confirmDelete(BuildContext context) async {
-    final cubit = context.read<SessionCubit>();
-    final confirmed = await DeleteAccountDialog.show(context);
-    if (confirmed) await cubit.deleteAccount();
   }
 }
 

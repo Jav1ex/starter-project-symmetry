@@ -81,15 +81,13 @@ String locationOf(GoRouter router) =>
 class SessionHarness {
   final MockWatchAuthStateUseCase watchAuthState = MockWatchAuthStateUseCase();
   final MockSignOutUseCase signOut = MockSignOutUseCase();
-  final MockDeleteAccountUseCase deleteAccount = MockDeleteAccountUseCase();
   final StreamController<UserEntity?> users = StreamController<UserEntity?>.broadcast();
   late final SessionCubit cubit;
 
   SessionHarness() {
     when(() => watchAuthState(any())).thenAnswer((_) => users.stream);
     when(() => signOut(any())).thenAnswer((_) async => const DataSuccess(null));
-    when(() => deleteAccount(any())).thenAnswer((_) async => const DataSuccess(null));
-    cubit = SessionCubit(watchAuthState, signOut, deleteAccount);
+    cubit = SessionCubit(watchAuthState, signOut);
   }
 
   /// Emits a signed-in user. In a widget test follow it with `tester.pump()`;

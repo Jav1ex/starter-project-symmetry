@@ -16,6 +16,7 @@ import 'package:news_app_clean_architecture/features/daily_news/presentation/wid
 import 'package:news_app_clean_architecture/features/daily_news/presentation/widgets/publish/publish_success_view.dart';
 import 'package:news_app_clean_architecture/injection_container.dart';
 import 'package:news_app_clean_architecture/shared/presentation/formatters/failure_message_formatter.dart';
+import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/destructive_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/labeled_icon_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/primary_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/secondary_button.dart';
@@ -165,14 +166,6 @@ class _PublishViewState extends State<PublishView> {
                       LabeledIconButton.cancel(
                         onPressed: state.isSubmitting ? null : () => Navigator.of(context).pop(),
                       ),
-                      if (state.hasDraftContent) ...[
-                        const SizedBox(width: AppSpacing.sm),
-                        LabeledIconButton(
-                          icon: Icons.delete_sweep_rounded,
-                          label: 'Clear',
-                          onPressed: state.isSubmitting ? null : cubit.clearDraft,
-                        ),
-                      ],
                       const Spacer(),
                       Text(
                         state.isEditing ? 'Edit article' : 'New article',
@@ -235,6 +228,16 @@ class _PublishViewState extends State<PublishView> {
                       ),
                       const SizedBox(height: AppSpacing.lg),
                       CategoryChips(selected: state.category, onChanged: cubit.categoryChanged),
+                      // Last on purpose: wiping the draft should take a scroll
+                      // to reach, never a stray tap near the header.
+                      if (state.hasDraftContent) ...[
+                        const SizedBox(height: AppSpacing.xxl),
+                        DestructiveButton(
+                          label: 'Clear draft',
+                          icon: Icons.delete_sweep_rounded,
+                          onPressed: state.isSubmitting ? null : cubit.clearDraft,
+                        ),
+                      ],
                     ],
                   ),
                 ),

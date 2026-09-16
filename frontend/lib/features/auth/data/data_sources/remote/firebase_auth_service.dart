@@ -54,17 +54,11 @@ class FirebaseAuthService {
     return _toModel(_auth.currentUser ?? user)!;
   }
 
+  /// Firebase first: that is what flips the session and lets the app move
+  /// on. Forgetting the Google account (a network round trip) follows, so
+  /// the next Google sign-in shows the account picker again.
   Future<void> signOut() async {
-    await _googleSignIn.signOut();
     await _auth.signOut();
-  }
-
-  Future<void> deleteAccount() async {
-    final user = _auth.currentUser;
-    if (user == null) {
-      throw FirebaseAuthException(code: 'no-current-user', message: 'Nobody is signed in.');
-    }
-    await user.delete();
     await _googleSignIn.signOut();
   }
 

@@ -80,7 +80,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 3,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -96,7 +96,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `saved_article` (`id` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `description` TEXT, `author` TEXT NOT NULL, `category` TEXT NOT NULL, `authorId` TEXT, `imageUrl` TEXT, `imagePath` TEXT, `url` TEXT, `publishedAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `saved_article` (`ownerId` TEXT NOT NULL, `id` TEXT NOT NULL, `source` TEXT NOT NULL, `title` TEXT NOT NULL, `content` TEXT NOT NULL, `description` TEXT, `author` TEXT NOT NULL, `category` TEXT NOT NULL, `authorId` TEXT, `imageUrl` TEXT, `imagePath` TEXT, `url` TEXT, `publishedAt` INTEGER NOT NULL, PRIMARY KEY (`ownerId`, `id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -120,6 +120,7 @@ class _$SavedArticleDao extends SavedArticleDao {
             database,
             'saved_article',
             (SavedArticleModel item) => <String, Object?>{
+                  'ownerId': item.ownerId,
                   'id': item.id,
                   'source': _articleSourceConverter.encode(item.source),
                   'title': item.title,
@@ -143,28 +144,11 @@ class _$SavedArticleDao extends SavedArticleDao {
   final InsertionAdapter<SavedArticleModel> _savedArticleModelInsertionAdapter;
 
   @override
-  Future<List<SavedArticleModel>> getArticles() async {
+  Future<List<SavedArticleModel>> getArticles(String ownerId) async {
     return _queryAdapter.queryList(
-        'SELECT * FROM saved_article ORDER BY publishedAt DESC',
+        'SELECT * FROM saved_article WHERE ownerId = ?1 ORDER BY publishedAt DESC',
         mapper: (Map<String, Object?> row) => SavedArticleModel(
-            id: row['id'] as String,
-            source: _articleSourceConverter.decode(row['source'] as String),
-            title: row['title'] as String,
-            content: row['content'] as String,
-            author: row['author'] as String,
-            publishedAt: _dateTimeConverter.decode(row['publishedAt'] as int),
-            category: _newsCategoryConverter.decode(row['category'] as String),
-            description: row['description'] as String?,
-            authorId: row['authorId'] as String?,
-            imageUrl: row['imageUrl'] as String?,
-            imagePath: row['imagePath'] as String?,
-            url: row['url'] as String?));
-  }
-
-  @override
-  Future<SavedArticleModel?> findById(String id) async {
-    return _queryAdapter.query('SELECT * FROM saved_article WHERE id = ?1',
-        mapper: (Map<String, Object?> row) => SavedArticleModel(
+            ownerId: row['ownerId'] as String,
             id: row['id'] as String,
             source: _articleSourceConverter.decode(row['source'] as String),
             title: row['title'] as String,
@@ -177,13 +161,35 @@ class _$SavedArticleDao extends SavedArticleDao {
             imageUrl: row['imageUrl'] as String?,
             imagePath: row['imagePath'] as String?,
             url: row['url'] as String?),
-        arguments: [id]);
+        arguments: [ownerId]);
   }
 
   @override
-  Future<void> deleteById(String id) async {
-    await _queryAdapter.queryNoReturn('DELETE FROM saved_article WHERE id = ?1',
-        arguments: [id]);
+  Future<SavedArticleModel?> findById(String ownerId, String id) async {
+    return _queryAdapter.query(
+        'SELECT * FROM saved_article WHERE ownerId = ?1 AND id = ?2',
+        mapper: (Map<String, Object?> row) => SavedArticleModel(
+            ownerId: row['ownerId'] as String,
+            id: row['id'] as String,
+            source: _articleSourceConverter.decode(row['source'] as String),
+            title: row['title'] as String,
+            content: row['content'] as String,
+            author: row['author'] as String,
+            publishedAt: _dateTimeConverter.decode(row['publishedAt'] as int),
+            category: _newsCategoryConverter.decode(row['category'] as String),
+            description: row['description'] as String?,
+            authorId: row['authorId'] as String?,
+            imageUrl: row['imageUrl'] as String?,
+            imagePath: row['imagePath'] as String?,
+            url: row['url'] as String?),
+        arguments: [ownerId, id]);
+  }
+
+  @override
+  Future<void> deleteById(String ownerId, String id) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM saved_article WHERE ownerId = ?1 AND id = ?2',
+        arguments: [ownerId, id]);
   }
 
   @override

@@ -7,13 +7,10 @@ import 'package:news_app_clean_architecture/shared/presentation/widgets/media/br
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/primary_button.dart';
 import 'package:news_app_clean_architecture/shared/presentation/widgets/buttons/secondary_button.dart';
 
-/// First screen without a session: the wordmark, one value line and the two
-/// ways in. No carousel, nothing to swipe.
+/// First screen without a session: the mark, the wordmark and the two ways
+/// in. No carousel, nothing to swipe.
 class WelcomeScreen extends StatelessWidget {
   const WelcomeScreen({super.key});
-
-  static const String valueLine =
-      "The day's stories, read the way you like — and a place to write your own.";
 
   @override
   Widget build(BuildContext context) {
@@ -35,12 +32,6 @@ class WelcomeScreen extends StatelessWidget {
                 'Headline\nNews',
                 textAlign: TextAlign.center,
                 style: AppTypography.wordmark.copyWith(color: palette.ink),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Text(
-                valueLine,
-                textAlign: TextAlign.center,
-                style: AppTypography.valueLine.copyWith(color: palette.inkBody),
               ),
               const Spacer(flex: 2),
               PrimaryButton(label: 'Sign in', onPressed: context.goToSignIn),

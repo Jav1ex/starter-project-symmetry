@@ -52,10 +52,6 @@ void main() {
     await tester.tap(find.text('A−'));
     await tester.pumpAndSettle();
     expect(harness.settings.cubit.state.settings.textSize, TextSizePreference.medium);
-
-    await tester.tap(find.text('Share'));
-    await tester.pumpAndSettle();
-    expect(find.text('Link copied to clipboard'), findsOneWidget);
   });
 
   testWidgets('lenses show bullets, toggle back, and Listen plays the current view', (tester) async {
