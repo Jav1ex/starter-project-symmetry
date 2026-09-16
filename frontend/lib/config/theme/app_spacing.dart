@@ -19,20 +19,6 @@ abstract final class AppSpacing {
   static const double cardPadding = 16;
 }
 
-/// The system has no rounded corners: every value is zero and kept only so
-/// call sites read as intent ("this is a card") rather than as a number.
-abstract final class AppRadius {
-  static const double field = 0;
-  static const double thumb = 0;
-  static const double card = 0;
-  static const double briefCard = 0;
-  static const double dialog = 0;
-  static const double fab = 0;
-  static const double navIndicator = 0;
-  static const double badge = 0;
-  static const double pill = 0;
-}
-
 /// Rule weights: the page is structured by lines, not by shadows.
 abstract final class AppRules {
   static const double strong = 2;
@@ -44,7 +30,6 @@ abstract final class AppRules {
 
 abstract final class AppSizes {
   static const double touchTarget = 48;
-  static const double field = 52;
   static const double button = 52;
   static const double tertiaryButton = 48;
   static const double inCardButton = 44;

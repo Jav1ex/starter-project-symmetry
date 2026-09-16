@@ -25,17 +25,15 @@ class SkeletonArea extends StatelessWidget {
   }
 }
 
-/// A single rounded bone. Geometry should mirror the real widget it stands for.
+/// A single square bone. Geometry should mirror the real widget it stands for.
 class SkeletonBox extends StatelessWidget {
   final double? width;
   final double height;
-  final double borderRadius;
 
   const SkeletonBox({
     super.key,
     this.width,
     required this.height,
-    this.borderRadius = 0,
   });
 
   @override
@@ -43,10 +41,7 @@ class SkeletonBox extends StatelessWidget {
     return Container(
       width: width,
       height: height,
-      decoration: BoxDecoration(
-        color: context.palette.skeletonBone,
-        borderRadius: BorderRadius.circular(borderRadius),
-      ),
+      color: context.palette.skeletonBone,
     );
   }
 }

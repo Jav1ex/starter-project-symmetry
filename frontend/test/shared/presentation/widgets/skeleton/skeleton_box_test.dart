@@ -13,7 +13,7 @@ void main() {
 
     expect(tester.getSize(find.byType(SkeletonBox)), const Size(120, 16));
     final container = tester.widget<Container>(find.byType(Container));
-    expect((container.decoration as BoxDecoration).color, AppPalette.light.skeletonBone);
+    expect(container.color, AppPalette.light.skeletonBone);
   });
 
   testWidgets('SkeletonArea shimmers by default', (tester) async {
