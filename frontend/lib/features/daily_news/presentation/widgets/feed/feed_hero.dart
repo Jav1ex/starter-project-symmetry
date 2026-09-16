@@ -45,9 +45,9 @@ class FeedHero extends StatelessWidget {
                               imageUrl: article.imageUrl!,
                               fit: BoxFit.cover,
                               placeholder: (_, _) => ColoredBox(color: palette.skeletonBone),
-                              errorWidget: (_, _, _) => const HatchedPlate(pitch: 9),
+                              errorWidget: (_, _, _) => _Plate(article: article),
                             )
-                          : const HatchedPlate(pitch: 9),
+                          : _Plate(article: article),
                     ),
                     Positioned(
                       left: 0,
@@ -91,6 +91,23 @@ class FeedHero extends StatelessWidget {
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _Plate extends StatelessWidget {
+  final ArticleEntity article;
+
+  const _Plate({required this.article});
+
+  @override
+  Widget build(BuildContext context) {
+    return HatchedPlate(
+      pitch: 9,
+      child: Text(
+        article.category.label[0].toUpperCase(),
+        style: AppTypography.glyph(110, weight: FontWeight.w900).copyWith(color: context.palette.ink.withValues(alpha: 0.35)),
       ),
     );
   }

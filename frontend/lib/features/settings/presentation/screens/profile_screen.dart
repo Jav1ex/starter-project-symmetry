@@ -43,7 +43,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       body: SafeArea(
         bottom: false,
         child: ListView(
-          padding: EdgeInsets.only(bottom: AppSizes.bottomBar + bottomInset + AppSpacing.xxl),
+          padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.xxl),
           children: [
             Padding(
               padding: const EdgeInsets.fromLTRB(AppSpacing.screenMargin, AppSpacing.lg, AppSpacing.screenMargin, AppSpacing.lg),

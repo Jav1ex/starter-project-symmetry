@@ -38,7 +38,7 @@ class SearchIdleView extends StatelessWidget {
     final sections = NewsCategory.values.where((c) => c != NewsCategory.general).toList();
     final bottomInset = MediaQuery.paddingOf(context).bottom;
     return ListView(
-      padding: EdgeInsets.only(bottom: AppSizes.bottomBar + bottomInset + AppSpacing.xxl),
+      padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.xxl),
       children: [
         if (recent.isNotEmpty) ...[
           Container(

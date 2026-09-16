@@ -84,6 +84,7 @@ class _Destination extends StatelessWidget {
       child: InkWell(
         onTap: onTap,
         child: Stack(
+          fit: StackFit.expand,
           children: [
             Positioned(
               top: 0,
@@ -99,6 +100,7 @@ class _Destination extends StatelessWidget {
               padding: EdgeInsets.only(top: AppSpacing.md, bottom: bottomInset),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Icon(selected ? item.activeIcon : item.icon, size: 22, color: color),
                   const SizedBox(height: 6),

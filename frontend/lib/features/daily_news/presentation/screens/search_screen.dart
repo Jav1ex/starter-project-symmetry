@@ -125,7 +125,7 @@ class _SearchViewState extends State<SearchView> {
           message: 'Check the spelling, or try a shorter word.',
         ),
       SearchStatus.results => ListView(
-          padding: EdgeInsets.only(bottom: AppSizes.bottomBar + bottomInset + AppSpacing.xxl),
+          padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.xxl),
           children: [
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenMargin, vertical: 12),

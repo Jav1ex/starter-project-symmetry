@@ -81,7 +81,7 @@ class _SavedScreenState extends State<SavedScreen> {
                             border: Border(top: BorderSide(color: palette.outlineStrong, width: AppRules.strong)),
                           ),
                           child: ListView.separated(
-                            padding: EdgeInsets.only(bottom: AppSizes.bottomBar + bottomInset + AppSpacing.xxl),
+                            padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.xxl),
                             itemCount: state.articles.length,
                             separatorBuilder: (_, _) => const Divider(),
                             itemBuilder: (context, index) {

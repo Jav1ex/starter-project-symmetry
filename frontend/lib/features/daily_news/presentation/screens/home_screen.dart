@@ -70,11 +70,16 @@ class _HomeViewState extends State<HomeView> {
     super.dispose();
   }
 
-  bool _onScroll(UserScrollNotification notification) {
-    _scrollDirection.value = switch (notification.direction) {
-      ScrollDirection.reverse => FeedScrollDirection.down,
-      ScrollDirection.forward => FeedScrollDirection.up,
-      ScrollDirection.idle => FeedScrollDirection.idle,
+  /// Every movement hides the Write block; the end of the scroll (or an idle
+  /// user) lets it come back.
+  bool _onScroll(ScrollNotification notification) {
+    if (notification.depth != 0) return false;
+    _scrollDirection.value = switch (notification) {
+      ScrollUpdateNotification(:final scrollDelta?) when scrollDelta > 0 => FeedScrollDirection.down,
+      ScrollUpdateNotification(:final scrollDelta?) when scrollDelta < 0 => FeedScrollDirection.up,
+      ScrollEndNotification() => FeedScrollDirection.idle,
+      UserScrollNotification(direction: ScrollDirection.idle) => FeedScrollDirection.idle,
+      _ => _scrollDirection.value,
     };
     return false;
   }
@@ -89,7 +94,7 @@ class _HomeViewState extends State<HomeView> {
           context.read<FeedCubit>().load(HomeScreen.queryOf(state.settings)),
       child: Scaffold(
         floatingActionButton: Padding(
-          padding: EdgeInsets.only(bottom: AppSizes.bottomBar + bottomInset),
+          padding: EdgeInsets.only(bottom: bottomInset - MediaQuery.viewPaddingOf(context).bottom),
           child: ShrinkingWriteFab(
             onPressed: () => context.pushPublish(),
             scrollDirection: _scrollDirection,
@@ -102,7 +107,7 @@ class _HomeViewState extends State<HomeView> {
               await context.read<FeedCubit>().refresh();
               if (context.mounted) showAppSnackBar(context, 'Feed updated');
             },
-            child: NotificationListener<UserScrollNotification>(
+            child: NotificationListener<ScrollNotification>(
               onNotification: _onScroll,
               child: CustomScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
@@ -137,7 +142,7 @@ class _HomeViewState extends State<HomeView> {
                     ),
                   ),
                   const _FeedBody(),
-                  SliverPadding(padding: EdgeInsets.only(bottom: AppSizes.bottomBar + bottomInset + AppSpacing.huge)),
+                  SliverPadding(padding: EdgeInsets.only(bottom: bottomInset + AppSpacing.huge)),
                 ],
               ),
             ),

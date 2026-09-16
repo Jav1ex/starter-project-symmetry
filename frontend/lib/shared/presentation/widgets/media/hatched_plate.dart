@@ -49,6 +49,8 @@ class _HatchPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
+    // CustomPaint does not clip: without this the strokes run past the plate.
+    canvas.clipRect(Offset.zero & size);
     final paint = Paint()
       ..color = color
       ..strokeWidth = 1.5;
